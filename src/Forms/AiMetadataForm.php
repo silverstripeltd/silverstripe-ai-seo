@@ -1,0 +1,558 @@
+<?php
+
+namespace SilverstripeLtd\AiMetadata\Forms;
+
+use SilverstripeLtd\AiMetadata\Controllers\AiMetadataController;
+use SilverstripeLtd\AiMetadata\Models\GeneratedMetadata;
+use SilverstripeLtd\AiMetadata\Services\AiMetadataStateService;
+use SilverstripeLtd\AiMetadata\Services\JsonLdService;
+use SilverStripe\CMS\Model\SiteTree;
+use SilverStripe\Core\Convert;
+use SilverStripe\Core\Environment;
+use SilverStripe\Core\Injector\Injector;
+use SilverStripe\Forms\CheckboxField;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\Form;
+use SilverStripe\Forms\FormAction;
+use SilverStripe\Forms\HeaderField;
+use SilverStripe\Forms\HiddenField;
+use SilverStripe\Forms\LiteralField;
+use SilverStripe\Forms\ToggleCompositeField;
+use SilverStripe\Forms\TextareaField;
+use SilverStripe\Forms\TextField;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\FieldType\DBDatetime;
+use SilverStripe\Versioned\Versioned;
+use SilverStripe\View\HTML;
+
+/**
+ * Build the AI metadata form schema.
+ */
+class AiMetadataForm extends Form
+{
+    private const DEFAULT_META_DESCRIPTION_MAX = 150;
+    private const ENV_META_DESCRIPTION_MAX = 'AI_MODULE_META_DESCRIPTION_MAX';
+
+    /**
+     * Build the AI metadata form for a record.
+     */
+    public static function createForRecord(
+        AiMetadataController $controller,
+        DataObject $record,
+        GeneratedMetadata $metadata,
+        string $errorMessage = '',
+        bool $hasUnpublishedChanges = false
+    ): self {
+        $reviewConfirmed = self::isReviewConfirmed($metadata);
+        $fields = self::buildFields($record, $metadata, $errorMessage, $reviewConfirmed, $hasUnpublishedChanges);
+        $actions = self::buildActions($metadata);
+        $name = sprintf(AiMetadataController::FORM_NAME_TEMPLATE, $record->ID);
+
+        /** @var self $form */
+        $form = self::create($controller, $name, $fields, $actions);
+        $form->setFormAction($controller->Link(sprintf(
+            'aiMetadataForm/%d?fqcn=%s',
+            $record->ID,
+            rawurlencode($record->ClassName)
+        )));
+        $form->addExtraClass('form--no-dividers');
+        $form->loadDataFrom($metadata);
+        $form->loadDataFrom([
+            'KeyEntities' => $metadata->KeyEntities,
+            'KeyTopics' => $metadata->KeyTopics,
+            'SuggestedFAQs' => $metadata->SuggestedFAQs,
+            'ContentHash' => $metadata->ContentHash,
+            'GeneratedAt' => $metadata->GeneratedAt,
+            'ReviewedAt' => $metadata->ReviewedAt,
+            'GenerationNote' => $metadata->GenerationNote,
+            'ReviewConfirmed' => $reviewConfirmed ? 1 : 0,
+        ]);
+
+        return $form;
+    }
+
+    /**
+     * Determine whether metadata is stale against the current record.
+     */
+    public static function isStale(DataObject $record, GeneratedMetadata $metadata): bool
+    {
+        if (!$metadata->ContentHash) {
+            return false;
+        }
+
+        $stateService = Injector::inst()->get(AiMetadataStateService::class);
+        $state = $stateService->getState($record, $metadata);
+        return $state['stale'];
+    }
+
+    /**
+     * Build the AI metadata form fields with optional error messaging.
+     */
+    private static function buildFields(
+        DataObject $record,
+        GeneratedMetadata $metadata,
+        string $errorMessage,
+        bool $reviewConfirmed,
+        bool $hasUnpublishedChanges
+    ): FieldList {
+        $fields = FieldList::create();
+
+        $banner = self::buildStatusBanner($record, $metadata, $errorMessage, $hasUnpublishedChanges);
+        if ($banner !== '') {
+            $fields->push(LiteralField::create('AiMetadataStatus', $banner));
+        }
+
+        $keyTopicsDisplay = self::renderKeyTopics($metadata->KeyTopics);
+        $fields->push(HeaderField::create(
+            'AiMetadataKeyTopicsHeader',
+            'Key topics (Helps judge if generated metadata is on track - not shown on frontend)',
+            4
+        ));
+        $fields->push(LiteralField::create('KeyTopicsDisplay', $keyTopicsDisplay));
+        $fields->push(HiddenField::create('KeyTopics', '', $metadata->KeyTopics));
+
+        $fields->push(TextField::create(
+            'MetaDescription',
+            'Meta description (meta tag)'
+        )->setDescription(self::buildLengthHint(
+            'MetaDescription',
+            (string)$metadata->MetaDescription,
+            self::getMetaDescriptionMax()
+        )));
+        $fields->push(TextField::create(
+            'OGTitle',
+            'OG title (meta tag + JSON-LD)'
+        ));
+        $fields->push(TextField::create(
+            'OGDescription',
+            'OG description (meta tag)'
+        ));
+        $fields->push(TextareaField::create(
+            'SummaryLong',
+            'Summary - long form (JSON-LD + /llms.txt)'
+        )
+            ->setRows(6));
+
+        $readonlyFields = FieldList::create(
+            HeaderField::create(
+                'AiMetadataKeyEntitiesHeader',
+                'Key entities (JSON-LD)',
+                4
+            ),
+            LiteralField::create('KeyEntitiesDisplay', self::renderKeyEntities($metadata->KeyEntities)),
+            HiddenField::create('KeyEntities', '', $metadata->KeyEntities),
+            HeaderField::create(
+                'AiMetadataSuggestedFaqsHeader',
+                'Suggested FAQs (JSON-LD)',
+                4
+            ),
+            LiteralField::create('SuggestedFAQsDisplay', self::renderFaqs($metadata->SuggestedFAQs)),
+            HiddenField::create('SuggestedFAQs', '', $metadata->SuggestedFAQs),
+            HeaderField::create(
+                'AiMetadataJsonLdHeader',
+                'JSON-LD preview',
+                4
+            ),
+            LiteralField::create('JsonLdSchemaDisplay', self::renderJsonLd($record, $metadata))
+        );
+        $readonlyToggle = ToggleCompositeField::create(
+            'AiMetadataGeneratedInfo',
+            'Generated details',
+            $readonlyFields
+        );
+        $readonlyToggle->setStartClosed(true);
+        $readonlyToggle->setHeadingLevel(4);
+        $readonlyToggle->setSchemaComponent('ToggleCompositeField');
+        $readonlyToggle->addExtraClass('ss-toggle ss-toggle-start-closed ai-metadata-modal__readonly');
+        $readonlySchemaData = $readonlyToggle->getSchemaData();
+        $readonlyToggle->setSchemaData([
+            'data' => array_merge($readonlySchemaData['data'] ?? [], [
+                'headingLevel' => $readonlyToggle->getHeadingLevel(),
+            ]),
+        ]);
+        $fields->push($readonlyToggle);
+
+        $reviewLabel = $reviewConfirmed ? 'Metadata was reviewed' : 'I have reviewed the AI metadata';
+        $fields->push(CheckboxField::create('ReviewConfirmed', $reviewLabel)
+            ->setValue($reviewConfirmed ? 1 : 0));
+
+        $fields->push(HiddenField::create('ContentHash', '', $metadata->ContentHash));
+        $fields->push(HiddenField::create('GeneratedAt', '', $metadata->GeneratedAt));
+        $fields->push(HiddenField::create('ReviewedAt', '', $metadata->ReviewedAt));
+        $fields->push(HiddenField::create('GenerationNote', '', $metadata->GenerationNote));
+
+        return $fields;
+    }
+
+    /**
+     * Build the AI metadata form actions.
+     */
+    private static function buildActions(GeneratedMetadata $metadata): FieldList
+    {
+        $regenerateLabel = $metadata->GeneratedAt
+            ? 'Regenerate metadata using AI'
+            : 'Generate metadata using AI';
+        $reviewRequired = self::isReviewRequired($metadata);
+
+        // Non-submitting form action to trigger regeneration via XHR.
+        $regenerateAction = FormAction::create('doRegenerate', $regenerateLabel)
+            ->setSchemaData(['data' => ['buttonStyle' => 'warning']]);
+
+        $actions = [];
+        if ($reviewRequired) {
+            $actions[] = LiteralField::create(
+                'AiMetadataSubmitNote',
+                HTML::createTag(
+                    'p',
+                    ['class' => 'ai-metadata-modal__submit-note'],
+                    Convert::raw2xml(
+                        'Check the "I have reviewed the AI metadata" checkbox, then click Submit.'
+                        . ' Metadata will go live when the page is next published.'
+                    )
+                )
+            );
+        }
+        $actions[] = FormAction::create('doSave', 'Submit')
+            ->setSchemaData(['data' => ['buttonStyle' => 'primary']])
+            ->setAttribute('tabindex', '-1');
+        $actions[] = $regenerateAction;
+
+        return FieldList::create(...$actions);
+    }
+
+    /**
+     * Determine whether metadata can be considered reviewed.
+     */
+    private static function isReviewConfirmed(GeneratedMetadata $metadata): bool
+    {
+        return $metadata->isReviewed();
+    }
+
+    /**
+     * Determine whether metadata still requires review.
+     */
+    private static function isReviewRequired(GeneratedMetadata $metadata): bool
+    {
+        if (!$metadata->GeneratedAt) {
+            return false;
+        }
+        return !$metadata->isReviewed();
+    }
+
+    /**
+     * Build the status banner HTML for metadata state and errors.
+     */
+    private static function buildStatusBanner(
+        DataObject $record,
+        GeneratedMetadata $metadata,
+        string $errorMessage,
+        bool $hasUnpublishedChanges
+    ): string {
+        $items = [];
+
+        if ($errorMessage !== '') {
+            $items[] = HTML::createTag(
+                'div',
+                ['class' => 'ai-metadata-modal__banner ai-metadata-modal__banner--error'],
+                Convert::raw2xml($errorMessage)
+            );
+        }
+
+        $items[] = self::buildGenerationStatusBanner($metadata);
+
+        if (self::isStale($record, $metadata)) {
+            $items[] = HTML::createTag(
+                'div',
+                ['class' => 'ai-metadata-modal__banner ai-metadata-modal__banner--stale'],
+                'Page content has changed since metadata was generated.'
+                . ' To regenerate, click the "Regenerate metadata using AI" button.'
+            );
+        }
+
+        if ($hasUnpublishedChanges) {
+            $items[] = HTML::createTag(
+                'div',
+                ['class' => 'ai-metadata-modal__banner ai-metadata-modal__banner--info'],
+                'This page has unpublished changes. AI metadata reflects the draft content'
+                . ' and will go live when the page is published.'
+            );
+        }
+
+        return implode('', $items);
+    }
+
+    /**
+     * Build the generation status banner for the current metadata state.
+     */
+    private static function buildGenerationStatusBanner(GeneratedMetadata $metadata): string
+    {
+        if (!$metadata->GeneratedAt) {
+            return HTML::createTag(
+                'div',
+                ['class' => 'ai-metadata-modal__banner ai-metadata-modal__banner--status-never'],
+                'No AI metadata yet.'
+            );
+        }
+
+        $timestamp = self::buildGeneratedTimestamp($metadata);
+
+        if (!$metadata->isReviewed()) {
+            return HTML::createTag(
+                'div',
+                ['class' => 'ai-metadata-modal__banner ai-metadata-modal__banner--status-review'],
+                sprintf('AI metadata ready for review. Last generated: %s', $timestamp)
+            );
+        }
+
+        $statusNote = self::buildVersionedStatusNote($metadata);
+        $message = sprintf('AI metadata reviewed and saved. Last generated: %s', $timestamp);
+        if ($statusNote !== '') {
+            $message .= ' ' . $statusNote;
+        }
+        return HTML::createTag(
+            'div',
+            ['class' => 'ai-metadata-modal__banner ai-metadata-modal__banner--status-reviewed'],
+            $message
+        );
+    }
+
+    /**
+     * Build the formatted timestamp markup for banner output.
+     */
+    private static function buildGeneratedTimestamp(GeneratedMetadata $metadata): string
+    {
+        $raw = (string)$metadata->GeneratedAt;
+        $field = DBDatetime::create();
+        $field->setValue($raw);
+        $formatted = Convert::raw2xml($field->Nice());
+        return HTML::createTag(
+            'span',
+            [
+                'class' => 'ai-metadata-modal__timestamp',
+                'data-ai-metadata-timestamp' => Convert::raw2att($raw),
+            ],
+            $formatted
+        );
+    }
+
+    /**
+     * Build the draft/published status note for versioned metadata.
+     */
+    private static function buildVersionedStatusNote(GeneratedMetadata $metadata): string
+    {
+        if (!$metadata->exists() || !$metadata->hasExtension(Versioned::class)) {
+            return '';
+        }
+
+        if ($metadata->isOnDraftOnly()) {
+            return 'Status: Draft only (not published yet).';
+        }
+        if ($metadata->isModifiedOnDraft()) {
+            return 'Status: Draft changes not published.';
+        }
+        if ($metadata->isPublished()) {
+            return 'Status: Published.';
+        }
+
+        return '';
+    }
+
+    /**
+     * Render key entities as HTML.
+     */
+    private static function renderKeyEntities(?string $value): string
+    {
+        $decoded = self::decodeJsonArray($value);
+        if (!$decoded) {
+            return self::renderFallback($value);
+        }
+
+        $items = [];
+        foreach ($decoded as $entity) {
+            if (!is_array($entity)) {
+                continue;
+            }
+            $type = Convert::raw2xml($entity['type'] ?? 'Entity');
+            $name = Convert::raw2xml($entity['name'] ?? 'Unknown');
+            $sameAs = '';
+            if (!empty($entity['sameAs'])) {
+                $sameAs = sprintf(' (%s)', Convert::raw2xml($entity['sameAs']));
+            }
+            $items[] = HTML::createTag('li', [], sprintf('<strong>%s:</strong> %s%s', $type, $name, $sameAs));
+        }
+
+        if (!$items) {
+            return self::renderFallback($value);
+        }
+
+        return self::wrapDetailValue(HTML::createTag('ul', [], implode('', $items)));
+    }
+
+    /**
+     * Render key topics as comma-separated text.
+     */
+    private static function renderKeyTopics(?string $value): string
+    {
+        $text = is_string($value) ? trim($value) : '';
+        if ($text === '') {
+            return self::renderMutedMessage('None');
+        }
+
+        // Handle legacy JSON array format from before comma-separated change.
+        $decoded = json_decode($text, true);
+        if (is_array($decoded)) {
+            $text = implode(', ', array_map('trim', array_filter(array_map('strval', $decoded))));
+        }
+
+        if ($text === '') {
+            return self::renderMutedMessage('None');
+        }
+
+        return self::wrapDetailValue(HTML::createTag('p', [], Convert::raw2xml($text)));
+    }
+
+    /**
+     * Render suggested FAQs as HTML.
+     */
+    private static function renderFaqs(?string $value): string
+    {
+        $decoded = self::decodeJsonArray($value);
+        if (!$decoded) {
+            return self::renderFallback($value);
+        }
+
+        $items = [];
+        foreach ($decoded as $faq) {
+            if (!is_array($faq)) {
+                continue;
+            }
+            $question = Convert::raw2xml($faq['question'] ?? 'Question');
+            $answer = Convert::raw2xml($faq['answer'] ?? 'Answer');
+            $items[] = HTML::createTag('li', [], sprintf('<strong>%s:</strong> %s', $question, $answer));
+        }
+
+        if (!$items) {
+            return self::renderFallback($value);
+        }
+
+        return self::wrapDetailValue(HTML::createTag('ul', [], implode('', $items)));
+    }
+
+    /**
+     * Render the JSON-LD preview for the record.
+     */
+    private static function renderJsonLd(DataObject $record, GeneratedMetadata $metadata): string
+    {
+        if (!$record instanceof SiteTree) {
+            return self::renderMutedMessage('Not available', false);
+        }
+
+        $jsonLdService = Injector::inst()->get(JsonLdService::class);
+        $payload = $jsonLdService->generateJsonLd($record, $metadata);
+        if (!$payload) {
+            return self::renderMutedMessage('Not available', false);
+        }
+
+        $decoded = json_decode($payload, true);
+        $pretty = is_array($decoded)
+            ? json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+            : $payload;
+
+        return HTML::createTag(
+            'pre',
+            ['class' => 'ai-metadata-modal__json'],
+            Convert::raw2xml($pretty)
+        );
+    }
+
+    /**
+     * Build a length hint element for a field.
+     */
+    private static function buildLengthHint(string $fieldName, string $value, int $max): string
+    {
+        $length = strlen($value);
+        $classes = 'ai-metadata-modal__help';
+        if ($length > $max) {
+            $classes .= ' text-primary';
+        }
+
+        return HTML::createTag(
+            'div',
+            [
+                'class' => $classes,
+                'data-ai-metadata-count' => $fieldName,
+                'data-ai-metadata-max' => (string)$max,
+            ],
+            sprintf('Recommended max %d characters. Current: %d', $max, $length)
+        );
+    }
+
+    /**
+     * Resolve the recommended meta description length.
+     */
+    private static function getMetaDescriptionMax(): int
+    {
+        $env = Environment::getEnv(self::ENV_META_DESCRIPTION_MAX);
+        if ($env !== null && $env !== '') {
+            $max = (int)$env;
+            if ($max > 0) {
+                return $max;
+            }
+        }
+
+        return self::DEFAULT_META_DESCRIPTION_MAX;
+    }
+
+    /**
+     * Render a fallback display for empty JSON fields.
+     */
+    private static function renderFallback(?string $value): string
+    {
+        if (is_string($value) && trim($value) !== '') {
+            return self::wrapDetailValue(HTML::createTag(
+                'pre',
+                ['class' => 'ai-metadata-modal__json'],
+                Convert::raw2xml($value)
+            ));
+        }
+
+        return self::renderMutedMessage('None');
+    }
+
+    /**
+     * Render muted helper text.
+     */
+    private static function renderMutedMessage(string $message, bool $wrap = true): string
+    {
+        $content = HTML::createTag(
+            'p',
+            ['class' => 'text-muted'],
+            Convert::raw2xml($message)
+        );
+
+        return $wrap ? self::wrapDetailValue($content) : $content;
+    }
+
+    /**
+     * Wrap detail values with consistent indentation.
+     */
+    private static function wrapDetailValue(string $content): string
+    {
+        return HTML::createTag('div', ['class' => 'ai-metadata-modal__detail-value'], $content);
+    }
+
+    /**
+     * Decode a JSON array string into a PHP array.
+     *
+     * @return array<int, mixed>
+     */
+    private static function decodeJsonArray(?string $value): array
+    {
+        if (!$value) {
+            return [];
+        }
+
+        $decoded = json_decode($value, true);
+        return is_array($decoded) ? $decoded : [];
+    }
+}

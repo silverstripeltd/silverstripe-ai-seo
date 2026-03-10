@@ -1,0 +1,47 @@
+DNADesign\Elemental\Models\ElementalArea:
+  aiMetadataBlocksAreaCouncil:
+    Title: AI Metadata Blocks Area - Council
+  aiMetadataBlocksAreaFinance:
+    Title: AI Metadata Blocks Area - Finance
+
+DNADesign\Elemental\Models\ElementContent:
+  aiBlocksAreaCouncilBlockOne:
+    Title: Waste and Recycling Collection Updates
+    HTML: '<p>Find weekly rubbish and recycling collection details, including public holiday changes and missed bin reporting. The council is rolling out new food scraps bins in selected suburbs to reduce landfill volume and improve diversion rates.</p><p>Use the online address look-up to confirm your street schedule, request a new bin, or book a bulky-item collection. If your bin was missed, submit a report before 4pm for next day follow-up where possible.</p>'
+    Sort: 1
+    ParentID: =>DNADesign\Elemental\Models\ElementalArea.aiMetadataBlocksAreaCouncil
+  aiBlocksAreaCouncilBlockTwo:
+    Title: Roadworks, Closures, and Community Notices
+    HTML: '<p>See planned maintenance, temporary traffic management, and night works across the district. Major projects are coordinated with utilities to minimise repeated disruption and to keep emergency routes available.</p><p>Subscribe to email alerts for your neighbourhood, view detour maps, and check the latest status before travelling. Community notices also include library hours, park upgrades, and consultation dates for the annual plan.</p>'
+    Sort: 2
+    ParentID: =>DNADesign\Elemental\Models\ElementalArea.aiMetadataBlocksAreaCouncil
+  aiBlocksAreaFinanceBlockOne:
+    Title: Investor Updates and Quarterly Performance
+    HTML: '<p>Review headline metrics, revenue drivers, and operating cost movements for the latest quarter. Commentary focuses on margin stability, customer retention, and the impact of interest rate changes on lending and deposit volumes.</p><p>Download the presentation pack, read the management discussion, and compare results against guidance ranges. Historic reports and key policies are available for analysts who need consistent period-over-period context.</p>'
+    Sort: 1
+    ParentID: =>DNADesign\Elemental\Models\ElementalArea.aiMetadataBlocksAreaFinance
+  aiBlocksAreaFinanceBlockTwo:
+    Title: Risk, Compliance, and Customer Protections
+    HTML: '<p>Learn how the organisation manages credit, liquidity, and operational risks through monitoring, stress testing, and governance controls. Compliance updates cover regulatory changes, privacy obligations, and the approach to handling complaints.</p><p>Customer protections include fraud prevention guidance, secure authentication tips, and clear fee disclosures. If you suspect a scam, follow the step-by-step response checklist and contact the support team immediately.</p>'
+    Sort: 2
+    ParentID: =>DNADesign\Elemental\Models\ElementalArea.aiMetadataBlocksAreaFinance
+
+SilverstripeLtd\AiMetadata\Models\AiPage:
+  aiMetadataPageSciFi:
+    Title: AI Metadata Test - Sci-Fi Spaceport Briefing
+    Content: '<h2>Docking procedures and traffic windows</h2><p>The Port Authority publishes a rolling schedule for inbound shuttles, cargo tugs, and orbital ferries. Pilots file approach vectors two hours before arrival, then receive a slot assignment that balances refuelling bay capacity with customs throughput. Automated beacons verify hull IDs and transmit a short manifest summary for inspection.</p><p>Maintenance crews prioritise life support checks, micrometeor scoring repairs, and software patch verification on navigation systems. For long-haul vessels, the port offers cryo pod diagnostics and radiation badge processing for crew rotation.</p><h2>Operations notes</h2><p>Delays are most common during debris field sweeps after unscheduled burn events. When the perimeter net is active, arrivals are staged in a holding orbit and departure windows are shifted to reduce collision risk.</p>'
+    MetaDescription: A sci-fi briefing page describing spaceport operations, docking procedures, and traffic management.
+  aiMetadataPageFantasy:
+    Title: AI Metadata Test - Fantasy Guild Charter
+    Content: '<h2>Membership and oaths</h2><p>The Guild welcomes apprentice mages, rangers, and craftfolk who agree to the charter and complete a supervised trial. New members swear to protect travellers, respect the old forests, and uphold fair trade in the market towns. In return, the Guild provides lodging, instruction, and access to the archive of maps and spellwork.</p><p>Journeymen earn their badge by completing three commissions: one rescue, one escort, and one investigation. Masters may sponsor novices and are responsible for mediating disputes before they reach the council of elders.</p><h2>Codes and customs</h2><p>Contracts are recorded by scribe and sealed with wax to prevent tampering. Treasure claims are split by a simple rule: tools are returned to their owners, debts are paid first, and the remainder is divided by risk and contribution.</p>'
+    MetaDescription: A fantasy guild charter covering membership rules, contracts, and codes of conduct.
+
+SilverstripeLtd\AiMetadata\Models\AiBlocksPage:
+  aiMetadataBlocksPageCouncil:
+    Title: AI Metadata Blocks - Local Council Services
+    ElementalAreaID: =>DNADesign\Elemental\Models\ElementalArea.aiMetadataBlocksAreaCouncil
+    MetaDescription: Local council service updates including waste collection, roadworks, and community notices.
+  aiMetadataBlocksPageFinance:
+    Title: AI Metadata Blocks - Financial Services Updates
+    ElementalAreaID: =>DNADesign\Elemental\Models\ElementalArea.aiMetadataBlocksAreaFinance
+    MetaDescription: Financial services content including performance updates, risk management, and customer protections.

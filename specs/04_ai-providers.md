@@ -1,0 +1,94 @@
+# AI Providers
+
+## Providers
+
+- **Gemini** — primary provider (default)
+- **OpenAI** — Chat Completions API provider
+- **Anthropic** — Messages API provider
+- **Custom providers** — the built-in factory supports `gemini`, `openai`, and `anthropic` only. To use a custom provider, projects must override the factory via Silverstripe's Injector.
+
+Gemini requests call the v1beta `generateContent` endpoint and include `thinkingConfig.thinkingLevel` when `AI_MODULE_THINKING_LEVEL` is not `none`.
+
+## Provider selection
+
+- One active provider at a time
+- Switching provider should be straightforward (designed for single active provider, not multi-provider routing)
+- Selected via environment variable `AI_MODULE_PROVIDER` (default: `gemini`)
+
+## Provider base class
+
+All providers extend `AbstractAIProvider`, which supplies `generateMetadata()` and shared error handling:
+
+```php
+abstract class AbstractAIProvider
+{
+    /**
+     * Generate all metadata fields for the given content.
+     *
+     * @param string $content The extracted page content (plain text)
+     * @param string $pageTitle The page title for context
+     * @param string $pageUrl The page URL for context
+     * @return AiMetadataResult Object containing all generated field values
+     * @throws AIProviderException On unrecoverable failure
+     */
+    public function generateMetadata(string $content, string $pageTitle, string $pageUrl): AiMetadataResult;
+}
+```
+
+Concrete providers implement the protected request hooks (`performRequest`, `extractResponseContent`, `isTransientStatus`, and `getDefaultModel`) defined by `AbstractAIProvider`.
+HTTP requests are made with Guzzle (bundled with Silverstripe framework) and respect the configured timeouts.
+
+### Generation approach
+
+- **Single API call** generates all metadata fields at once
+- The prompt asks the AI to return a JSON object with keys matching the metadata field names
+- The provider parses the JSON response and returns an `AiMetadataResult` value object
+- If the AI response is malformed or missing fields, the provider throws `AIProviderException`
+
+### AiMetadataResult value object
+
+A simple value object with nullable typed properties for each metadata field:
+
+```php
+class AiMetadataResult
+{
+    public ?string $metaDescription;
+    public ?string $ogTitle;
+    public ?string $ogDescription;
+    public ?string $summaryLong;
+    public ?array $keyEntities;    // decoded JSON array
+    public ?array $keyTopics;      // decoded JSON array
+    public ?array $suggestedFAQs;  // decoded JSON array
+}
+```
+
+### Error handling
+
+- **Transient failures** (network timeout, rate limit, 5xx): Throw `AIProviderException` immediately (no retry).
+- **Permanent failures** (invalid API key, 4xx non-rate-limit): Throw `AIProviderException` immediately.
+- **Malformed response** (AI returns invalid JSON, missing required keys): Throw `AIProviderException`.
+- **Callers** (CMS controller, background job) catch `AIProviderException` and handle appropriately — toast notification for CMS, log-and-skip for background job, with blocking failures (e.g. missing/invalid API key) aborting the job.
+
+### Request timeout
+
+- Default timeout: 15 seconds per API call
+- Configurable via environment variable `AI_MODULE_REQUEST_TIMEOUT` (seconds)
+
+## Configuration
+
+All configuration via environment variables (see `docs/03_human-context.md` for why env vars are preferred):
+
+| Environment variable | Description | Default |
+|---|---|---|
+| `AI_MODULE_PROVIDER` | Active provider (`gemini`, `openai`, `anthropic`) | `gemini` |
+| `AI_MODULE_API_KEY` | API key for the active provider | (required) |
+| `AI_MODULE_MODEL` | Model to use (e.g. `gemini-3.1-flash-lite-preview`, `gpt-4.1`) | Provider-specific default |
+| `AI_MODULE_THINKING_LEVEL` | Thinking level (`none`, `low`, `medium`, `high`) used by Gemini `thinkingConfig` | `low` |
+| `AI_MODULE_TEMPERATURE` | Temperature for generation | `1.0` |
+| `AI_MODULE_MAX_TOKENS` | Max tokens in response | `2000` |
+| `AI_MODULE_REQUEST_TIMEOUT` | Request timeout in seconds | `15` |
+| `AI_MODULE_RATE_LIMIT_DELAY` | Delay in seconds between API calls (for background job) | `6` |
+
+### Overriding in project code
+
+Provider defaults (model, thinking level, etc.) can also be overridden via Silverstripe YAML config on the provider class, for cases where env vars aren't suitable. Env vars take precedence over YAML config.

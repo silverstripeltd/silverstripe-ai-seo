@@ -1,0 +1,26 @@
+---
+Name: ai-metadata
+---
+SilverStripe\CMS\Model\SiteTree:
+  extensions:
+    - SilverstripeLtd\AiMetadata\Extensions\AiMetadataExtension
+
+SilverstripeLtd\AiMetadata\Models\GeneratedMetadata:
+  extensions:
+    - SilverStripe\Versioned\Versioned
+
+SilverstripeLtd\AiMetadata\Models\AiBlocksPage:
+  extensions:
+    - DNADesign\Elemental\Extensions\ElementalPageExtension
+
+SilverStripe\Control\Director:
+  rules:
+    'admin/ai-metadata': SilverstripeLtd\AiMetadata\Controllers\AiMetadataController
+    'llms.txt': SilverstripeLtd\AiMetadata\Controllers\LlmsTxtController
+
+SilverStripe\Admin\LeftAndMain:
+  extra_requirements_javascript:
+    'silverstripeltd/ai-metadata:client/dist/js/bundle.js':
+      defer: true
+  extra_requirements_css:
+    - 'silverstripeltd/ai-metadata:client/dist/styles/bundle.css'
