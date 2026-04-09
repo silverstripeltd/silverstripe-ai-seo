@@ -14,7 +14,7 @@ This module is hosted on a private GitHub repository and is not listed on Packag
     ],
     // ...
     "require": {
-        "silverstripeltd/silverstripe-ai-metadata": "dev-main"
+        "silverstripeltd/ai-metadata": "dev-main"
     }
 }
 ```
