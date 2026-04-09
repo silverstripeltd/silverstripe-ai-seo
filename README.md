@@ -9,12 +9,12 @@ This module is hosted on a private GitHub repository and is not listed on Packag
     "repositories": [
         {
             "type": "vcs",
-            "url": "git@github.com:silverstripeltd/ai-metadata.git"
+            "url": "git@github.com:silverstripeltd/silverstripe-ai-metadata.git"
         }
     ],
     // ...
     "require": {
-        "silverstripeltd/ai-metadata": "dev-main"
+        "silverstripeltd/silverstripe-ai-metadata": "dev-main"
     }
 }
 ```
