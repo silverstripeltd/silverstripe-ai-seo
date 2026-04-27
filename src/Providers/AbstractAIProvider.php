@@ -37,7 +37,7 @@ abstract class AbstractAIProvider
         $apiKey = $this->getApiKey();
         if ($apiKey === '') {
             $this->logger->warning('AI provider API key missing', ['provider' => static::class]);
-            throw new AIProviderException('AI_MODULE_API_KEY is not configured', false, true);
+            throw new AIProviderException('AI_METADATA_API_KEY is not configured', false, true);
         }
 
         [$systemPrompt, $userPrompt] = $this->promptService->buildPrompts($content, $pageTitle, $pageUrl);
@@ -95,11 +95,11 @@ abstract class AbstractAIProvider
      */
     protected function getApiKey(): string
     {
-        if (!Environment::hasEnv('AI_MODULE_API_KEY')) {
+        if (!Environment::hasEnv('AI_METADATA_API_KEY')) {
             return '';
         }
 
-        $env = Environment::getEnv('AI_MODULE_API_KEY');
+        $env = Environment::getEnv('AI_METADATA_API_KEY');
         return $env !== false ? (string)$env : '';
     }
 
@@ -108,8 +108,8 @@ abstract class AbstractAIProvider
      */
     protected function getModel(): string
     {
-        $env = Environment::hasEnv('AI_MODULE_MODEL')
-            ? Environment::getEnv('AI_MODULE_MODEL')
+        $env = Environment::hasEnv('AI_METADATA_MODEL')
+            ? Environment::getEnv('AI_METADATA_MODEL')
             : null;
         if ($env !== null && $env !== '' && $env !== false) {
             return (string)$env;
@@ -128,8 +128,8 @@ abstract class AbstractAIProvider
      */
     protected function getThinkingLevel(): string
     {
-        $env = Environment::hasEnv('AI_MODULE_THINKING_LEVEL')
-            ? Environment::getEnv('AI_MODULE_THINKING_LEVEL')
+        $env = Environment::hasEnv('AI_METADATA_THINKING_LEVEL')
+            ? Environment::getEnv('AI_METADATA_THINKING_LEVEL')
             : null;
         return $env !== null && $env !== '' && $env !== false ? (string)$env : 'low';
     }
@@ -139,8 +139,8 @@ abstract class AbstractAIProvider
      */
     protected function getTemperature(): float
     {
-        $env = Environment::hasEnv('AI_MODULE_TEMPERATURE')
-            ? Environment::getEnv('AI_MODULE_TEMPERATURE')
+        $env = Environment::hasEnv('AI_METADATA_TEMPERATURE')
+            ? Environment::getEnv('AI_METADATA_TEMPERATURE')
             : null;
         return $env !== null && $env !== '' && $env !== false ? (float)$env : 1.0;
     }
@@ -150,8 +150,8 @@ abstract class AbstractAIProvider
      */
     protected function getMaxTokens(): int
     {
-        $env = Environment::hasEnv('AI_MODULE_MAX_TOKENS')
-            ? Environment::getEnv('AI_MODULE_MAX_TOKENS')
+        $env = Environment::hasEnv('AI_METADATA_MAX_TOKENS')
+            ? Environment::getEnv('AI_METADATA_MAX_TOKENS')
             : null;
         $value = $env !== null && $env !== '' && $env !== false ? (int)$env : 2000;
         return $value > 0 ? $value : 2000;
@@ -162,8 +162,8 @@ abstract class AbstractAIProvider
      */
     protected function getTimeout(): int
     {
-        $env = Environment::hasEnv('AI_MODULE_REQUEST_TIMEOUT')
-            ? Environment::getEnv('AI_MODULE_REQUEST_TIMEOUT')
+        $env = Environment::hasEnv('AI_METADATA_REQUEST_TIMEOUT')
+            ? Environment::getEnv('AI_METADATA_REQUEST_TIMEOUT')
             : null;
         if ($env !== null && $env !== '' && $env !== false) {
             $value = (int)$env;

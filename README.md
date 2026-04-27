@@ -53,8 +53,8 @@ All configuration is via environment variables (e.g. in your webserver env or `.
 Set the AI provider and API key. Gemini, OpenAI, and Anthropic are supported out of the box. Custom providers can be added by extending `AbstractAIProvider`.
 
 ```bash
-AI_MODULE_PROVIDER=gemini              # gemini (default), openai, or anthropic
-AI_MODULE_API_KEY=your-api-key         # API key for the chosen provider
+AI_METADATA_PROVIDER=gemini              # gemini (default), openai, or anthropic
+AI_METADATA_API_KEY=your-api-key         # API key for the chosen provider
 ```
 
 ### Model
@@ -62,11 +62,11 @@ AI_MODULE_API_KEY=your-api-key         # API key for the chosen provider
 Control which model is used and how it generates responses. All optional — sensible defaults are used if omitted.
 
 ```bash
-AI_MODULE_MODEL=gemini-3.1-flash-lite-preview  # Model identifier (provider-specific)
-AI_MODULE_THINKING_LEVEL=low           # Thinking effort: none, low, medium, or high
-AI_MODULE_TEMPERATURE=1.0              # Sampling temperature (0.0–1.0)
-AI_MODULE_MAX_TOKENS=2000              # Max tokens in AI response
-AI_MODULE_REQUEST_TIMEOUT=15           # Timeout per AI request in seconds
+AI_METADATA_MODEL=gemini-3.1-flash-lite-preview  # Model identifier (provider-specific)
+AI_METADATA_THINKING_LEVEL=low           # Thinking effort: none, low, medium, or high
+AI_METADATA_TEMPERATURE=1.0              # Sampling temperature (0.0–1.0)
+AI_METADATA_MAX_TOKENS=2000              # Max tokens in AI response
+AI_METADATA_REQUEST_TIMEOUT=15           # Timeout per AI request in seconds
 ```
 
 ### Queued jobs
@@ -74,9 +74,9 @@ AI_MODULE_REQUEST_TIMEOUT=15           # Timeout per AI request in seconds
 The `GenerateAiMetadataJob` processes pages in batches. These settings control rate limiting and scheduling.
 
 ```bash
-AI_MODULE_RATE_LIMIT_DELAY=6           # Min seconds between API request starts (see below)
-AI_MODULE_JOB_BATCH_SIZE=50            # Max pages processed per job run
-AI_MODULE_JOB_REQUEUE_DELAY=28800      # Seconds before scheduling next run (default: 8 hours)
+AI_METADATA_RATE_LIMIT_DELAY=6           # Min seconds between API request starts (see below)
+AI_METADATA_JOB_BATCH_SIZE=50            # Max pages processed per job run
+AI_METADATA_JOB_REQUEUE_DELAY=28800      # Seconds before scheduling next run (default: 8 hours)
 ```
 
 The rate limit delay is measured from the **start** of each API request, not from when it finishes. If a request takes longer than the delay, the next request starts immediately with no extra wait.
@@ -86,7 +86,7 @@ The rate limit delay is measured from the **start** of each API request, not fro
 Control the recommended max character length shown in the CMS modal for `MetaDescription`.
 
 ```bash
-AI_MODULE_META_DESCRIPTION_MAX=150  # Recommended max characters (default: 150)
+AI_METADATA_META_DESCRIPTION_MAX=150  # Recommended max characters (default: 150)
 ```
 
 ## Features

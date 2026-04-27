@@ -31,7 +31,7 @@ use SilverStripe\View\HTML;
 class AiMetadataForm extends Form
 {
     private const DEFAULT_META_DESCRIPTION_MAX = 150;
-    private const ENV_META_DESCRIPTION_MAX = 'AI_MODULE_META_DESCRIPTION_MAX';
+    private const ENV_META_DESCRIPTION_MAX = 'AI_METADATA_META_DESCRIPTION_MAX';
 
     /**
      * Build the AI metadata form for a record.

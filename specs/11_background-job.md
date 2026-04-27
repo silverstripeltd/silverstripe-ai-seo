@@ -22,7 +22,7 @@ The job processes pages that meet either condition:
 2. **Stale metadata:** Page has `GeneratedMetadata` but the content hash no longer matches (see `specs/07_stale-metadata.md`)
 
 Pages are processed in `SiteTree.ID` order (deterministic, simple).
-The job caps the number of pages per run via `AI_MODULE_JOB_BATCH_SIZE` (default: 50).
+The job caps the number of pages per run via `AI_METADATA_JOB_BATCH_SIZE` (default: 50).
 
 ## Processing
 
@@ -37,7 +37,7 @@ For each page:
 
 ## Rate limiting
 
-- Configurable delay between API calls: `AI_MODULE_RATE_LIMIT_DELAY` environment variable (default: 6 seconds)
+- Configurable delay between API calls: `AI_METADATA_RATE_LIMIT_DELAY` environment variable (default: 6 seconds)
 - This prevents overwhelming the AI provider's rate limits during bulk processing
 
 ## Error handling
@@ -59,7 +59,7 @@ For each page:
 
 ## Re-queue behaviour
 
-At the end of a run, the job re-queues a fresh instance scheduled for a later run (default 8 hours via `AI_MODULE_JOB_REQUEUE_DELAY`). This keeps periodic regeneration available without manual re-creation.
+At the end of a run, the job re-queues a fresh instance scheduled for a later run (default 8 hours via `AI_METADATA_JOB_REQUEUE_DELAY`). This keeps periodic regeneration available without manual re-creation.
 
 ## Concurrency
 

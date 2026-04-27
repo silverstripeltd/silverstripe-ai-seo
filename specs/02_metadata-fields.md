@@ -10,7 +10,7 @@ The AI module generates its own `MetaDescription` and Open Graph fields on the `
 
 - Concise summary of the page for search result snippets
 - Rendered as `<meta name="description">` and `og:description`
-- Text, ~150 characters recommended by default (configurable via `AI_MODULE_META_DESCRIPTION_MAX`)
+- Text, ~150 characters recommended by default (configurable via `AI_METADATA_META_DESCRIPTION_MAX`)
 - DB field: `MetaDescription`
 - Validation: if AI generates over the configured limit, store as-is and show a warning in the CMS modal. Prompt instructs AI to stay within limit.
 

@@ -26,7 +26,7 @@ Top to bottom:
 2a. **Draft changes notice** — shown when the page has unpublished changes (Draft differs from Live or Live does not exist). Informs the editor that the AI metadata reflects draft content and will go live when the page is published. This is an informational notice (not a warning). This notice is driven by the same draft status logic used in the modal schema meta (the Draft vs Live comparison), so it should remain consistent with the status banner state.
 3. **All metadata fields** — laid out vertically, one after another. Traditional SEO fields first (editable text fields), then AI-oriented fields:
    - `MetaDescription`, `OGTitle`, `OGDescription` — editable text fields
-   - `MetaDescription` shows a yellow warning indicator if it exceeds the recommended character limit (default 150, configurable via `AI_MODULE_META_DESCRIPTION_MAX`)
+   - `MetaDescription` shows a yellow warning indicator if it exceeds the recommended character limit (default 150, configurable via `AI_METADATA_META_DESCRIPTION_MAX`)
    - `SummaryLong` — editable textarea
    - `KeyEntities`, `KeyTopics`, `SuggestedFAQs` — **read-only formatted display** (not editable; regenerate to change). Show as nicely formatted text, not raw JSON.
    - `JsonLdSchema` — **read-only preview** showing the assembled JSON-LD for the page. Not stored in DB, dynamically assembled for display.

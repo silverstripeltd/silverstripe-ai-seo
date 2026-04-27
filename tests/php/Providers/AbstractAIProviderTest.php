@@ -18,7 +18,7 @@ class AbstractAIProviderTest extends SapphireTest
     protected function setUp(): void
     {
         parent::setUp();
-        Environment::setEnv('AI_MODULE_API_KEY', 'test-key');
+        Environment::setEnv('AI_METADATA_API_KEY', 'test-key');
     }
 
     /**
@@ -26,10 +26,10 @@ class AbstractAIProviderTest extends SapphireTest
      */
     protected function tearDown(): void
     {
-        Environment::setEnv('AI_MODULE_API_KEY', null);
-        Environment::setEnv('AI_MODULE_REQUEST_TIMEOUT', null);
-        Environment::setEnv('AI_MODULE_THINKING_LEVEL', null);
-        Environment::setEnv('AI_MODULE_TEMPERATURE', null);
+        Environment::setEnv('AI_METADATA_API_KEY', null);
+        Environment::setEnv('AI_METADATA_REQUEST_TIMEOUT', null);
+        Environment::setEnv('AI_METADATA_THINKING_LEVEL', null);
+        Environment::setEnv('AI_METADATA_TEMPERATURE', null);
         parent::tearDown();
     }
 
@@ -65,7 +65,7 @@ class AbstractAIProviderTest extends SapphireTest
      */
     public function testTimeoutUsesEnv(): void
     {
-        Environment::setEnv('AI_MODULE_REQUEST_TIMEOUT', '12');
+        Environment::setEnv('AI_METADATA_REQUEST_TIMEOUT', '12');
         $provider = new TestAIProvider([
             ['status' => 200, 'body' => '{"metaDescription":"Desc"}'],
         ]);
@@ -96,7 +96,7 @@ class AbstractAIProviderTest extends SapphireTest
      */
     public function testTemperatureDefaultsWhenEnvMissing(): void
     {
-        Environment::setEnv('AI_MODULE_TEMPERATURE', null);
+        Environment::setEnv('AI_METADATA_TEMPERATURE', null);
         $provider = new TestAIProvider([
             ['status' => 200, 'body' => '{"metaDescription":"Desc"}'],
         ]);
@@ -109,7 +109,7 @@ class AbstractAIProviderTest extends SapphireTest
      */
     public function testTemperatureSupportsZero(): void
     {
-        Environment::setEnv('AI_MODULE_TEMPERATURE', '0');
+        Environment::setEnv('AI_METADATA_TEMPERATURE', '0');
         $provider = new TestAIProvider([
             ['status' => 200, 'body' => '{"metaDescription":"Desc"}'],
         ]);
@@ -122,7 +122,7 @@ class AbstractAIProviderTest extends SapphireTest
      */
     public function testThinkingLevelDefaultsWhenEnvMissing(): void
     {
-        Environment::setEnv('AI_MODULE_THINKING_LEVEL', null);
+        Environment::setEnv('AI_METADATA_THINKING_LEVEL', null);
         $provider = new TestAIProvider([
             ['status' => 200, 'body' => '{"metaDescription":"Desc"}'],
         ]);

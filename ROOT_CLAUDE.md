@@ -93,14 +93,14 @@ Flat `test()` blocks only — no `describe()` nesting. Use RTL queries by access
 
 ## Environment variables
 
-- `AI_MODULE_PROVIDER` (default `gemini`)
-- `AI_MODULE_API_KEY`
-- `AI_MODULE_MODEL`
-- `AI_MODULE_THINKING_LEVEL` (default `low`)
-- `AI_MODULE_TEMPERATURE` (default `1.0`)
-- `AI_MODULE_MAX_TOKENS` (default `2000`)
-- `AI_MODULE_REQUEST_TIMEOUT` (default `15`)
-- `AI_MODULE_RATE_LIMIT_DELAY` (default `6`)
+- `AI_METADATA_PROVIDER` (default `gemini`)
+- `AI_METADATA_API_KEY`
+- `AI_METADATA_MODEL`
+- `AI_METADATA_THINKING_LEVEL` (default `low`)
+- `AI_METADATA_TEMPERATURE` (default `1.0`)
+- `AI_METADATA_MAX_TOKENS` (default `2000`)
+- `AI_METADATA_REQUEST_TIMEOUT` (default `15`)
+- `AI_METADATA_RATE_LIMIT_DELAY` (default `6`)
 
 ## Learnings
 

@@ -43,7 +43,7 @@ class ProviderFactoryTest extends SapphireTest
      */
     protected function tearDown(): void
     {
-        Environment::setEnv('AI_MODULE_PROVIDER', null);
+        Environment::setEnv('AI_METADATA_PROVIDER', null);
         parent::tearDown();
     }
 
@@ -52,7 +52,7 @@ class ProviderFactoryTest extends SapphireTest
      */
     public function testDefaultsToGeminiWhenEnvEmpty(): void
     {
-        Environment::setEnv('AI_MODULE_PROVIDER', '');
+        Environment::setEnv('AI_METADATA_PROVIDER', '');
         $factory = new ProviderFactory();
         $this->assertSame($this->geminiProvider, $factory->getProvider());
     }
@@ -62,7 +62,7 @@ class ProviderFactoryTest extends SapphireTest
      */
     public function testSelectsOpenAiProvider(): void
     {
-        Environment::setEnv('AI_MODULE_PROVIDER', 'openai');
+        Environment::setEnv('AI_METADATA_PROVIDER', 'openai');
         $factory = new ProviderFactory();
         $this->assertSame($this->openAiProvider, $factory->getProvider());
     }
@@ -72,7 +72,7 @@ class ProviderFactoryTest extends SapphireTest
      */
     public function testThrowsForUnknownProvider(): void
     {
-        Environment::setEnv('AI_MODULE_PROVIDER', 'unknown');
+        Environment::setEnv('AI_METADATA_PROVIDER', 'unknown');
         $factory = new ProviderFactory();
         $this->expectException(AIProviderException::class);
         $factory->getProvider();

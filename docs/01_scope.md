@@ -48,7 +48,7 @@
 - Async job to generate metadata for pages that don't have it yet, and pages with stale metadata (see `specs/11_background-job.md`)
 - Does not auto-publish
 - Still requires human review and approval
-- Rate limiting / throttle between API requests (default 1000ms, overridable via `AI_MODULE_RATE_LIMIT_DELAY` environment variable)
+- Rate limiting / throttle between API requests (default 1000ms, overridable via `AI_METADATA_RATE_LIMIT_DELAY` environment variable)
 - Not enabled by default (manageable via queued jobs CMS interface by admin users)
 
 ### Reporting

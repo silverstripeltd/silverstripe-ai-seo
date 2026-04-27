@@ -83,7 +83,7 @@ class AiMetadataControllerTest extends FunctionalTest
      */
     public function testMetaDescriptionLengthHintUsesEnvMax(): void
     {
-        Environment::setEnv('AI_MODULE_META_DESCRIPTION_MAX', '120');
+        Environment::setEnv('AI_METADATA_META_DESCRIPTION_MAX', '120');
 
         $page = SiteTree::create(['Title' => 'Test page', 'Content' => 'Content']);
         $page->write();
@@ -95,7 +95,7 @@ class AiMetadataControllerTest extends FunctionalTest
 
         $this->assertStringContainsString('data-ai-metadata-max="120"', (string)$field->getDescription());
 
-        Environment::setEnv('AI_MODULE_META_DESCRIPTION_MAX', null);
+        Environment::setEnv('AI_METADATA_META_DESCRIPTION_MAX', null);
     }
 
     /**

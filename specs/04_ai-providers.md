@@ -7,13 +7,13 @@
 - **Anthropic** — Messages API provider
 - **Custom providers** — the built-in factory supports `gemini`, `openai`, and `anthropic` only. To use a custom provider, projects must override the factory via Silverstripe's Injector.
 
-Gemini requests call the v1beta `generateContent` endpoint and include `thinkingConfig.thinkingLevel` when `AI_MODULE_THINKING_LEVEL` is not `none`.
+Gemini requests call the v1beta `generateContent` endpoint and include `thinkingConfig.thinkingLevel` when `AI_METADATA_THINKING_LEVEL` is not `none`.
 
 ## Provider selection
 
 - One active provider at a time
 - Switching provider should be straightforward (designed for single active provider, not multi-provider routing)
-- Selected via environment variable `AI_MODULE_PROVIDER` (default: `gemini`)
+- Selected via environment variable `AI_METADATA_PROVIDER` (default: `gemini`)
 
 ## Provider base class
 
@@ -72,7 +72,7 @@ class AiMetadataResult
 ### Request timeout
 
 - Default timeout: 15 seconds per API call
-- Configurable via environment variable `AI_MODULE_REQUEST_TIMEOUT` (seconds)
+- Configurable via environment variable `AI_METADATA_REQUEST_TIMEOUT` (seconds)
 
 ## Configuration
 
@@ -80,14 +80,14 @@ All configuration via environment variables (see `docs/03_human-context.md` for 
 
 | Environment variable | Description | Default |
 |---|---|---|
-| `AI_MODULE_PROVIDER` | Active provider (`gemini`, `openai`, `anthropic`) | `gemini` |
-| `AI_MODULE_API_KEY` | API key for the active provider | (required) |
-| `AI_MODULE_MODEL` | Model to use (e.g. `gemini-3.1-flash-lite-preview`, `gpt-4.1`) | Provider-specific default |
-| `AI_MODULE_THINKING_LEVEL` | Thinking level (`none`, `low`, `medium`, `high`) used by Gemini `thinkingConfig` | `low` |
-| `AI_MODULE_TEMPERATURE` | Temperature for generation | `1.0` |
-| `AI_MODULE_MAX_TOKENS` | Max tokens in response | `2000` |
-| `AI_MODULE_REQUEST_TIMEOUT` | Request timeout in seconds | `15` |
-| `AI_MODULE_RATE_LIMIT_DELAY` | Delay in seconds between API calls (for background job) | `6` |
+| `AI_METADATA_PROVIDER` | Active provider (`gemini`, `openai`, `anthropic`) | `gemini` |
+| `AI_METADATA_API_KEY` | API key for the active provider | (required) |
+| `AI_METADATA_MODEL` | Model to use (e.g. `gemini-3.1-flash-lite-preview`, `gpt-4.1`) | Provider-specific default |
+| `AI_METADATA_THINKING_LEVEL` | Thinking level (`none`, `low`, `medium`, `high`) used by Gemini `thinkingConfig` | `low` |
+| `AI_METADATA_TEMPERATURE` | Temperature for generation | `1.0` |
+| `AI_METADATA_MAX_TOKENS` | Max tokens in response | `2000` |
+| `AI_METADATA_REQUEST_TIMEOUT` | Request timeout in seconds | `15` |
+| `AI_METADATA_RATE_LIMIT_DELAY` | Delay in seconds between API calls (for background job) | `6` |
 
 ### Overriding in project code
 

@@ -56,7 +56,7 @@ class MigrateExistingMetadataTaskTest extends SapphireTest
 
         $metadata = $page->getOrCreateAiMetadata();
         DB::prepared_query(
-            'UPDATE "AiMetadata" SET "ClassName" = ? WHERE "ID" = ?',
+            'UPDATE "GeneratedMetadata" SET "ClassName" = ? WHERE "ID" = ?',
             ['SilverstripeLtd\\AiMetadata\\Models\\ObsoleteGeneratedMetadata', $metadata->ID]
         );
 

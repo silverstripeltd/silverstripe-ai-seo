@@ -32,8 +32,8 @@ class ProviderFactory
     public function getProvider(): AbstractAIProvider
     {
         $provider = 'gemini';
-        if (Environment::hasEnv('AI_MODULE_PROVIDER')) {
-            $env = Environment::getEnv('AI_MODULE_PROVIDER');
+        if (Environment::hasEnv('AI_METADATA_PROVIDER')) {
+            $env = Environment::getEnv('AI_METADATA_PROVIDER');
             if ($env !== null && $env !== '' && $env !== false) {
                 $provider = (string)$env;
             }

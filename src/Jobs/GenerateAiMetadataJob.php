@@ -22,9 +22,9 @@ class GenerateAiMetadataJob extends AbstractQueuedJob
     private const DEFAULT_BATCH_SIZE = 50;
     private const DEFAULT_RATE_LIMIT_DELAY = 6;
     private const DEFAULT_REQUEUE_DELAY = 28800;
-    private const ENV_BATCH_SIZE = 'AI_MODULE_JOB_BATCH_SIZE';
-    private const ENV_RATE_LIMIT_DELAY = 'AI_MODULE_RATE_LIMIT_DELAY';
-    private const ENV_REQUEUE_DELAY = 'AI_MODULE_JOB_REQUEUE_DELAY';
+    private const ENV_BATCH_SIZE = 'AI_METADATA_JOB_BATCH_SIZE';
+    private const ENV_RATE_LIMIT_DELAY = 'AI_METADATA_RATE_LIMIT_DELAY';
+    private const ENV_REQUEUE_DELAY = 'AI_METADATA_JOB_REQUEUE_DELAY';
 
     public array $pagesToProcess = [];
     public int $processedCount = 0;

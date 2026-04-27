@@ -30,8 +30,8 @@ class GenerateAiMetadataJobTest extends SapphireTest
     protected function setUp(): void
     {
         parent::setUp();
-        Environment::setEnv('AI_MODULE_RATE_LIMIT_DELAY', '0');
-        Environment::setEnv('AI_MODULE_JOB_REQUEUE_DELAY', '0');
+        Environment::setEnv('AI_METADATA_RATE_LIMIT_DELAY', '0');
+        Environment::setEnv('AI_METADATA_JOB_REQUEUE_DELAY', '0');
         $providerFactory = new StubProviderFactory(new StubProvider(new AiMetadataResult([
             'metaDescription' => 'Generated description',
         ]), ['Fails']));
@@ -47,11 +47,11 @@ class GenerateAiMetadataJobTest extends SapphireTest
      */
     protected function tearDown(): void
     {
-        Environment::setEnv('AI_MODULE_RATE_LIMIT_DELAY', null);
-        Environment::setEnv('AI_MODULE_JOB_BATCH_SIZE', null);
-        Environment::setEnv('AI_MODULE_JOB_REQUEUE_DELAY', null);
-        Environment::setEnv('AI_MODULE_PROVIDER', null);
-        Environment::setEnv('AI_MODULE_API_KEY', '');
+        Environment::setEnv('AI_METADATA_RATE_LIMIT_DELAY', null);
+        Environment::setEnv('AI_METADATA_JOB_BATCH_SIZE', null);
+        Environment::setEnv('AI_METADATA_JOB_REQUEUE_DELAY', null);
+        Environment::setEnv('AI_METADATA_PROVIDER', null);
+        Environment::setEnv('AI_METADATA_API_KEY', '');
         $defaultFactory = new ProviderFactory();
         Injector::inst()->registerService($defaultFactory, ProviderFactory::class);
         Injector::inst()->registerService(
@@ -115,7 +115,7 @@ class GenerateAiMetadataJobTest extends SapphireTest
      */
     public function testBatchSizeLimitsPages(): void
     {
-        Environment::setEnv('AI_MODULE_JOB_BATCH_SIZE', '1');
+        Environment::setEnv('AI_METADATA_JOB_BATCH_SIZE', '1');
         $page1 = SiteTree::create(['Title' => 'First', 'Content' => 'Content']);
         $page1->write();
         $page2 = SiteTree::create(['Title' => 'Second', 'Content' => 'Content']);
@@ -130,7 +130,7 @@ class GenerateAiMetadataJobTest extends SapphireTest
      */
     public function testRateLimitDelayDefaultsAndCalculatesRemaining(): void
     {
-        Environment::setEnv('AI_MODULE_RATE_LIMIT_DELAY', null);
+        Environment::setEnv('AI_METADATA_RATE_LIMIT_DELAY', null);
         $job = new GenerateAiMetadataJob();
 
         $delayMethod = new \ReflectionMethod($job, 'getRateLimitDelay');
@@ -143,6 +143,6 @@ class GenerateAiMetadataJobTest extends SapphireTest
         $this->assertEquals(4.0, $remaining);
         $this->assertSame(0.0, $remainingMethod->invoke($job, 100.0, 107.0, 6));
 
-        Environment::setEnv('AI_MODULE_RATE_LIMIT_DELAY', '0');
+        Environment::setEnv('AI_METADATA_RATE_LIMIT_DELAY', '0');
     }
 }
