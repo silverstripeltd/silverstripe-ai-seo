@@ -5,6 +5,7 @@
 A single AI call generates all metadata fields at once. The prompt asks for structured JSON output containing all field values.
 
 Prompts are hardcoded in the module but extensible via an extension hook at project level. See `docs/03_human-context.md` for why prompts are not admin-editable.
+The markdown templates live in the module-root `prompts/` directory so they can sit alongside other non-PHP module assets without being treated as source classes.
 
 ## Prompt structure
 
@@ -12,7 +13,7 @@ Prompts are hardcoded in the module but extensible via an extension hook at proj
 
 A short role statement (1-2 sentences). Kept minimal because weaker/cheaper models pay less attention to system prompts than user prompts on some providers (notably Gemini).
 
-See `PromptService::getSystemPrompt()` for the text.
+See `prompts/system.md` and `PromptService::getSystemPrompt()` for the text.
 
 ### User prompt
 
@@ -30,7 +31,7 @@ Key design decisions:
 - **Content delimiters** (`--- PAGE CONTENT START/END ---`) to prevent the model from confusing page content with prompt instructions.
 - **"Return only the JSON object" repeated** at the end as a final reinforcement.
 
-See `PromptService::getUserPrompt()` for the full template.
+See `prompts/user.md` and `PromptService::getUserPrompt()` for the full template.
 
 ## Output parsing
 

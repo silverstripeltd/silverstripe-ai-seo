@@ -10,6 +10,24 @@ use SilverStripe\Dev\SapphireTest;
  */
 class PromptServiceTest extends SapphireTest
 {
+    public function testPromptTemplatesLoadFromModuleRootDirectory(): void
+    {
+        $service = new PromptService();
+
+        $this->assertSame(
+            trim((string) file_get_contents(dirname(__DIR__, 3) . '/prompts/system.md')),
+            $service->getSystemPrompt()
+        );
+        $this->assertSame(
+            str_replace(
+                ['{pageTitle}', '{pageUrl}', '{content}'],
+                ['Page Title', 'https://example.com/page', 'Content body'],
+                (string) file_get_contents(dirname(__DIR__, 3) . '/prompts/user.md')
+            ),
+            $service->getUserPrompt('Content body', 'Page Title', 'https://example.com/page')
+        );
+    }
+
     /**
      * Ensure system prompt sets the role.
      */

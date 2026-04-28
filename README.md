@@ -1,5 +1,7 @@
 # AI Metadata Module for Silverstripe CMS
 
+A Silverstripe CMS 6 module that automatically creates metadata on page content for machine consumption.
+
 ## Installation
 
 This module is hosted on a private GitHub repository and is not listed on Packagist. To install it, add the following to your project's `composer.json`:
@@ -25,11 +27,14 @@ When working on this module, AI tools (e.g. Claude Code, Copilot) should be run 
 
 ```bash
 cd path/to/project
-if [ -f CLAUDE.md ]; then rm -f CLAUDE.md; fi
-ln -s vendor/silverstripeltd/ai-metadata/ROOT_CLAUDE.md CLAUDE.md
+
+if [ -f CLAUDE.md ] || [ -L CLAUDE.md ]; then rm -f CLAUDE.md; fi
+ln -s vendor/silverstripeltd/ai-metadata/CLAUDE.md CLAUDE.md
 ```
 
-Note that the `ROOT_CLAUDE.md` contains instructions for a specific docker setup, you will probably need to update that file to match your local, standardised environment.
+`CLAUDE.md` contains the project identity, hard constraints, directory structure, and the module-specific testing, PHP coding, spec-editing, and command conventions in one place so the AI does not have to discover separate skill files at runtime.
+
+Note that `CLAUDE.md` contains instructions for a specific Docker setup - you will probably need to update that file to match your local, standardised environment.
 
 ### Running tests and linting
 

@@ -20,7 +20,7 @@ class ContentExtractService
     public function extract(DataObject $record): string
     {
         $parts = [];
-        $title = $record->hasField('Title') ? (string)$record->Title : '';
+        $title = $record->hasField('Title') ? (string)$record->getField('Title') : '';
         if ($title !== '') {
             $parts[] = $title;
         }

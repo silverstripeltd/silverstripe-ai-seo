@@ -31,7 +31,7 @@ class PromptService
      */
     public function getSystemPrompt(): string
     {
-        return trim((string) file_get_contents(__DIR__ . '/../prompts/system.md'));
+        return trim((string) file_get_contents(dirname(__DIR__, 2) . '/prompts/system.md'));
     }
 
     /**
@@ -39,7 +39,7 @@ class PromptService
      */
     public function getUserPrompt(string $content, string $pageTitle, string $pageUrl): string
     {
-        $template = (string) file_get_contents(__DIR__ . '/../prompts/user.md');
+        $template = (string) file_get_contents(dirname(__DIR__, 2) . '/prompts/user.md');
         return str_replace(
             ['{pageTitle}', '{pageUrl}', '{content}'],
             [$pageTitle, $pageUrl, trim($content)],

@@ -1,5 +1,5 @@
 # AI tool guidance
-ROOT_CLAUDE.md export-ignore
+CLAUDE.md export-ignore
 
 # Tests
 tests/ export-ignore
