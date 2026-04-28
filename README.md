@@ -97,7 +97,7 @@ The module exposes a machine readable `/llms.txt` endpoint that lists pages with
 
 ### CMS report
 
-The `AiMetadataReport` appears under CMS Reports and highlights pages missing metadata, stale metadata, or draft only metadata that has not been published yet.
+The `AiMetadataReport` appears under CMS Reports and highlights pages missing metadata, stale metadata, or draft only metadata that has not been published yet. Its stale checks read page content from the Draft stage first, with Live used only when no Draft record exists.
 
 ### Background job
 

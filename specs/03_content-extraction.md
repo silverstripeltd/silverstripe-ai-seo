@@ -47,7 +47,7 @@ No truncation is applied. Modern AI models have large context windows (e.g. Gemi
 
 ## Versioned reading mode
 
-Content extraction must read from the **Draft** version of the page when it exists. If the draft record does not exist (e.g. a Live-only record), fall back to the Live version. This applies to both CMS-triggered generation (modal Regenerate button) and background job generation.
+Content extraction must read from the **Draft** version of the page when it exists. If the draft record does not exist (e.g. a Live-only record), fall back to the Live version. This applies to CMS-triggered generation (modal Regenerate button), background job generation, and report stale detection.
 
 The extraction service wraps the read in `Versioned::withVersionedMode()` and reads Draft first, then Live. Live is only used as the content source when Draft is missing, but both stages are inspected so we can detect unpublished changes.
 

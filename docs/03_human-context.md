@@ -12,6 +12,7 @@ Loose assortment of relevant background context that informs spec and design dec
 ## Customer considerations
 
 - Some customers may not be aware of or care about the AI metadata feature. Some may actively dislike AI. The module should not degrade their CMS experience (e.g. performance on save).
+- The CMS modal, background job, and CMS report are intended to support content authors working on draft content, not site owners auditing the public site. This is why CMS-side extraction and report stale checks are Draft-first rather than Live-first.
 - SiteTree's "Metadata" toggle section has `MetaDescription` and `ExtraMeta` (Custom Meta Tags). We can't hide this section because Custom Meta Tags must remain available. Instead, the module replaces `MetaDescription` with a read-only field showing the `GeneratedMetadata` value, with a note explaining it's managed by the AI module and showing the old value if one existed.
 - The `<title>` tag is typically template-driven (e.g. `$Title | $SiteConfig.Title`), not from a CMS field. Do not store a separate MetaTitle field in GeneratedMetadata; use `OGTitle` for social sharing and derive JSON-LD titles from `OGTitle` or the page title.
 - The module overrides `getMetaDescription()` on SiteTree so that `MetaTags()` picks up the AI-generated value automatically — no template changes needed.

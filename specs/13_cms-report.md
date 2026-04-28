@@ -4,6 +4,10 @@
 
 A Silverstripe CMS report showing pages that need metadata attention. Accessible from the Reports section of the CMS.
 
+## Intended user
+
+This report is aimed at content authors working in the CMS, not site owners auditing the public site. For that reason, stale detection reads page content from the Draft stage first, with Live used only when no Draft record exists.
+
 ## Report class
 
 - Class: `AiMetadataReport` (namespace: `SilverstripeLtd\AiMetadata\Reports\AiMetadataReport`)
@@ -49,7 +53,10 @@ A Silverstripe CMS report showing pages that need metadata attention. Accessible
 
 - Visible to anyone with access to the CMS Reports section (standard Silverstripe permission: `CMS_ACCESS_ReportAdmin`)
 - No additional permission codes needed
+- Rows are still filtered per page using `canView()`. Pages the current user cannot view are omitted from the report, even if they would otherwise match the selected status filter.
 
 ## Performance note
 
 The "Stale" check requires re-extracting content and computing the hash for each page, which is heavier than a simple DB query. For sites with thousands of pages, the report may take a few seconds to load. This is acceptable for an on-demand report. The report uses pagination (via `PaginatedList`) to keep the UI manageable for large sites.
+
+Because rows are filtered after loading pages and applying `canView()`, pagination can show fewer than the nominal page length on some pages. This is acceptable for a Silverstripe CMS report.

@@ -119,6 +119,10 @@ class AiMetadataReport extends Report
         $stateService = Injector::inst()->get(AiMetadataStateService::class);
 
         foreach (SiteTree::get() as $page) {
+            if (!$this->canIncludePage($page)) {
+                continue;
+            }
+
             $metadata = $page->getAiMetadata();
             $status = $this->determineStatus($page, $metadata, $stateService);
             $liveStatus = $this->determineLiveStatus($metadata);
@@ -163,6 +167,14 @@ class AiMetadataReport extends Report
             }
         }
         return $paginated;
+    }
+
+    /**
+     * Determine whether a page should appear in the report for the current user.
+     */
+    private function canIncludePage(SiteTree $page): bool
+    {
+        return $page->canView();
     }
 
     /**

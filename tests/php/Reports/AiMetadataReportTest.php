@@ -5,10 +5,10 @@ namespace SilverstripeLtd\AiMetadata\Tests\Reports;
 use SilverstripeLtd\AiMetadata\Models\GeneratedMetadata;
 use SilverstripeLtd\AiMetadata\Reports\AiMetadataReport;
 use SilverstripeLtd\AiMetadata\Services\ContentExtractService;
+use SilverstripeLtd\AiMetadata\Tests\RestrictedViewPage;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\Model\List\PaginatedList;
-use SilverStripe\Versioned\Versioned;
 
 /**
  * Tests report status calculations and filtering.
@@ -17,7 +17,18 @@ class AiMetadataReportTest extends SapphireTest
 {
     protected static $extra_dataobjects = [
         GeneratedMetadata::class,
+        RestrictedViewPage::class,
     ];
+
+    /**
+     * Log in as a CMS-capable user before each test.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->logInWithPermission('ADMIN');
+    }
 
     /**
      * Ensure status filters include expected records.
@@ -150,5 +161,28 @@ class AiMetadataReportTest extends SapphireTest
         $columns = $report->columns();
         $this->assertArrayHasKey('LiveStatus', $columns);
         $this->assertSame('Live status', $columns['LiveStatus']['title']);
+    }
+
+    /**
+     * Ensure the report excludes pages the current user cannot view.
+     */
+    public function testReportExcludesPagesCurrentUserCannotView(): void
+    {
+        $visiblePage = SiteTree::create(['Title' => 'Visible page', 'Content' => 'Content']);
+        $visiblePage->write();
+
+        $hiddenPage = RestrictedViewPage::create(['Title' => 'Hidden page', 'Content' => 'Content']);
+        $hiddenPage->write();
+
+        $report = new AiMetadataReport();
+        $records = $report->sourceRecords(['Status' => 'all']);
+
+        $titles = [];
+        foreach ($records as $record) {
+            $titles[] = $record->Title;
+        }
+
+        $this->assertContains('Visible page', $titles);
+        $this->assertNotContains('Hidden page', $titles);
     }
 }
