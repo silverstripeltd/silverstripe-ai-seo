@@ -76,7 +76,7 @@ class AiMetadataResult
 
 ## Configuration
 
-All configuration via environment variables (see `docs/03_human-context.md` for why env vars are preferred):
+All configuration via environment variables. Env vars are preferred over YAML config because the hosting support team can change env vars and trigger deployments via support ticket, whereas code changes require booking developer time which can take weeks.
 
 | Environment variable | Description | Default |
 |---|---|---|

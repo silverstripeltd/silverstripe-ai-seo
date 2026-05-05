@@ -28,11 +28,10 @@ PHP methods should not have blank lines between statements (except within heredo
 - `client/dist/` - Webpack build output (JS/CSS bundles) - do not read or edit
 - `src/` - PHP classes (controllers, services, extensions, etc.)
 - `_config/` - YAML configuration (extensions, routes, requirements)
-- `docs/` - Scope, original requirements, and human context. Inform design but are not used directly for implementation.
 - `specs/` - Technical specs used as basis for implementation. See `specs/00_overview.md` for the full spec index.
 - `tests/php/` - PHPUnit tests
 
-Files in `docs/` and `specs/` are prefixed with `01_`, `02_`, etc.
+Files in `specs/` are prefixed with `01_`, `02_`, etc.
 
 ## Running commands
 
@@ -84,8 +83,6 @@ This module depends on `vendor/silverstripe/admin` for shared JS tooling. Before
 
 ### Spec editing rules
 
-- Before updating any spec files in `specs/`, always read `docs/03_human-context.md` first. It contains important background on support layers, customer considerations, and design rationale that should inform spec decisions.
-- When the human provides new background context or rationale during spec discussions, actively add it to `docs/03_human-context.md`.
 - Files in `specs/` are prefixed with `01_`, `02_`, etc. Numbering reflects recommended implementation order. When adding new spec files, number them according to where they sit in the implementation sequence.
 
 ### Final step - JS build

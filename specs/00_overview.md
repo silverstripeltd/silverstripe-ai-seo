@@ -86,18 +86,7 @@ Automatically generates SEO and AI-oriented metadata for Silverstripe CMS pages 
 | 12 | `dirty-versioned-state` | Versioned lifecycle, publish-on-page-publish, ReviewedAt gate |
 | 13 | `cms-report` | Status report, columns, filtering |
 
-## Doc index
-
-| # | Doc | What it covers |
-|---|-----|---------------|
-| 01 | `scope` | In/out of scope, phase 2 nice-to-haves |
-| 02 | `original-requirements` | Product owner's initial requirements (reference only) |
-| 03 | `human-context` | Business context, support layers, customer considerations |
-| 04 | `decisions` | Key architecture and design decisions with rationale |
-
 ## Key design decisions
-
-See `docs/04_decisions.md` for full details. Summary:
 
 - **Versioned GeneratedMetadata** — Draft/Live with publish-on-page-publish via JS hook; `ReviewedAt` gates publish readiness
 - **Polymorphic relationship** — supports future DataObject types

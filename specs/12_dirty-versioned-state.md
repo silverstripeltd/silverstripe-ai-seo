@@ -2,7 +2,7 @@
 
 ## Architecture decision
 
-`GeneratedMetadata` is a **Versioned** DataObject saved via sideways XHR (independent from the page edit form). It participates in the Draft/Live cycle but is published alongside the parent page, not independently. See `docs/04_decisions.md` for rationale.
+`GeneratedMetadata` is a **Versioned** DataObject saved via sideways XHR (independent from the page edit form). It participates in the Draft/Live cycle but is published alongside the parent page, not independently. This matches the editor mental model that "publish page = publish everything on the page", while `ReviewedAt` prevents unverified AI content from going live.
 
 ## How it works
 

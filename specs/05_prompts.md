@@ -4,7 +4,7 @@
 
 A single AI call generates all metadata fields at once. The prompt asks for structured JSON output containing all field values.
 
-Prompts are hardcoded in the module but extensible via an extension hook at project level. See `docs/03_human-context.md` for why prompts are not admin-editable.
+Prompts are hardcoded in the module but extensible via an extension hook at project level. Prompts are not admin-editable because they are effectively code - non-technical people are liable to make things worse by altering them.
 The markdown templates live in the module-root `prompts/` directory so they can sit alongside other non-PHP module assets without being treated as source classes.
 
 ## Prompt structure

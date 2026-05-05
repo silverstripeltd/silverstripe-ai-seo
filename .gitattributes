@@ -6,7 +6,6 @@ tests/ export-ignore
 client/src/ export-ignore
 
 # Internal documentation and specs
-docs/ export-ignore
 specs/ export-ignore
 
 # Frontend build and test tooling

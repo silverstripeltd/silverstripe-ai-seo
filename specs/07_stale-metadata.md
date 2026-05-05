@@ -20,7 +20,7 @@ Staleness is checked **on-demand only** — NOT on every page save:
 - **When the CMS report runs** — to populate the "Stale" status column
 - **When the background job runs** — to determine which pages need regeneration
 
-This avoids adding overhead to every page save operation, addressing the "feature bloat" concern from `docs/03_human-context.md`.
+This avoids adding overhead to every page save operation. Most editors may not use the AI metadata feature, so save-time overhead would be unwelcome feature bloat.
 
 ### Storage
 

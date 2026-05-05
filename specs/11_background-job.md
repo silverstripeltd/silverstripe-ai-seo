@@ -12,7 +12,7 @@ A `QueuedJob` subclass that bulk-generates AI metadata for pages that need it. U
 
 ## Not enabled by default
 
-The job is **not** automatically scheduled. An administrator must manually create and schedule it via the Queued Jobs CMS interface. This is consistent with the scope requirement and leverages the existing CMS interface for job management (see `docs/03_human-context.md` — no env var needed to enable/disable since admins can toggle directly in the CMS).
+The job is **not** automatically scheduled. An administrator must manually create and schedule it via the Queued Jobs CMS interface. The queued jobs CMS interface lets admins enable/disable jobs directly, so no env var toggle is needed.
 
 ## Pages targeted
 
