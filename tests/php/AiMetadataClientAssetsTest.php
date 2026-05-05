@@ -69,4 +69,18 @@ class AiMetadataClientAssetsTest extends SapphireTest
         $this->assertStringContainsString('editableFieldNames', $modal);
         $this->assertStringContainsString('hasChanges', $modal);
     }
+
+    /**
+     * Ensure the toolbar button mounts beside Shared Draft Content.
+     */
+    public function testToolbarButtonUsesSharedDraftPlacement(): void
+    {
+        $path = BASE_PATH . '/vendor/silverstripeltd/ai-metadata/client/src/entwine/AiMetadataEntwine.js';
+        $entwine = file_get_contents($path);
+        $this->assertNotFalse($entwine);
+        $this->assertStringContainsString('.preview-mode-selector', $entwine);
+        $this->assertStringContainsString('share-draft-content__placeholder', $entwine);
+        $this->assertStringContainsString("loadComponent('AiMetadataActionButton'", $entwine);
+        $this->assertStringContainsString("$('.ai-metadata__action').entwine", $entwine);
+    }
 }

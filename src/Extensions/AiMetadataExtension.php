@@ -9,7 +9,7 @@ use SilverStripe\Core\Convert;
 use SilverStripe\Core\Extension;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\FieldList;
-use SilverStripe\Forms\FormAction;
+use SilverStripe\Forms\HiddenField;
 use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\View\HTML;
 use SilverStripe\View\Requirements;
@@ -72,6 +72,8 @@ class AiMetadataExtension extends Extension
      */
     public function updateCMSFields(FieldList $fields): void
     {
+        $this->updateToolbarContext($fields);
+
         $metaField = $fields->dataFieldByName('MetaDescription');
         if (!$metaField) {
             return;
@@ -92,27 +94,23 @@ class AiMetadataExtension extends Extension
     }
 
     /**
-     * Add the AI metadata action button in the CMS.
+     * Add hidden record context so the toolbar button can mount beside Share.
      */
-    public function updateCMSActions(FieldList $actions): void
+    private function updateToolbarContext(FieldList $fields): void
     {
         if (!$this->owner->exists() || !$this->owner->canEdit()) {
             return;
         }
 
-        $majorActions = $actions->fieldByName('MajorActions');
-        if (!$majorActions || $majorActions->fieldByName('AiMetadataAction')) {
+        if ($fields->dataFieldByName('AiMetadataRecordClass')) {
             return;
         }
 
-        $button = FormAction::create('AiMetadataAction', 'AI Metadata')
-            ->removeExtraClass('btn-primary')
-            ->addExtraClass('btn-outline-primary ai-metadata__action')
-            ->setAttribute('type', 'button')
-            ->setAttribute('data-fqcn', $this->owner->ClassName)
-            ->setAttribute('data-record-id', (string)$this->owner->ID);
-
-        $majorActions->push($button);
+        $fields->push(HiddenField::create(
+            'AiMetadataRecordClass',
+            null,
+            $this->owner->ClassName
+        ));
     }
 
     /**
