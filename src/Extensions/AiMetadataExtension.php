@@ -27,7 +27,6 @@ class AiMetadataExtension extends Extension
         if (!$this->owner->exists()) {
             return null;
         }
-
         return GeneratedMetadata::get()
             ->filter([
                 'ParentID' => $this->owner->ID,
@@ -53,7 +52,6 @@ class AiMetadataExtension extends Extension
             $metadata->ParentClass = $this->owner->ClassName;
             $metadata->write();
         }
-
         return $metadata;
     }
 
@@ -169,7 +167,6 @@ class AiMetadataExtension extends Extension
         if ($metadata && $metadata->exists() && $metadata->MetaDescription) {
             return $metadata->MetaDescription;
         }
-
         return $this->owner->getField('MetaDescription');
     }
 

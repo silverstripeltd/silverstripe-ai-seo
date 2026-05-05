@@ -37,11 +37,9 @@ class MetadataGenerationService
         bool $persist = true
     ): GeneratedMetadata {
         $metadata = $metadata ?: $this->resolveMetadata($record);
-
         $extracted = $this->contentExtractor->extractPublished($record);
         $metadata->usedLiveVersion = $extracted['usedLive'];
         $metadata->hasUnpublishedChanges = $extracted['hasUnpublishedChanges'];
-
         $content = $extracted['content'];
         if ($content === '') {
             $metadata->GenerationNote = 'Insufficient content';
@@ -50,24 +48,19 @@ class MetadataGenerationService
             }
             return $metadata;
         }
-
         $hash = $this->contentExtractor->computeHash($content);
         $pageTitle = $record->hasField('Title') ? (string)$record->Title : $record->ClassName;
         $pageUrl = method_exists($record, 'AbsoluteLink') ? $record->AbsoluteLink() : '';
-
         $provider = $this->providerFactory->getProvider();
         $result = $provider->generateMetadata($content, $pageTitle, $pageUrl);
-
         $this->applyResult($metadata, $result);
         $metadata->ContentHash = $hash;
         $metadata->GeneratedAt = DBDatetime::now()->getValue();
         $metadata->ReviewedAt = null;
         $metadata->GenerationNote = null;
-
         if ($persist) {
             $metadata->write();
         }
-
         return $metadata;
     }
 
@@ -79,7 +72,6 @@ class MetadataGenerationService
         if ($record->hasMethod('getOrCreateAiMetadata')) {
             return $record->getOrCreateAiMetadata();
         }
-
         return GeneratedMetadata::create();
     }
 

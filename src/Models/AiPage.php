@@ -33,7 +33,6 @@ class AiPage extends Page
         if (Director::isLive()) {
             return false;
         }
-
         return parent::canCreate($member, $context);
     }
 
@@ -56,7 +55,6 @@ class AiPage extends Page
         if ($member && Permission::checkMember($member, ['ADMIN', 'SITETREE_VIEW_ALL'])) {
             return true;
         }
-
         return false;
     }
 }

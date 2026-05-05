@@ -72,7 +72,6 @@ class LlmsTxtController extends Controller
             $summary = preg_replace('/\s+/', ' ', $summary);
             $lines[] = sprintf('- [%s](%s): %s', $page->Title, $page->AbsoluteLink(), $summary);
         }
-
         return implode("\n", $lines) . "\n";
     }
 }

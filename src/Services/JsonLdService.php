@@ -26,7 +26,6 @@ class JsonLdService
             '@context' => 'https://schema.org',
             '@graph' => $graph,
         ];
-
         return json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
 
@@ -148,7 +147,6 @@ class JsonLdService
                 ];
             }
         }
-
         return $graph;
     }
 
@@ -167,7 +165,6 @@ class JsonLdService
         if (!is_array($decoded)) {
             return [];
         }
-
         return $decoded;
     }
 
@@ -193,7 +190,6 @@ class JsonLdService
             }
             $mapped[] = $item;
         }
-
         return $mapped;
     }
 }

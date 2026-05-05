@@ -148,7 +148,6 @@ class AiMetadataControllerTest extends FunctionalTest
         $this->assertSame('', (string)$metadata->MetaDescription);
     }
 
-
     /**
      * Ensure saving metadata sets a content hash when missing.
      */

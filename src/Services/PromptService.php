@@ -20,9 +20,7 @@ class PromptService
     {
         $systemPrompt = $this->getSystemPrompt();
         $userPrompt = $this->getUserPrompt($content, $pageTitle, $pageUrl);
-
         $this->extend('updatePrompts', $systemPrompt, $userPrompt);
-
         return [$systemPrompt, $userPrompt];
     }
 

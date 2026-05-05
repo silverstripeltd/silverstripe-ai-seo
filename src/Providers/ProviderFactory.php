@@ -55,7 +55,6 @@ class ProviderFactory
                 $this->logger->warning('Unknown AI provider configured', ['provider' => $provider]);
                 throw new AIProviderException('Provider not yet implemented');
         }
-
         return Injector::inst()->get($providerClass);
     }
 }

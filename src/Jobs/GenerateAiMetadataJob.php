@@ -230,7 +230,6 @@ class GenerateAiMetadataJob extends AbstractQueuedJob
         if ($env === null || $env === '' || $env === false) {
             return $default;
         }
-
         return (int)$env;
     }
 
@@ -243,7 +242,6 @@ class GenerateAiMetadataJob extends AbstractQueuedJob
         if ($elapsed >= $minDelay) {
             return 0.0;
         }
-
         return $minDelay - $elapsed;
     }
 }

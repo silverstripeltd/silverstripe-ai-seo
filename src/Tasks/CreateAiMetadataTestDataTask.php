@@ -128,7 +128,6 @@ class CreateAiMetadataTestDataTask extends BuildTask
                 $deletedCount++;
             }
         }
-
         return $deletedCount;
     }
 
@@ -162,7 +161,6 @@ class CreateAiMetadataTestDataTask extends BuildTask
                 $titlesByClass[$class] = array_values(array_unique($titles));
             }
         }
-
         return $titlesByClass;
     }
 

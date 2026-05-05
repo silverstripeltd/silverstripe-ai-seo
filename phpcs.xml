@@ -14,4 +14,25 @@
 
 	<!-- use short array syntax -->
 	<rule ref="Generic.Arrays.DisallowLongArraySyntax" />
+	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace" />
+	<rule ref="Squiz.WhiteSpace.FunctionSpacing">
+		<properties>
+			<property name="spacing" value="1" />
+			<property name="spacingBeforeFirst" value="0" />
+			<property name="spacingAfterLast" value="0" />
+		</properties>
+	</rule>
+	<rule ref="PSR2.ControlStructures.ControlStructureSpacing" />
+	<rule ref="Squiz.WhiteSpace.ControlStructureSpacing" />
+	<rule ref="SlevomatCodingStandard.ControlStructures.JumpStatementsSpacing">
+		<properties>
+			<property name="jumpStatements" type="array">
+				<element value="return" />
+			</property>
+			<property name="linesCountBefore" value="0" />
+			<property name="linesCountBeforeFirst" value="0" />
+			<property name="linesCountAfter" value="0" />
+			<property name="linesCountAfterLast" value="0" />
+		</properties>
+	</rule>
 </ruleset>

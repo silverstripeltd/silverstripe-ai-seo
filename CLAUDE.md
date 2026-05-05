@@ -13,6 +13,8 @@ Never attempt to use MCP (Model Context Protocol) - it is disabled at an organis
 ## Writing style
 
 Never use em dashes (-) in any files. Use a regular hyphen (-) instead.
+PHP and JS files should give each class and method a short docblock explainer. Do not include param or return types in those docblocks.
+PHP methods should not have blank lines between statements (except within heredoc/nowdoc strings).
 
 ## Hard constraints
 

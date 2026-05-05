@@ -119,7 +119,6 @@ abstract class AbstractAIProvider
         if ($config) {
             return (string)$config;
         }
-
         return $this->getDefaultModel();
     }
 
@@ -171,7 +170,6 @@ abstract class AbstractAIProvider
                 return $value;
             }
         }
-
         return 15;
     }
 
@@ -186,7 +184,6 @@ abstract class AbstractAIProvider
         if (!is_array($payload)) {
             throw new AIProviderException('AI provider returned malformed JSON');
         }
-
         return new AiMetadataResult([
             'metaDescription' => $payload['metaDescription'] ?? null,
             'ogTitle' => $payload['ogTitle'] ?? null,
@@ -222,7 +219,6 @@ abstract class AbstractAIProvider
                 return $decoded;
             }
         }
-
         return null;
     }
 
@@ -235,7 +231,6 @@ abstract class AbstractAIProvider
         if (is_array($decoded) && isset($decoded['error']['message'])) {
             return (string)$decoded['error']['message'];
         }
-
         return '';
     }
 

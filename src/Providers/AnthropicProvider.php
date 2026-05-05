@@ -66,7 +66,6 @@ class AnthropicProvider extends AbstractAIProvider
 
         $body = (string)$response->getBody();
         $status = $response->getStatusCode();
-
         return [
             'status' => $status,
             'body' => $body,
@@ -88,7 +87,6 @@ class AnthropicProvider extends AbstractAIProvider
         if ($content === '') {
             throw new AIProviderException('Anthropic response missing content');
         }
-
         return $content;
     }
 

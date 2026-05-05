@@ -199,7 +199,6 @@ class AiMetadataReport extends Report
         if (!$metadata->isReviewed()) {
             return AiMetadataReport::STATUS_UNREVIEWED;
         }
-
         return AiMetadataReport::STATUS_OK;
     }
 
@@ -223,7 +222,6 @@ class AiMetadataReport extends Report
         if ($metadata->isModifiedOnDraft()) {
             return AiMetadataReport::LIVE_OUTDATED;
         }
-
         return AiMetadataReport::LIVE_PUBLISHED;
     }
 
@@ -257,7 +255,6 @@ class AiMetadataReport extends Report
         if ($filter === AiMetadataReport::STATUS_OK) {
             return $status === $filter && $liveStatus !== AiMetadataReport::LIVE_NOT_PUBLISHED;
         }
-
         return $status === $filter;
     }
 

@@ -48,7 +48,6 @@ class MigrateExistingMetadataTask extends BuildTask
                 $metadata->write();
             }
         }
-
         return Command::SUCCESS;
     }
 }

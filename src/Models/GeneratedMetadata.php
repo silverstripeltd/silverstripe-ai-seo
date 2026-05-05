@@ -48,7 +48,6 @@ class GeneratedMetadata extends DataObject
         if ($storedHash === '' || $currentHash === '') {
             return false;
         }
-
         return $storedHash !== $currentHash;
     }
 
@@ -60,7 +59,6 @@ class GeneratedMetadata extends DataObject
         if (empty($this->GeneratedAt) || empty($this->ReviewedAt)) {
             return false;
         }
-
         return $this->ReviewedAt >= $this->GeneratedAt;
     }
 }

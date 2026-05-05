@@ -24,24 +24,19 @@ class ContentExtractService
         if ($title !== '') {
             $parts[] = $title;
         }
-
         $content = '';
         if ($record->hasMethod('getElementsForSearch')) {
             $content = (string)$record->getElementsForSearch();
         }
-
         if (trim($content) === '' && $record->hasField('Content')) {
             $content = strip_tags((string)$record->Content);
         }
-
         $content = trim((string)$content);
         if ($content !== '') {
             $parts[] = $content;
         }
-
         $extracted = trim(implode("\n\n", $parts));
         $this->extend('updateExtractedContent', $extracted, $record);
-
         return trim((string)$extracted);
     }
 
@@ -58,7 +53,6 @@ class ContentExtractService
         $liveContent = '';
         $draftExists = false;
         $liveExists = false;
-
         Versioned::withVersionedMode(function () use (
             $record,
             &$content,
@@ -76,7 +70,6 @@ class ContentExtractService
                 $draftContent = $this->extract($draftRecord);
                 $content = $draftContent;
             }
-
             Versioned::set_stage(Versioned::LIVE);
             $this->resetElementalCache();
             $liveRecord = DataObject::get($record->ClassName)->byID($record->ID);
@@ -89,7 +82,6 @@ class ContentExtractService
                 }
             }
         });
-
         $hasUnpublishedChanges = false;
         if ($draftExists && !$liveExists) {
             $hasUnpublishedChanges = true;
@@ -101,7 +93,6 @@ class ContentExtractService
             $hasUnpublishedChanges = $hasUnpublishedChanges
                 || $this->computeHash($draftContent) !== $this->computeHash($liveContent);
         }
-
         return [
             'content' => $content,
             'usedLive' => $usedLive,
@@ -125,16 +116,13 @@ class ContentExtractService
         if (!class_exists(ElementalPageExtension::class)) {
             return;
         }
-
         if (!property_exists(ElementalPageExtension::class, 'elementalAreas')) {
             return;
         }
-
         $property = new \ReflectionProperty(ElementalPageExtension::class, 'elementalAreas');
         if (!$property->isStatic()) {
             return;
         }
-
         $property->setAccessible(true);
         $property->setValue(null, null);
     }

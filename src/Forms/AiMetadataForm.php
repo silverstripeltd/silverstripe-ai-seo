@@ -67,7 +67,6 @@ class AiMetadataForm extends Form
             'GenerationNote' => $metadata->GenerationNote,
             'ReviewConfirmed' => $reviewConfirmed ? 1 : 0,
         ]);
-
         return $form;
     }
 
@@ -180,7 +179,6 @@ class AiMetadataForm extends Form
         $fields->push(HiddenField::create('GeneratedAt', '', $metadata->GeneratedAt));
         $fields->push(HiddenField::create('ReviewedAt', '', $metadata->ReviewedAt));
         $fields->push(HiddenField::create('GenerationNote', '', $metadata->GenerationNote));
-
         return $fields;
     }
 
@@ -216,7 +214,6 @@ class AiMetadataForm extends Form
             ->setSchemaData(['data' => ['buttonStyle' => 'primary']])
             ->setAttribute('tabindex', '-1');
         $actions[] = $regenerateAction;
-
         return FieldList::create(...$actions);
     }
 
@@ -277,7 +274,6 @@ class AiMetadataForm extends Form
                 . ' and will go live when the page is published.'
             );
         }
-
         return implode('', $items);
     }
 
@@ -353,7 +349,6 @@ class AiMetadataForm extends Form
         if ($metadata->isPublished()) {
             return 'Status: Published.';
         }
-
         return '';
     }
 
@@ -384,7 +379,6 @@ class AiMetadataForm extends Form
         if (!$items) {
             return self::renderFallback($value);
         }
-
         return self::wrapDetailValue(HTML::createTag('ul', [], implode('', $items)));
     }
 
@@ -407,7 +401,6 @@ class AiMetadataForm extends Form
         if ($text === '') {
             return self::renderMutedMessage('None');
         }
-
         return self::wrapDetailValue(HTML::createTag('p', [], Convert::raw2xml($text)));
     }
 
@@ -434,7 +427,6 @@ class AiMetadataForm extends Form
         if (!$items) {
             return self::renderFallback($value);
         }
-
         return self::wrapDetailValue(HTML::createTag('ul', [], implode('', $items)));
     }
 
@@ -457,7 +449,6 @@ class AiMetadataForm extends Form
         $pretty = is_array($decoded)
             ? json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
             : $payload;
-
         return HTML::createTag(
             'pre',
             ['class' => 'ai-metadata-modal__json'],
@@ -475,7 +466,6 @@ class AiMetadataForm extends Form
         if ($length > $max) {
             $classes .= ' text-primary';
         }
-
         return HTML::createTag(
             'div',
             [
@@ -499,7 +489,6 @@ class AiMetadataForm extends Form
                 return $max;
             }
         }
-
         return self::DEFAULT_META_DESCRIPTION_MAX;
     }
 
@@ -515,7 +504,6 @@ class AiMetadataForm extends Form
                 Convert::raw2xml($value)
             ));
         }
-
         return self::renderMutedMessage('None');
     }
 
@@ -529,7 +517,6 @@ class AiMetadataForm extends Form
             ['class' => 'text-muted'],
             Convert::raw2xml($message)
         );
-
         return $wrap ? self::wrapDetailValue($content) : $content;
     }
 

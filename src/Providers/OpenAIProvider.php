@@ -65,7 +65,6 @@ class OpenAIProvider extends AbstractAIProvider
 
         $body = (string)$response->getBody();
         $status = $response->getStatusCode();
-
         return [
             'status' => $status,
             'body' => $body,
@@ -87,7 +86,6 @@ class OpenAIProvider extends AbstractAIProvider
         if ($content === '') {
             throw new AIProviderException('OpenAI response missing content');
         }
-
         return $content;
     }
 

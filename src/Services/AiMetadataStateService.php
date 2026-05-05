@@ -35,7 +35,6 @@ class AiMetadataStateService
         if ($metadata && $metadata->exists() && $metadata->ContentHash) {
             $stale = $metadata->isStale($currentHash);
         }
-
         return [
             'stale' => $stale,
             'hasUnpublishedChanges' => $extracted['hasUnpublishedChanges'],

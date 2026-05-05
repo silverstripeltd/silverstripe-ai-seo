@@ -36,7 +36,6 @@ class StubProvider extends AbstractAIProvider
         if (in_array($pageTitle, $this->failureTitles, true)) {
             throw new AIProviderException('Boom');
         }
-
         return $this->result;
     }
 

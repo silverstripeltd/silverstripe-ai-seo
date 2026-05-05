@@ -88,7 +88,6 @@ class GeminiProvider extends AbstractAIProvider
 
         $body = (string)$response->getBody();
         $status = $response->getStatusCode();
-
         return [
             'status' => $status,
             'body' => $body,
@@ -121,7 +120,6 @@ class GeminiProvider extends AbstractAIProvider
         if ($text === '') {
             throw new AIProviderException('Gemini response contained no text');
         }
-
         return $text;
     }
 

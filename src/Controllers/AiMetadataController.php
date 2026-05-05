@@ -91,7 +91,6 @@ class AiMetadataController extends FormSchemaController
         $existingMetadata = $record->hasMethod('getAiMetadata') ? $record->getAiMetadata() : null;
         $hadGeneratedMetadata = $existingMetadata && $existingMetadata->GeneratedAt;
         $extraMeta = ['hadGeneratedMetadata' => (bool)$hadGeneratedMetadata];
-
         try {
             $metadata = $generationService->generateForRecord($record, GeneratedMetadata::create(), false);
         } catch (AIProviderException $exception) {
@@ -102,7 +101,6 @@ class AiMetadataController extends FormSchemaController
             $form = $this->buildForm($record, $metadata, $message);
             return $this->getSchemaResponseWithMeta($form, $record, $metadata, $errors, ['meta' => $extraMeta]);
         }
-
         $form = $this->buildForm($record, $metadata, '', (bool)$metadata->hasUnpublishedChanges);
         return $this->getSchemaResponseWithMeta($form, $record, $metadata, null, ['meta' => $extraMeta]);
     }
@@ -114,7 +112,6 @@ class AiMetadataController extends FormSchemaController
     {
         $record = $this->getRecordFromFormRequest($this->getRequest());
         $metadata = $record->getOrCreateAiMetadata();
-
         $this->applyPayload($metadata, $data);
         if (empty($data['ReviewConfirmed'])) {
             $errors = ValidationResult::create();
@@ -128,12 +125,10 @@ class AiMetadataController extends FormSchemaController
         }
         $this->ensureContentHash($metadata, $record);
         $metadata->ReviewedAt = DBDatetime::now()->getValue();
-
         $validationResult = $metadata->validate();
         if (!$validationResult->isValid()) {
             throw ValidationException::create($validationResult);
         }
-
         $metadata->write();
         $hasUnpublishedChanges = $this->detectUnpublishedChanges($record);
         $form = $this->buildForm($record, $metadata, '', $hasUnpublishedChanges);
@@ -147,25 +142,20 @@ class AiMetadataController extends FormSchemaController
     {
         $fqcn = (string)($request->getVar('fqcn') ?: $request->param('FQCN'));
         $id = (int)($request->param('ItemID') ?: $request->param('ID'));
-
         if ($fqcn === '' || $id <= 0) {
             $this->jsonError(400, 'Invalid request parameters');
         }
-
         $fqcn = urldecode($fqcn);
         if (!class_exists($fqcn) || !DataObject::has_extension($fqcn, AiMetadataExtension::class)) {
             $this->jsonError(400, 'Invalid record class');
         }
-
         $record = DataObject::get($fqcn)->byID($id);
         if (!$record) {
             $this->jsonError(404, 'Record not found');
         }
-
         if (!$record->canEdit()) {
             $this->jsonError(403, 'Access denied');
         }
-
         return $record;
     }
 
@@ -207,7 +197,6 @@ class AiMetadataController extends FormSchemaController
             $meta = array_merge($meta, $extraData['meta']);
             unset($extraData['meta']);
         }
-
         return $this->getSchemaResponse(
             $form->FormAction(),
             $form,
@@ -225,7 +214,6 @@ class AiMetadataController extends FormSchemaController
         if (Director::isDev() && !$runningTests) {
             return $exception->getMessage();
         }
-
         return 'There was an error connecting to the AI provider';
     }
 
@@ -282,7 +270,6 @@ class AiMetadataController extends FormSchemaController
         $metadata->GeneratedAt = $payload['GeneratedAt'] ?? $metadata->GeneratedAt;
         $metadata->GenerationNote = $payload['GenerationNote'] ?? $metadata->GenerationNote;
     }
-
 
     /**
      * Ensure metadata content hash is populated.
