@@ -94,6 +94,10 @@ Control the recommended max character length shown in the CMS modal for `MetaDes
 AI_METADATA_META_DESCRIPTION_MAX=150  # Recommended max characters (default: 150)
 ```
 
+## Content tone
+
+Generated metadata is always written in a professional, factual tone regardless of the voice or style used in the page content. This is intentional - metadata is consumed by search engines, social media platforms, and AI crawlers, which expect clear, neutral language for optimal indexing and display.
+
 ## Features
 
 ### /llms.txt
