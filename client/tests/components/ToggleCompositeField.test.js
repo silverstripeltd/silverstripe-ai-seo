@@ -1,7 +1,7 @@
 /* eslint-env jest */
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import ToggleCompositeField from '../ToggleCompositeField';
+import ToggleCompositeField from '../../src/components/ToggleCompositeField';
 
 test('clamps heading levels and merges classes', () => {
   render(

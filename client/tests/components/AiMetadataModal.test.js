@@ -5,7 +5,7 @@ import {
   formatLengthHint,
   formatTimestamp,
   isReviewRequired,
-} from '../AiMetadataModal';
+} from '../../src/components/AiMetadataModal';
 
 jest.mock('lib/Config', () => ({
   __esModule: true,

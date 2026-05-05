@@ -14,7 +14,7 @@ jest.mock('components/AiMetadataModal', () => 'AiMetadataModal', { virtual: true
 jest.mock('components/ToggleCompositeField', () => 'ToggleCompositeField', { virtual: true });
 
 import Injector from 'lib/Injector';
-import registerComponents from '../registerComponents';
+import registerComponents from '../../src/boot/registerComponents';
 
 test('registerComponents registers toolbar button, modal and field components', () => {
   registerComponents();

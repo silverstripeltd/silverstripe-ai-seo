@@ -22,6 +22,7 @@ Never use em dashes (-) in any files. Use a regular hyphen (-) instead.
 ## Directory structure
 
 - `client/src/` - React modal + Entwine adapter sources
+- `client/tests/` - JS tests and supporting test files, mirroring the relevant `client/src/` paths
 - `client/dist/` - Webpack build output (JS/CSS bundles) - do not read or edit
 - `src/` - PHP classes (controllers, services, extensions, etc.)
 - `_config/` - YAML configuration (extensions, routes, requirements)
@@ -63,6 +64,7 @@ Replace `{binary}` with `phpcs` or `phpcbf`.
 
 - Flat `test()` blocks only - no `describe()` nesting.
 - Use RTL queries by accessibility role/text (`getByRole`, `getByText`), not `getByTestId`.
+- Place JS tests under `client/tests/`, mirroring the relevant `client/src/` path. Keep fixtures or other supporting test files alongside that mirrored test path when needed.
 
 #### JS dependency prerequisite
 

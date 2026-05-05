@@ -16,7 +16,7 @@ jest.mock('components/Button/Button', () => {
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { AiMetadataActionButton } from '../AiMetadataActionButton';
+import { AiMetadataActionButton } from '../../src/components/AiMetadataActionButton';
 
 test('renders a share-style secondary toolbar button with metadata labelling', () => {
   const { container } = render(

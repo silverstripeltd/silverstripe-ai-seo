@@ -14,7 +14,7 @@
       "css": "WEBPACK_CHILD=css npm run build",
       "test": "jest",
       "lint": "yarn lint-js && yarn lint-sass",
-      "lint-js": "eslint client/src",
+      "lint-js": "eslint client/src client/tests",
       "lint-js-fix": "eslint client/src --fix",
       "lint-sass": "stylelint client/src"
     },
