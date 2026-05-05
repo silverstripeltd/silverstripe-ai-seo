@@ -259,12 +259,21 @@ class AiMetadataController extends FormSchemaController
      */
     private function applyPayload(GeneratedMetadata $metadata, array $payload): void
     {
-        $metadata->MetaDescription = $payload['MetaDescription'] ?? $metadata->MetaDescription;
-        $metadata->OGTitle = $payload['OGTitle'] ?? $metadata->OGTitle;
-        $metadata->OGDescription = $payload['OGDescription'] ?? $metadata->OGDescription;
-        $metadata->SummaryLong = $payload['SummaryLong'] ?? $metadata->SummaryLong;
+        $metadata->MetaDescription = $this->sanitizePlainTextField(
+            $payload['MetaDescription'] ?? null,
+            $metadata->MetaDescription
+        );
+        $metadata->OGTitle = $this->sanitizePlainTextField($payload['OGTitle'] ?? null, $metadata->OGTitle);
+        $metadata->OGDescription = $this->sanitizePlainTextField(
+            $payload['OGDescription'] ?? null,
+            $metadata->OGDescription
+        );
+        $metadata->SummaryLong = $this->sanitizePlainTextField(
+            $payload['SummaryLong'] ?? null,
+            $metadata->SummaryLong
+        );
         $metadata->KeyEntities = $this->normalizeJsonField($payload['KeyEntities'] ?? null, $metadata->KeyEntities);
-        $metadata->KeyTopics = $payload['KeyTopics'] ?? $metadata->KeyTopics;
+        $metadata->KeyTopics = $this->sanitizePlainTextField($payload['KeyTopics'] ?? null, $metadata->KeyTopics);
         $metadata->SuggestedFAQs = $this->normalizeJsonField(
             $payload['SuggestedFAQs'] ?? null,
             $metadata->SuggestedFAQs
@@ -297,11 +306,20 @@ class AiMetadataController extends FormSchemaController
         if (is_array($value)) {
             return json_encode($value);
         }
-
         if (is_string($value)) {
             return $value;
         }
-
         return $fallback;
+    }
+
+    /**
+     * Sanitize a plain-text field from the save payload.
+     */
+    private function sanitizePlainTextField(mixed $value, ?string $fallback): ?string
+    {
+        if (!is_string($value)) {
+            return $fallback;
+        }
+        return strip_tags($value);
     }
 }

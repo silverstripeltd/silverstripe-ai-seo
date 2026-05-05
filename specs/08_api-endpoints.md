@@ -30,7 +30,8 @@ Submit modal actions via FormSchema.
 - **Auth:** CMS session + CSRF token
 - **Behaviour:**
   - `doRegenerate` triggers an AI call and returns generated fields without persisting
-  - `doSave` validates, sets `ReviewedAt`, writes Draft metadata, and returns updated schema/state
+  - `doSave` validates, sanitises plain-text metadata fields with `strip_tags()` before writing (`MetaDescription`, `OGTitle`, `OGDescription`, `SummaryLong`, `KeyTopics`), sets `ReviewedAt`, writes Draft metadata, and returns updated schema/state
+  - JSON fields (`KeyEntities`, `SuggestedFAQs`) are stored via `json_encode()` and are not tag-stripped
 - **Response:** FormSchema JSON payload with schema/state and validation errors when present
 - **Error:** Validation errors are returned in the FormSchema response; request errors follow standard controller error responses
 

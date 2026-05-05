@@ -92,4 +92,50 @@ class MetadataGenerationServiceTest extends SapphireTest
         $this->assertFalse($metadata->usedLiveVersion);
         $this->assertTrue($metadata->hasUnpublishedChanges);
     }
+
+    /**
+     * Ensure generation strips HTML from plain-text metadata fields only.
+     */
+    public function testGenerateForRecordSanitizesPlainTextFields(): void
+    {
+        $keyEntities = [
+            [
+                'type' => 'Organization',
+                'name' => '<strong>Acme Corp</strong>',
+                'sameAs' => 'https://example.com/acme',
+            ],
+        ];
+        $suggestedFaqs = [
+            [
+                'question' => '<b>What does Acme do?</b>',
+                'answer' => '<i>It builds rockets.</i>',
+            ],
+        ];
+        $provider = new StubProvider(new AiMetadataResult([
+            'metaDescription' => 'Plain description',
+            'ogTitle' => '<strong>Social title</strong>',
+            'ogDescription' => '<p>Social description</p>',
+            'summaryLong' => '<div>Long summary</div>',
+            'keyEntities' => $keyEntities,
+            'keyTopics' => '<span>Topic one</span>, Topic two',
+            'suggestedFAQs' => $suggestedFaqs,
+        ]));
+        $factory = new StubProviderFactory($provider);
+        $service = new MetadataGenerationService(new ContentExtractService(), $factory);
+
+        $page = SiteTree::create([
+            'Title' => 'Sample page',
+            'Content' => '<p>Body</p>',
+        ]);
+        $page->write();
+
+        $metadata = $service->generateForRecord($page);
+        $this->assertSame('Plain description', $metadata->MetaDescription);
+        $this->assertSame('Social title', $metadata->OGTitle);
+        $this->assertSame('Social description', $metadata->OGDescription);
+        $this->assertSame('Long summary', $metadata->SummaryLong);
+        $this->assertSame('Topic one, Topic two', $metadata->KeyTopics);
+        $this->assertSame(json_encode($keyEntities), $metadata->KeyEntities);
+        $this->assertSame(json_encode($suggestedFaqs), $metadata->SuggestedFAQs);
+    }
 }

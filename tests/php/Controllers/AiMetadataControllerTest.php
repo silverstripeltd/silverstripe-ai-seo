@@ -176,6 +176,60 @@ class AiMetadataControllerTest extends FunctionalTest
     }
 
     /**
+     * Ensure doSave strips HTML from plain-text metadata fields only.
+     */
+    public function testDoSaveSanitizesPlainTextFields(): void
+    {
+        $page = SiteTree::create(['Title' => 'Test page', 'Content' => 'Content']);
+        $page->write();
+
+        $controller = AiMetadataController::create();
+        $request = new HTTPRequest(
+            'POST',
+            '/admin/ai-metadata/aiMetadataForm/' . $page->ID,
+            ['fqcn' => SiteTree::class]
+        );
+        $request->setSession(new Session([]));
+        $request->setRouteParams(['ItemID' => $page->ID]);
+        $request->addHeader('X-Formschema-Request', 'schema,state');
+        $controller->setRequest($request);
+
+        $form = $controller->AiMetadataForm($request);
+        $keyEntities = [
+            [
+                'type' => 'Organization',
+                'name' => '<strong>Acme Corp</strong>',
+                'sameAs' => 'https://example.com/acme',
+            ],
+        ];
+        $suggestedFaqs = [
+            [
+                'question' => '<b>What does Acme do?</b>',
+                'answer' => '<i>It builds rockets.</i>',
+            ],
+        ];
+        $controller->doSave([
+            'MetaDescription' => 'Plain description',
+            'OGTitle' => '<strong>Social title</strong>',
+            'OGDescription' => '<p>Social description</p>',
+            'SummaryLong' => '<div>Long summary</div>',
+            'KeyEntities' => $keyEntities,
+            'KeyTopics' => '<span>Topic one</span>, Topic two',
+            'SuggestedFAQs' => $suggestedFaqs,
+            'ReviewConfirmed' => 1,
+        ], $form);
+
+        $metadata = GeneratedMetadata::get()->filter('ParentID', $page->ID)->first();
+        $this->assertSame('Plain description', $metadata->MetaDescription);
+        $this->assertSame('Social title', $metadata->OGTitle);
+        $this->assertSame('Social description', $metadata->OGDescription);
+        $this->assertSame('Long summary', $metadata->SummaryLong);
+        $this->assertSame('Topic one, Topic two', $metadata->KeyTopics);
+        $this->assertSame(json_encode($keyEntities), $metadata->KeyEntities);
+        $this->assertSame(json_encode($suggestedFaqs), $metadata->SuggestedFAQs);
+    }
+
+    /**
      * Ensure regeneration does not persist until submit.
      */
     public function testRegenerateDoesNotPersist(): void

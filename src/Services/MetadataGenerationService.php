@@ -88,12 +88,23 @@ class MetadataGenerationService
      */
     private function applyResult(GeneratedMetadata $metadata, AiMetadataResult $result): void
     {
-        $metadata->MetaDescription = $result->metaDescription;
-        $metadata->OGTitle = $result->ogTitle;
-        $metadata->OGDescription = $result->ogDescription;
-        $metadata->SummaryLong = $result->summaryLong;
+        $metadata->MetaDescription = $this->sanitizePlainTextValue($result->metaDescription);
+        $metadata->OGTitle = $this->sanitizePlainTextValue($result->ogTitle);
+        $metadata->OGDescription = $this->sanitizePlainTextValue($result->ogDescription);
+        $metadata->SummaryLong = $this->sanitizePlainTextValue($result->summaryLong);
         $metadata->KeyEntities = $result->keyEntities ? json_encode($result->keyEntities) : null;
-        $metadata->KeyTopics = $result->keyTopics;
+        $metadata->KeyTopics = $this->sanitizePlainTextValue($result->keyTopics);
         $metadata->SuggestedFAQs = $result->suggestedFAQs ? json_encode($result->suggestedFAQs) : null;
+    }
+
+    /**
+     * Sanitize a generated plain-text metadata value.
+     */
+    private function sanitizePlainTextValue(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+        return strip_tags($value);
     }
 }
