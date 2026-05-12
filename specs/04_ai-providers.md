@@ -82,7 +82,7 @@ All configuration via environment variables. Env vars are preferred over YAML co
 |---|---|---|
 | `AI_METADATA_PROVIDER` | Active provider (`gemini`, `openai`, `anthropic`) | `gemini` |
 | `AI_METADATA_API_KEY` | API key for the active provider | (required) |
-| `AI_METADATA_MODEL` | Model to use (e.g. `gemini-3.1-flash-lite-preview`, `gpt-4.1`) | Provider-specific default |
+| `AI_METADATA_MODEL` | Model to use (e.g. `gemini-3.1-flash-lite`, `gpt-4.1`) | Provider-specific default |
 | `AI_METADATA_THINKING_LEVEL` | Thinking level (`none`, `low`, `medium`, `high`) used by Gemini `thinkingConfig` | `low` |
 | `AI_METADATA_TEMPERATURE` | Temperature for generation | `1.0` |
 | `AI_METADATA_MAX_TOKENS` | Max tokens in response | `2000` |
