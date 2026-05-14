@@ -86,14 +86,14 @@ Instead, the extension applied to `SiteTree` via `updateCMSFields()`:
 
 ## Publish-on-page-publish
 
-When the editor publishes the parent page, a JS hook (Entwine) fires an XHR to a `publishMetadata` endpoint on `AiMetadataController`. The endpoint checks `ReviewedAt`:
+When the editor publishes the parent page, `AiMetadataExtension::onAfterPublish()` runs on the server as part of the normal Silverstripe publish lifecycle. There is no dedicated publish controller endpoint or extra JS publish hook. The extension checks the related `GeneratedMetadata` record and only publishes it when the metadata is reviewed:
 
-- **`ReviewedAt` is set** (metadata has been human-reviewed): the endpoint calls `$metadata->publishSingle()` and metadata goes live.
-- **`ReviewedAt` is null** (metadata is unreviewed, e.g. background-job-generated): the endpoint does nothing — old live metadata (if any) stays, unreviewed draft metadata stays in draft.
+- **Metadata is reviewed** (`GeneratedAt` exists and `ReviewedAt` is current via `isReviewed()`): `onAfterPublish()` calls `$metadata->publishSingle()` and metadata goes live with the parent page.
+- **Metadata is unreviewed** (for example background-job-generated, or regenerated after the last review): `onAfterPublish()` does nothing, so existing live metadata stays as-is and the newer draft metadata remains on Draft only.
 
 This ensures unverified AI-generated content never goes live accidentally, while matching the editor mental model that "publish page = publish everything on the page".
 
-Similarly, when the parent page is **unpublished** or **archived**, the hook calls `$metadata->doUnpublish()` to remove metadata from the Live stage.
+Similarly, when the parent page is **unpublished** or **archived**, `AiMetadataExtension::onBeforeUnpublish()` and `AiMetadataExtension::onBeforeArchive()` call `$metadata->doUnpublish()` when live metadata exists, so the AI metadata lifecycle stays aligned with the parent record's Live state.
 
 ## Loading states
 

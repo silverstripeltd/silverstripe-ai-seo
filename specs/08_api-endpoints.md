@@ -37,6 +37,8 @@ Submit modal actions via FormSchema.
 
 Publishing to Live now happens when the parent record is published (see `AiMetadataExtension`), so there are no dedicated publish/unpublish endpoints.
 
+This module intentionally uses a full FormSchema form because the modal edits a module-owned `GeneratedMetadata` DataObject. FormSchema is the right fit here: the server defines the editable fields and actions, and the modal submits those same schema-backed actions rather than orchestrating a separate review-and-apply JSON workflow.
+
 ## FQCN validation
 
 The controller must validate that the provided FQCN:
