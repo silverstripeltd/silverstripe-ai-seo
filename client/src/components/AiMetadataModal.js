@@ -98,13 +98,13 @@ const editableFieldNames = [
   'SummaryLong',
 ];
 
-const modalTitle = 'AI Metadata';
+const modalTitle = 'Generate metadata using AI';
 const confirmTooltipText = 'Please confirm you have reviewed the metadata before submitting.';
-const regenerateNoticeText = 'AI metadata regenerated. Review and apply to save.';
-const generateNoticeText = 'AI metadata generated. Review and apply to save.';
-const savedNoticeText = 'AI metadata saved.';
-const regenerateErrorText = 'Failed to regenerate AI metadata.';
-const saveErrorText = 'Failed to save AI metadata.';
+const regenerateNoticeText = 'Generated AI metadata refreshed. Review and apply to save.';
+const generateNoticeText = 'Generated AI metadata created. Review and apply to save.';
+const savedNoticeText = 'Generated AI metadata saved.';
+const regenerateErrorText = 'Failed to refresh generated AI metadata.';
+const saveErrorText = 'Failed to save generated AI metadata.';
 
 /**
  * Snapshot editable field values.

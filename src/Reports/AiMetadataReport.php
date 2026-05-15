@@ -39,7 +39,7 @@ class AiMetadataReport extends Report
      */
     public function title(): string
     {
-        return 'AI Metadata Status';
+        return 'Generated AI metadata status';
     }
 
     /**

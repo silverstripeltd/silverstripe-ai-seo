@@ -24,7 +24,7 @@ const mockCreateDefaultFixture = () => ({
   metaDescriptionMax: 150,
   timestamp: '2026-02-20 10:00:00',
   reviewConfirmed: false,
-  reviewLabel: 'I have reviewed the AI metadata',
+  reviewLabel: 'I have reviewed the generated AI metadata',
   showSaveAction: undefined,
 });
 
@@ -69,75 +69,117 @@ jest.mock('components/FormBuilderModal/FormBuilderModal', () => {
     const fields = fixture.fields || {};
     const wrapperClassName = [className, modalClassName].filter(Boolean).join(' ');
     const showSaveAction = fixture.showSaveAction ?? Boolean(fields.GeneratedAt);
-    const regenerateLabel = fields.GeneratedAt ? 'Regenerate' : 'Generate Metadata';
+    const regenerateLabel = fields.GeneratedAt ? 'Regenerate' : 'Generate metadata';
 
     return ReactModule.createElement(
       'div',
       { className: wrapperClassName, role: 'dialog', 'aria-label': title },
-      ReactModule.createElement('label', { htmlFor: 'generated-at' }, 'Generated at'),
-      ReactModule.createElement('input', {
-        id: 'generated-at',
-        name: 'GeneratedAt',
-        defaultValue: fields.GeneratedAt,
-      }),
-      ReactModule.createElement('label', { htmlFor: 'reviewed-at' }, 'Reviewed at'),
-      ReactModule.createElement('input', {
-        id: 'reviewed-at',
-        name: 'ReviewedAt',
-        defaultValue: fields.ReviewedAt,
-      }),
-      ReactModule.createElement('label', { htmlFor: 'meta-description' }, 'Meta description'),
-      ReactModule.createElement('input', {
-        id: 'meta-description',
-        name: 'MetaDescription',
-        defaultValue: fields.MetaDescription,
-      }),
-      ReactModule.createElement('span', {
-        'data-ai-metadata-count': 'MetaDescription',
-        'data-ai-metadata-max': String(fixture.metaDescriptionMax),
-      }),
-      ReactModule.createElement('label', { htmlFor: 'og-title' }, 'OG title'),
-      ReactModule.createElement('input', {
-        id: 'og-title',
-        name: 'OGTitle',
-        defaultValue: fields.OGTitle,
-      }),
-      ReactModule.createElement('label', { htmlFor: 'og-description' }, 'OG description'),
-      ReactModule.createElement('input', {
-        id: 'og-description',
-        name: 'OGDescription',
-        defaultValue: fields.OGDescription,
-      }),
-      ReactModule.createElement('label', { htmlFor: 'summary-long' }, 'Summary long'),
-      ReactModule.createElement('textarea', {
-        id: 'summary-long',
-        name: 'SummaryLong',
-        defaultValue: fields.SummaryLong,
-      }),
-      ReactModule.createElement('span', {
-        'data-ai-metadata-timestamp': fixture.timestamp,
-      }, fixture.timestamp),
       ReactModule.createElement(
-        'label',
-        { htmlFor: 'review-confirmed' },
+        'div',
+        { 'data-field-path': 'AiMetadataStatus' },
+        ReactModule.createElement('label', { htmlFor: 'generated-at' }, 'Generated at'),
         ReactModule.createElement('input', {
-          id: 'review-confirmed',
-          type: 'checkbox',
-          name: 'ReviewConfirmed',
-          defaultChecked: fixture.reviewConfirmed,
+          id: 'generated-at',
+          name: 'GeneratedAt',
+          defaultValue: fields.GeneratedAt,
         }),
-        fixture.reviewLabel,
+        ReactModule.createElement('label', { htmlFor: 'reviewed-at' }, 'Reviewed at'),
+        ReactModule.createElement('input', {
+          id: 'reviewed-at',
+          name: 'ReviewedAt',
+          defaultValue: fields.ReviewedAt,
+        }),
       ),
-      ReactModule.createElement('button', {
-        type: 'button',
-        name: 'action_doRegenerate',
-        onClick: () => onSubmit({}, 'action_doRegenerate', mockSubmitHandlers.doRegenerate),
-      }, regenerateLabel),
-      showSaveAction ? ReactModule.createElement('button', {
-        type: 'button',
-        name: 'action_doSave',
-        onClick: () => onSubmit({}, 'action_doSave', mockSubmitHandlers.doSave),
-      }, 'Apply Metadata') : null,
+      ReactModule.createElement(
+        'div',
+        { 'data-field-path': 'KeyTopicsDisplay' },
+        ReactModule.createElement('p', null, 'Key topics'),
+      ),
+      ReactModule.createElement('input', {
+        type: 'hidden',
+        name: 'KeyTopics',
+        defaultValue: 'Topic one',
+      }),
+      ReactModule.createElement(
+        'div',
+        { 'data-field-path': 'MetaDescription' },
+        ReactModule.createElement('label', { htmlFor: 'meta-description' }, 'Meta description'),
+        ReactModule.createElement('input', {
+          id: 'meta-description',
+          name: 'MetaDescription',
+          defaultValue: fields.MetaDescription,
+        }),
+        ReactModule.createElement('span', {
+          'data-ai-metadata-count': 'MetaDescription',
+          'data-ai-metadata-max': String(fixture.metaDescriptionMax),
+        }),
+      ),
+      ReactModule.createElement(
+        'div',
+        { 'data-field-path': 'OGTitle' },
+        ReactModule.createElement('label', { htmlFor: 'og-title' }, 'OG title'),
+        ReactModule.createElement('input', {
+          id: 'og-title',
+          name: 'OGTitle',
+          defaultValue: fields.OGTitle,
+        }),
+      ),
+      ReactModule.createElement(
+        'div',
+        { 'data-field-path': 'OGDescription' },
+        ReactModule.createElement('label', { htmlFor: 'og-description' }, 'OG description'),
+        ReactModule.createElement('input', {
+          id: 'og-description',
+          name: 'OGDescription',
+          defaultValue: fields.OGDescription,
+        }),
+      ),
+      ReactModule.createElement(
+        'div',
+        { 'data-field-path': 'SummaryLong' },
+        ReactModule.createElement('label', { htmlFor: 'summary-long' }, 'Summary long'),
+        ReactModule.createElement('textarea', {
+          id: 'summary-long',
+          name: 'SummaryLong',
+          defaultValue: fields.SummaryLong,
+        }),
+      ),
+      ReactModule.createElement(
+        'div',
+        { 'data-field-path': 'GeneratedTimestamp' },
+        ReactModule.createElement('span', {
+          'data-ai-metadata-timestamp': fixture.timestamp,
+        }, fixture.timestamp),
+      ),
+      ReactModule.createElement(
+        'div',
+        { 'data-field-path': 'ReviewConfirmed' },
+        ReactModule.createElement(
+          'label',
+          { htmlFor: 'review-confirmed' },
+          ReactModule.createElement('input', {
+            id: 'review-confirmed',
+            type: 'checkbox',
+            name: 'ReviewConfirmed',
+            defaultChecked: fixture.reviewConfirmed,
+          }),
+          fixture.reviewLabel,
+        ),
+      ),
+      ReactModule.createElement(
+        'div',
+        { className: 'modal-footer' },
+        ReactModule.createElement('button', {
+          type: 'button',
+          name: 'action_doRegenerate',
+          onClick: () => onSubmit({}, 'action_doRegenerate', mockSubmitHandlers.doRegenerate),
+        }, regenerateLabel),
+        showSaveAction ? ReactModule.createElement('button', {
+          type: 'button',
+          name: 'action_doSave',
+          onClick: () => onSubmit({}, 'action_doSave', mockSubmitHandlers.doSave),
+        }, 'Apply metadata') : null,
+      ),
     );
   };
 }, { virtual: true });
@@ -228,8 +270,10 @@ test('requires review confirmation before enabling submit for unreviewed metadat
     />
   );
 
-  const submitButton = screen.getByRole('button', { name: 'Apply Metadata' });
-  const reviewCheckbox = screen.getByRole('checkbox', { name: 'I have reviewed the AI metadata' });
+  expect(screen.getByRole('dialog', { name: 'Generate metadata using AI' })).not.toBeNull();
+
+  const submitButton = screen.getByRole('button', { name: 'Apply metadata' });
+  const reviewCheckbox = screen.getByRole('checkbox', { name: 'I have reviewed the generated AI metadata' });
 
   await waitFor(() => {
     expect(submitButton.disabled).toBe(true);
@@ -256,8 +300,8 @@ test('enables submit for manual edits after metadata is already reviewed', async
     />
   );
 
-  const submitButton = screen.getByRole('button', { name: 'Apply Metadata' });
-  const reviewCheckbox = screen.getByRole('checkbox', { name: 'I have reviewed the AI metadata' });
+  const submitButton = screen.getByRole('button', { name: 'Apply metadata' });
+  const reviewCheckbox = screen.getByRole('checkbox', { name: 'I have reviewed the generated AI metadata' });
   const metaDescriptionInput = screen.getByLabelText('Meta description');
 
   await waitFor(() => {
@@ -303,8 +347,8 @@ test('hides the apply action until AI metadata has been generated', () => {
     />
   );
 
-  expect(screen.getByRole('button', { name: 'Generate Metadata' })).not.toBeNull();
-  expect(screen.queryByRole('button', { name: 'Apply Metadata' })).toBeNull();
+  expect(screen.getByRole('button', { name: 'Generate metadata' })).not.toBeNull();
+  expect(screen.queryByRole('button', { name: 'Apply metadata' })).toBeNull();
 });
 
 test('shows regenerate and save toasts from FormBuilderModal submit callbacks', async () => {
@@ -326,16 +370,16 @@ test('shows regenerate and save toasts from FormBuilderModal submit callbacks', 
   });
 
   await waitFor(() => {
-    expect(actions.toasts.info).toHaveBeenCalledWith('AI metadata generated. Review and apply to save.');
+    expect(actions.toasts.info).toHaveBeenCalledWith('Generated AI metadata created. Review and apply to save.');
   });
 
   fireEvent.input(screen.getByLabelText('Meta description'), { target: { value: 'Updated reviewed summary' } });
 
   await act(async () => {
-    fireEvent.click(screen.getByRole('button', { name: 'Apply Metadata' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Apply metadata' }));
   });
 
   await waitFor(() => {
-    expect(actions.toasts.success).toHaveBeenCalledWith('AI metadata saved.');
+    expect(actions.toasts.success).toHaveBeenCalledWith('Generated AI metadata saved.');
   });
 });

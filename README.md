@@ -1,4 +1,4 @@
-# AI Metadata Module for Silverstripe CMS
+# AI metadata module for Silverstripe CMS
 
 A Silverstripe CMS 6 module that automatically creates metadata on page content for machine consumption.
 
@@ -64,7 +64,7 @@ AI_METADATA_API_KEY=your-api-key         # API key for the chosen provider
 
 ### Model
 
-Control which model is used and how it generates responses. All optional — sensible defaults are used if omitted.
+Control which model is used and how it generates responses. All optional - sensible defaults are used if omitted.
 
 ```bash
 AI_METADATA_MODEL=gemini-3.1-flash-lite  # Model identifier (provider-specific)

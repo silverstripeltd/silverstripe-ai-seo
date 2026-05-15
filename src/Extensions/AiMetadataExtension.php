@@ -82,7 +82,8 @@ class AiMetadataExtension extends Extension
         $readonly = ReadonlyField::create('MetaDescription', $metaField->Title(), $aiDescription);
 
         $original = (string)$this->owner->getField('MetaDescription');
-        $description = 'This value is managed by the AI Metadata module. Open the AI Metadata modal to edit.';
+        $description = 'This value is managed by the AI metadata module.'
+            . ' Open the Generate metadata using AI modal to edit.';
         if (trim($original) !== '') {
             $description .= ' ' . sprintf('Previous value: %s', Convert::raw2xml($original));
         }

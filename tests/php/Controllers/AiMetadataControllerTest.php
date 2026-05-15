@@ -115,7 +115,7 @@ class AiMetadataControllerTest extends FunctionalTest
         $banner = $form->Fields()->fieldByName('AiMetadataStatus');
         $this->assertNotNull($banner);
         $this->assertStringContainsString(
-            'This page has unpublished changes. AI metadata reflects the draft content'
+            'This page has unpublished changes. Generated AI metadata reflects the draft content'
             . ' and will go live when the page is published.',
             (string)$banner->getContent()
         );
@@ -458,7 +458,7 @@ class AiMetadataControllerTest extends FunctionalTest
         $this->assertNotNull($reviewField);
         $this->assertInstanceOf(CheckboxField::class, $reviewField);
         $this->assertSame(0, (int)$reviewField->getValue());
-        $this->assertSame('I have reviewed the AI metadata', $reviewField->Title());
+        $this->assertSame('I have reviewed the generated AI metadata', $reviewField->Title());
 
         $this->assertNull($form->Actions()->fieldByName('ReviewConfirmedToggle'));
 
@@ -471,7 +471,7 @@ class AiMetadataControllerTest extends FunctionalTest
         $this->assertNull($form->Actions()->fieldByName('action_doSave'));
         $regenerateAction = $form->Actions()->fieldByName('action_doRegenerate');
         $this->assertNotNull($regenerateAction);
-        $this->assertSame('Generate Metadata', $regenerateAction->Title());
+        $this->assertSame('Generate metadata', $regenerateAction->Title());
         $this->assertSame('info', $regenerateAction->getSchemaData()['data']['buttonStyle'] ?? null);
 
         $metadata = $page->getOrCreateAiMetadata();
@@ -484,7 +484,7 @@ class AiMetadataControllerTest extends FunctionalTest
         $this->assertNotNull($reviewField);
         $this->assertInstanceOf(CheckboxField::class, $reviewField);
         $this->assertSame(0, (int)$reviewField->getValue());
-        $this->assertSame('I have reviewed the AI metadata', $reviewField->Title());
+        $this->assertSame('I have reviewed the generated AI metadata', $reviewField->Title());
 
         $submitNote = $form->Actions()->fieldByName('AiMetadataSubmitNote');
         $this->assertNotNull($submitNote);
@@ -492,7 +492,7 @@ class AiMetadataControllerTest extends FunctionalTest
             'Metadata will go live when the page is next published',
             (string)$submitNote->getContent()
         );
-        $this->assertStringContainsString('click Apply Metadata', (string)$submitNote->getContent());
+        $this->assertStringContainsString('click Apply metadata', (string)$submitNote->getContent());
         $actionNames = array_map(
             static fn(FormField $field): string => $field->getName(),
             $form->Actions()->toArray()
@@ -504,7 +504,7 @@ class AiMetadataControllerTest extends FunctionalTest
         $this->assertSame('info', $regenerateAction->getSchemaData()['data']['buttonStyle'] ?? null);
         $saveAction = $form->Actions()->fieldByName('action_doSave');
         $this->assertNotNull($saveAction);
-        $this->assertSame('Apply Metadata', $saveAction->Title());
+        $this->assertSame('Apply metadata', $saveAction->Title());
         $this->assertSame('info', $saveAction->getSchemaData()['data']['buttonStyle'] ?? null);
 
         $metadata->ReviewedAt = '2026-02-20 10:00:00';
@@ -516,7 +516,7 @@ class AiMetadataControllerTest extends FunctionalTest
         $this->assertNotNull($reviewField);
         $this->assertInstanceOf(CheckboxField::class, $reviewField);
         $this->assertSame(1, (int)$reviewField->getValue());
-        $this->assertSame('Metadata was reviewed', $reviewField->Title());
+        $this->assertSame('Generated AI metadata was reviewed', $reviewField->Title());
         $this->assertNull($form->Actions()->fieldByName('AiMetadataSubmitNote'));
         $this->assertNotNull($form->Actions()->fieldByName('action_doSave'));
     }
@@ -542,7 +542,7 @@ class AiMetadataControllerTest extends FunctionalTest
         $form = $controller->AiMetadataForm($request);
         $banner = $form->Fields()->fieldByName('AiMetadataStatus');
         $this->assertNotNull($banner);
-        $this->assertStringContainsString('No AI metadata yet.', (string)$banner->getContent());
+        $this->assertStringContainsString('No generated AI metadata yet.', (string)$banner->getContent());
 
         $metadata = $page->getOrCreateAiMetadata();
         $metadata->GeneratedAt = '2026-02-20 10:00:00';
@@ -551,7 +551,7 @@ class AiMetadataControllerTest extends FunctionalTest
         $form = $controller->AiMetadataForm($request);
         $banner = $form->Fields()->fieldByName('AiMetadataStatus');
         $this->assertNotNull($banner);
-        $this->assertStringContainsString('AI metadata ready for review', (string)$banner->getContent());
+        $this->assertStringContainsString('Generated AI metadata ready for review', (string)$banner->getContent());
         $this->assertStringContainsString('Last generated', (string)$banner->getContent());
         $this->assertStringContainsString('data-ai-metadata-timestamp', (string)$banner->getContent());
 
@@ -561,7 +561,7 @@ class AiMetadataControllerTest extends FunctionalTest
         $form = $controller->AiMetadataForm($request);
         $banner = $form->Fields()->fieldByName('AiMetadataStatus');
         $this->assertNotNull($banner);
-        $this->assertStringContainsString('AI metadata reviewed and saved', (string)$banner->getContent());
+        $this->assertStringContainsString('Generated AI metadata reviewed and saved', (string)$banner->getContent());
         $this->assertStringContainsString('Last generated', (string)$banner->getContent());
         $this->assertStringContainsString('Status: Draft only', (string)$banner->getContent());
     }
@@ -635,7 +635,7 @@ class AiMetadataControllerTest extends FunctionalTest
 
         $form = $controller->AiMetadataForm($request);
         $action = $form->Actions()->fieldByName('action_doRegenerate');
-        $this->assertSame('Generate Metadata', $action->Title());
+        $this->assertSame('Generate metadata', $action->Title());
 
         $metadata = $page->getOrCreateAiMetadata();
         $metadata->GeneratedAt = '2026-02-20 10:00:00';

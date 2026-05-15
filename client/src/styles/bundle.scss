@@ -7,13 +7,13 @@
 
 .ai-metadata-modal {
   .modal-content {
-    height: 100%;
+    max-height: calc(100vh - 3.5rem);
+    overflow-y: auto;
   }
 
   .modal-body {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
+    min-height: auto;
+    overflow: visible;
   }
 
   .modal-footer {

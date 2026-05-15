@@ -171,7 +171,9 @@ class AiMetadataForm extends Form
         ]);
         $fields->push($readonlyToggle);
 
-        $reviewLabel = $reviewConfirmed ? 'Metadata was reviewed' : 'I have reviewed the AI metadata';
+        $reviewLabel = $reviewConfirmed
+            ? 'Generated AI metadata was reviewed'
+            : 'I have reviewed the generated AI metadata';
         $fields->push(CheckboxField::create('ReviewConfirmed', $reviewLabel)
             ->setValue($reviewConfirmed ? 1 : 0));
 
@@ -189,7 +191,7 @@ class AiMetadataForm extends Form
     {
         $regenerateLabel = $metadata->GeneratedAt
             ? 'Regenerate'
-            : 'Generate Metadata';
+            : 'Generate metadata';
         $hasGeneratedMetadata = (bool)$metadata->GeneratedAt;
         $reviewRequired = self::isReviewRequired($metadata);
 
@@ -205,7 +207,7 @@ class AiMetadataForm extends Form
                     'p',
                     ['class' => 'ai-metadata-modal__submit-note'],
                     Convert::raw2xml(
-                        'Check the "I have reviewed the AI metadata" checkbox, then click Apply Metadata.'
+                        'Check the "I have reviewed the generated AI metadata" checkbox, then click Apply metadata.'
                         . ' Metadata will go live when the page is next published.'
                     )
                 )
@@ -213,7 +215,7 @@ class AiMetadataForm extends Form
         }
         $actions[] = $regenerateAction;
         if ($hasGeneratedMetadata) {
-            $actions[] = FormAction::create('doSave', 'Apply Metadata')
+            $actions[] = FormAction::create('doSave', 'Apply metadata')
                 ->setSchemaData(['data' => ['buttonStyle' => 'info']])
                 ->setAttribute('tabindex', '-1');
         }
@@ -273,7 +275,7 @@ class AiMetadataForm extends Form
             $items[] = HTML::createTag(
                 'div',
                 ['class' => 'ai-metadata-modal__banner ai-metadata-modal__banner--info'],
-                'This page has unpublished changes. AI metadata reflects the draft content'
+                'This page has unpublished changes. Generated AI metadata reflects the draft content'
                 . ' and will go live when the page is published.'
             );
         }
@@ -289,7 +291,7 @@ class AiMetadataForm extends Form
             return HTML::createTag(
                 'div',
                 ['class' => 'ai-metadata-modal__banner ai-metadata-modal__banner--status-never'],
-                'No AI metadata yet.'
+                'No generated AI metadata yet.'
             );
         }
 
@@ -299,12 +301,12 @@ class AiMetadataForm extends Form
             return HTML::createTag(
                 'div',
                 ['class' => 'ai-metadata-modal__banner ai-metadata-modal__banner--status-review'],
-                sprintf('AI metadata ready for review. Last generated: %s', $timestamp)
+                sprintf('Generated AI metadata ready for review. Last generated: %s', $timestamp)
             );
         }
 
         $statusNote = self::buildVersionedStatusNote($metadata);
-        $message = sprintf('AI metadata reviewed and saved. Last generated: %s', $timestamp);
+        $message = sprintf('Generated AI metadata reviewed and saved. Last generated: %s', $timestamp);
         if ($statusNote !== '') {
             $message .= ' ' . $statusNote;
         }

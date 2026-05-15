@@ -54,6 +54,7 @@ class AiMetadataExtensionTest extends SapphireTest
         $field = $fields->dataFieldByName('MetaDescription');
 
         $this->assertInstanceOf(ReadonlyField::class, $field);
+        $this->assertStringContainsString('Generate metadata using AI modal', (string)$field->getDescription());
         $this->assertStringContainsString('Previous value:', (string)$field->getDescription());
     }
 
