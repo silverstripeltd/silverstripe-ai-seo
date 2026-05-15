@@ -116,6 +116,14 @@ The `GenerateAiMetadataJob` is available via the queued jobs UI and can be sched
 
 `MigrateExistingMetadataTask` copies existing `SiteTree.MetaDescription` values into `GeneratedMetadata` records for sites adopting the module.
 
+### Draft and Live behaviour
+
+`Draft` content is always used. All writes land on `Draft`:
+
+- **Page editing** reads `Draft` content. Regenerating does not save anything until the editor submits, which writes to `Draft` and marks the metadata as reviewed.
+- **Queued job and CMS report** also read `Draft` content. The queued job writes generated metadata to `Draft` and marks it as unreviewed. The report does not call the AI provider - it reads the stored metadata state and checks staleness against `Draft` content.
+- **Publishing** the `GeneratedMetadata` record happens through the normal page publish workflow. Reviewed metadata is published to `Live` together with the page. Unreviewed metadata stays on `Draft` until an editor reviews it.
+
 ## Tasks and queued jobs
 
 Build tasks (run via `/dev/tasks`) are available for manual maintenance:

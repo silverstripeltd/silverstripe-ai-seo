@@ -22,25 +22,25 @@ Top to bottom:
      - **Draft changes not published** — Draft differs from Live.
      - **Published** — Draft and Live match and Live exists.
    The banner uses different colours per state to make the status visible at a glance.
-2. **Stale content indicator** — shown inside the modal if the content hash has changed since metadata was last generated. Warning banner text: "Page content has changed since metadata was generated. To regenerate, click the "Regenerate metadata using AI" button."
+2. **Stale content indicator** — shown inside the modal if the content hash has changed since metadata was last generated. Warning banner text: "Page content has changed since metadata was generated. To regenerate, click the "Regenerate" button."
 2a. **Draft changes notice** — shown when the page has unpublished changes (Draft differs from Live or Live does not exist). Informs the editor that the AI metadata reflects draft content and will go live when the page is published. This is an informational notice (not a warning). This notice is driven by the same draft status logic used in the modal schema meta (the Draft vs Live comparison), so it should remain consistent with the status banner state.
 3. **All metadata fields** — laid out vertically, one after another. Traditional SEO fields first (editable text fields), then AI-oriented fields:
    - `MetaDescription`, `OGTitle`, `OGDescription` — editable text fields
    - `MetaDescription` shows a yellow warning indicator if it exceeds the recommended character limit (default 150, configurable via `AI_METADATA_META_DESCRIPTION_MAX`)
-   - `SummaryLong` — editable textarea
+    - `SummaryLong` — editable textarea shown at 3 rows
    - `KeyEntities`, `KeyTopics`, `SuggestedFAQs` — **read-only formatted display** (not editable; regenerate to change). Show as nicely formatted text, not raw JSON.
    - `JsonLdSchema` — **read-only preview** showing the assembled JSON-LD for the page. Not stored in DB, dynamically assembled for display.
 4. **Review confirmation checkbox** — shows **I have reviewed the AI metadata** while review is required. When metadata is already reviewed, the label switches to **Metadata was reviewed** and the checkbox is disabled.
 5. **Action buttons** (top to bottom):
-   - **Submit** button — saves the metadata. Disabled unless metadata needs review and the review confirmation checkbox is active, or an editor has made manual edits in the editable fields.
-   - **Generate/Regenerate** button — triggers AI regeneration of metadata. Shows **Generate metadata using AI** when `GeneratedAt` is empty, otherwise **Regenerate metadata using AI**.
-   - **Submit note** — the text "Check the "I have reviewed the AI metadata" checkbox, then click Submit. Metadata will go live when the page is next published." is shown above Submit only when review is required.
+    - **Generate Metadata / Regenerate** button — triggers AI generation of metadata. Shows **Generate Metadata** when `GeneratedAt` is empty, otherwise **Regenerate**. This button uses the CMS info button style.
+    - **Apply Metadata** button — saves the metadata. It is shown only after AI-generated metadata exists, and is disabled unless metadata needs review and the review confirmation checkbox is active, or an editor has made manual edits in the editable fields. This button uses the CMS info button style.
+    - **Submit note** — the text "Check the "I have reviewed the AI metadata" checkbox, then click Apply Metadata. Metadata will go live when the page is next published." is shown above Apply Metadata only when review is required.
 
 ### Footer button states
 
-- **Generate/Regenerate:** enabled by default. Disabled only while a generation request is in progress, then re-enabled when the response returns.
+- **Generate Metadata/Regenerate:** enabled by default. Disabled only while a generation request is in progress, then re-enabled when the response returns.
 - **Review confirmation:** disabled when there is no metadata to review (never generated, or already reviewed). Enabled after generation when review is required.
-- **Submit:** disabled when review is not required and there are no manual edits. Enabled when review is required and confirmed, or when an editor has changed an editable field.
+- **Apply Metadata:** hidden until metadata has been generated. Once shown, it is disabled when review is not required and there are no manual edits, and enabled when review is required and confirmed, or when an editor has changed an editable field.
 
 ## Toast notifications
 
@@ -67,7 +67,7 @@ Instead, the extension applied to `SiteTree` via `updateCMSFields()`:
 
 - Clicking Regenerate sends an XHR request that calls the AI provider and returns generated values.
 - Generated values are populated into the modal form fields but are **not** persisted to the database.
-- The editor must review the values and click Submit to save them.
+- The editor must review the values and click Apply Metadata to save them.
 - On submit, `GeneratedAt` is set, `ReviewedAt` is set, `ContentHash` is updated, and the record is written to Draft.
 - If the editor closes the modal without submitting, the generated values are lost.
 - Loading/spinner state shown while generation is in progress.
@@ -75,7 +75,7 @@ Instead, the extension applied to `SiteTree` via `updateCMSFields()`:
 
 ## Submission behaviour
 
-- Submit is a "sideways" XHR save (does not submit the main page edit form).
+- Apply Metadata is a "sideways" XHR save (does not submit the main page edit form).
 - Saves the `GeneratedMetadata` record to Draft independently from the page.
 - Sets `ReviewedAt` to the current datetime.
 - On success, the modal stays open and the status banner updates to the reviewed state.
@@ -98,5 +98,5 @@ Similarly, when the parent page is **unpublished** or **archived**, `AiMetadataE
 ## Loading states
 
 - **Modal open:** loading spinner while fetching existing metadata via XHR. Error toast if fetch fails.
-- **Regeneration:** loading spinner on modal fields while AI generation is in progress. Regenerate button disabled during generation.
-- **Submit:** brief loading state on submit button. Error toast if save fails.
+- **Regeneration:** loading spinner on modal fields while AI generation is in progress. Generate Metadata and Regenerate are disabled during generation.
+- **Apply Metadata:** brief loading state on the apply button. Error toast if save fails.

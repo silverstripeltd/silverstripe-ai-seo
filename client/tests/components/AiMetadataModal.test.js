@@ -25,6 +25,7 @@ const mockCreateDefaultFixture = () => ({
   timestamp: '2026-02-20 10:00:00',
   reviewConfirmed: false,
   reviewLabel: 'I have reviewed the AI metadata',
+  showSaveAction: undefined,
 });
 
 const resetModalFixture = () => {
@@ -67,6 +68,8 @@ jest.mock('components/FormBuilderModal/FormBuilderModal', () => {
     const fixture = mockModalFixture || mockCreateDefaultFixture();
     const fields = fixture.fields || {};
     const wrapperClassName = [className, modalClassName].filter(Boolean).join(' ');
+    const showSaveAction = fixture.showSaveAction ?? Boolean(fields.GeneratedAt);
+    const regenerateLabel = fields.GeneratedAt ? 'Regenerate' : 'Generate Metadata';
 
     return ReactModule.createElement(
       'div',
@@ -129,12 +132,12 @@ jest.mock('components/FormBuilderModal/FormBuilderModal', () => {
         type: 'button',
         name: 'action_doRegenerate',
         onClick: () => onSubmit({}, 'action_doRegenerate', mockSubmitHandlers.doRegenerate),
-      }, 'Generate metadata using AI'),
-      ReactModule.createElement('button', {
+      }, regenerateLabel),
+      showSaveAction ? ReactModule.createElement('button', {
         type: 'button',
         name: 'action_doSave',
         onClick: () => onSubmit({}, 'action_doSave', mockSubmitHandlers.doSave),
-      }, 'Submit'),
+      }, 'Apply Metadata') : null,
     );
   };
 }, { virtual: true });
@@ -225,7 +228,7 @@ test('requires review confirmation before enabling submit for unreviewed metadat
     />
   );
 
-  const submitButton = screen.getByRole('button', { name: 'Submit' });
+  const submitButton = screen.getByRole('button', { name: 'Apply Metadata' });
   const reviewCheckbox = screen.getByRole('checkbox', { name: 'I have reviewed the AI metadata' });
 
   await waitFor(() => {
@@ -253,7 +256,7 @@ test('enables submit for manual edits after metadata is already reviewed', async
     />
   );
 
-  const submitButton = screen.getByRole('button', { name: 'Submit' });
+  const submitButton = screen.getByRole('button', { name: 'Apply Metadata' });
   const reviewCheckbox = screen.getByRole('checkbox', { name: 'I have reviewed the AI metadata' });
   const metaDescriptionInput = screen.getByLabelText('Meta description');
 
@@ -291,6 +294,19 @@ test('updates the meta description length hint while the editor types', async ()
   expect(hint.className).toContain('text-primary');
 });
 
+test('hides the apply action until AI metadata has been generated', () => {
+  render(
+    <AiMetadataModalComponent
+      fqcn="App\\Page"
+      recordId={7}
+      actions={buildActions()}
+    />
+  );
+
+  expect(screen.getByRole('button', { name: 'Generate Metadata' })).not.toBeNull();
+  expect(screen.queryByRole('button', { name: 'Apply Metadata' })).toBeNull();
+});
+
 test('shows regenerate and save toasts from FormBuilderModal submit callbacks', async () => {
   mockModalFixture.fields.GeneratedAt = '2026-02-20 10:00:00';
   mockModalFixture.fields.ReviewedAt = '2026-02-20 10:00:00';
@@ -306,17 +322,17 @@ test('shows regenerate and save toasts from FormBuilderModal submit callbacks', 
   );
 
   await act(async () => {
-    fireEvent.click(screen.getByRole('button', { name: 'Generate metadata using AI' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Regenerate' }));
   });
 
   await waitFor(() => {
-    expect(actions.toasts.info).toHaveBeenCalledWith('AI metadata generated. Review and submit to save.');
+    expect(actions.toasts.info).toHaveBeenCalledWith('AI metadata generated. Review and apply to save.');
   });
 
   fireEvent.input(screen.getByLabelText('Meta description'), { target: { value: 'Updated reviewed summary' } });
 
   await act(async () => {
-    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Apply Metadata' }));
   });
 
   await waitFor(() => {

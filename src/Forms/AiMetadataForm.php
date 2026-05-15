@@ -130,7 +130,7 @@ class AiMetadataForm extends Form
             'SummaryLong',
             'Summary - long form (JSON-LD + /llms.txt)'
         )
-            ->setRows(6));
+            ->setRows(3));
 
         $readonlyFields = FieldList::create(
             HeaderField::create(
@@ -188,13 +188,14 @@ class AiMetadataForm extends Form
     private static function buildActions(GeneratedMetadata $metadata): FieldList
     {
         $regenerateLabel = $metadata->GeneratedAt
-            ? 'Regenerate metadata using AI'
-            : 'Generate metadata using AI';
+            ? 'Regenerate'
+            : 'Generate Metadata';
+        $hasGeneratedMetadata = (bool)$metadata->GeneratedAt;
         $reviewRequired = self::isReviewRequired($metadata);
 
         // Non-submitting form action to trigger regeneration via XHR.
         $regenerateAction = FormAction::create('doRegenerate', $regenerateLabel)
-            ->setSchemaData(['data' => ['buttonStyle' => 'warning']]);
+            ->setSchemaData(['data' => ['buttonStyle' => 'info']]);
 
         $actions = [];
         if ($reviewRequired) {
@@ -204,16 +205,18 @@ class AiMetadataForm extends Form
                     'p',
                     ['class' => 'ai-metadata-modal__submit-note'],
                     Convert::raw2xml(
-                        'Check the "I have reviewed the AI metadata" checkbox, then click Submit.'
+                        'Check the "I have reviewed the AI metadata" checkbox, then click Apply Metadata.'
                         . ' Metadata will go live when the page is next published.'
                     )
                 )
             );
         }
-        $actions[] = FormAction::create('doSave', 'Submit')
-            ->setSchemaData(['data' => ['buttonStyle' => 'primary']])
-            ->setAttribute('tabindex', '-1');
         $actions[] = $regenerateAction;
+        if ($hasGeneratedMetadata) {
+            $actions[] = FormAction::create('doSave', 'Apply Metadata')
+                ->setSchemaData(['data' => ['buttonStyle' => 'info']])
+                ->setAttribute('tabindex', '-1');
+        }
         return FieldList::create(...$actions);
     }
 
@@ -262,7 +265,7 @@ class AiMetadataForm extends Form
                 'div',
                 ['class' => 'ai-metadata-modal__banner ai-metadata-modal__banner--stale'],
                 'Page content has changed since metadata was generated.'
-                . ' To regenerate, click the "Regenerate metadata using AI" button.'
+                . ' To regenerate, click the "Regenerate" button.'
             );
         }
 

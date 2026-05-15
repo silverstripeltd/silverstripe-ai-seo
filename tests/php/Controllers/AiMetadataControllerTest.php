@@ -419,7 +419,7 @@ class AiMetadataControllerTest extends FunctionalTest
             static fn(array $action): ?string => $action['name'] ?? null,
             $actions
         );
-        $this->assertContains('action_doSave', $actionNames);
+        $this->assertNotContains('action_doSave', $actionNames);
         $this->assertContains('action_doRegenerate', $actionNames);
     }
 
@@ -467,7 +467,12 @@ class AiMetadataControllerTest extends FunctionalTest
 
         $summaryLong = $fields->dataFieldByName('SummaryLong');
         $this->assertNotNull($summaryLong);
-        $this->assertSame(6, $summaryLong->getRows());
+        $this->assertSame(3, $summaryLong->getRows());
+        $this->assertNull($form->Actions()->fieldByName('action_doSave'));
+        $regenerateAction = $form->Actions()->fieldByName('action_doRegenerate');
+        $this->assertNotNull($regenerateAction);
+        $this->assertSame('Generate Metadata', $regenerateAction->Title());
+        $this->assertSame('info', $regenerateAction->getSchemaData()['data']['buttonStyle'] ?? null);
 
         $metadata = $page->getOrCreateAiMetadata();
         $metadata->GeneratedAt = '2026-02-20 09:00:00';
@@ -487,11 +492,20 @@ class AiMetadataControllerTest extends FunctionalTest
             'Metadata will go live when the page is next published',
             (string)$submitNote->getContent()
         );
+        $this->assertStringContainsString('click Apply Metadata', (string)$submitNote->getContent());
         $actionNames = array_map(
             static fn(FormField $field): string => $field->getName(),
             $form->Actions()->toArray()
         );
-        $this->assertSame(['AiMetadataSubmitNote', 'action_doSave', 'action_doRegenerate'], $actionNames);
+        $this->assertSame(['AiMetadataSubmitNote', 'action_doRegenerate', 'action_doSave'], $actionNames);
+        $regenerateAction = $form->Actions()->fieldByName('action_doRegenerate');
+        $this->assertNotNull($regenerateAction);
+        $this->assertSame('Regenerate', $regenerateAction->Title());
+        $this->assertSame('info', $regenerateAction->getSchemaData()['data']['buttonStyle'] ?? null);
+        $saveAction = $form->Actions()->fieldByName('action_doSave');
+        $this->assertNotNull($saveAction);
+        $this->assertSame('Apply Metadata', $saveAction->Title());
+        $this->assertSame('info', $saveAction->getSchemaData()['data']['buttonStyle'] ?? null);
 
         $metadata->ReviewedAt = '2026-02-20 10:00:00';
         $metadata->write();
@@ -504,6 +518,7 @@ class AiMetadataControllerTest extends FunctionalTest
         $this->assertSame(1, (int)$reviewField->getValue());
         $this->assertSame('Metadata was reviewed', $reviewField->Title());
         $this->assertNull($form->Actions()->fieldByName('AiMetadataSubmitNote'));
+        $this->assertNotNull($form->Actions()->fieldByName('action_doSave'));
     }
 
     /**
@@ -579,7 +594,7 @@ class AiMetadataControllerTest extends FunctionalTest
         $this->assertNotNull($banner);
         $this->assertStringContainsString(
             'Page content has changed since metadata was generated.'
-            . ' To regenerate, click the "Regenerate metadata using AI" button.',
+            . ' To regenerate, click the "Regenerate" button.',
             (string)$banner->getContent()
         );
     }
@@ -620,7 +635,7 @@ class AiMetadataControllerTest extends FunctionalTest
 
         $form = $controller->AiMetadataForm($request);
         $action = $form->Actions()->fieldByName('action_doRegenerate');
-        $this->assertSame('Generate metadata using AI', $action->Title());
+        $this->assertSame('Generate Metadata', $action->Title());
 
         $metadata = $page->getOrCreateAiMetadata();
         $metadata->GeneratedAt = '2026-02-20 10:00:00';
@@ -628,6 +643,6 @@ class AiMetadataControllerTest extends FunctionalTest
 
         $form = $controller->AiMetadataForm($request);
         $action = $form->Actions()->fieldByName('action_doRegenerate');
-        $this->assertSame('Regenerate metadata using AI', $action->Title());
+        $this->assertSame('Regenerate', $action->Title());
     }
 }

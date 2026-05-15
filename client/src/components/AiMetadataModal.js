@@ -100,8 +100,8 @@ const editableFieldNames = [
 
 const modalTitle = 'AI Metadata';
 const confirmTooltipText = 'Please confirm you have reviewed the metadata before submitting.';
-const regenerateNoticeText = 'AI metadata regenerated. Review and submit to save.';
-const generateNoticeText = 'AI metadata generated. Review and submit to save.';
+const regenerateNoticeText = 'AI metadata regenerated. Review and apply to save.';
+const generateNoticeText = 'AI metadata generated. Review and apply to save.';
 const savedNoticeText = 'AI metadata saved.';
 const regenerateErrorText = 'Failed to regenerate AI metadata.';
 const saveErrorText = 'Failed to save AI metadata.';

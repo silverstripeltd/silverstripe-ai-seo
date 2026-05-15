@@ -23,7 +23,7 @@ Fetch the FormSchema payload for the modal.
 
 ### POST `/admin/ai-metadata/aiMetadataForm/{ID}`
 
-Submit modal actions via FormSchema.
+Submit modal actions via FormSchema, including Generate Metadata / Regenerate and Apply Metadata.
 
 - **FQCN:** Passed via request params and validated as above
 - **ID:** DataObject ID

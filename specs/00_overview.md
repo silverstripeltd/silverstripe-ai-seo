@@ -12,9 +12,9 @@ Automatically generates SEO and AI-oriented metadata for Silverstripe CMS pages 
 ┌─────────────────────────────────────────────────────────────┐
 │ CMS (Editor)                                                │
 │                                                             │
-│  Page Edit Form ──→ [AI Metadata] button ──→ Modal (React) │
+│  Page Edit Form ──→ [Metadata] button ──→ Modal (React)    │
 │                                              │         │    │
-│                                         Regenerate   Submit │
+│                                  Generate/Regenerate   Apply │
 │                                              │         │    │
 └──────────────────────────────────────────────┼─────────┼────┘
                                                │         │
