@@ -98,6 +98,10 @@ const editableFieldNames = [
   'SummaryLong',
 ];
 
+const regenerateActionSelector = 'button[name="action_doRegenerate"]';
+const inlineRegenerateActionClassName = 'ai-metadata-modal__inline-regenerate-action';
+const inlineRegenerateButtonClassName = 'ai-metadata-modal__inline-regenerate-button';
+const hiddenSourceActionClassName = 'ai-metadata-modal__source-action--hidden';
 const modalTitle = 'Generate metadata using AI';
 const confirmTooltipText = 'Please confirm you have reviewed the metadata before submitting.';
 const regenerateNoticeText = 'Generated AI metadata refreshed. Review and apply to save.';
@@ -133,6 +137,145 @@ export const isReviewRequired = (modal) => {
     return true;
   }
   return reviewedAt < generatedAt;
+};
+
+/**
+ * Find the rendered field wrapper for a schema field name.
+ *
+ * @param {HTMLElement|null} modal
+ * @param {string} fieldName
+ * @returns {HTMLElement|null}
+ */
+const findFieldElement = (modal, fieldName) => {
+  if (!modal) {
+    return null;
+  }
+  const selectors = [
+    `[data-field-path="${fieldName}"]`,
+    `[data-field-name="${fieldName}"]`,
+    `#${fieldName}`,
+    `[name="${fieldName}"]`,
+  ];
+  const containerSelectors = [
+    '[data-field-path]',
+    '[data-field-name]',
+    '.field',
+    '.form-group',
+    '.form__field',
+  ];
+  const element = selectors
+    .map((selector) => modal.querySelector(selector))
+    .find(Boolean);
+  if (!element) {
+    return null;
+  }
+  return element.closest(containerSelectors.join(', ')) || element;
+};
+
+/**
+ * Remove the inline regenerate proxy and restore the original footer action.
+ *
+ * @param {HTMLElement|null} modal
+ * @returns {void}
+ */
+const removeInlineRegenerateAction = (modal) => {
+  if (!modal) {
+    return;
+  }
+  modal.querySelector(`.${inlineRegenerateActionClassName}`)?.remove();
+  const sourceButton = modal.querySelector(regenerateActionSelector);
+  if (!sourceButton) {
+    return;
+  }
+  sourceButton.classList.remove(hiddenSourceActionClassName);
+  sourceButton.removeAttribute('aria-hidden');
+};
+
+/**
+ * Mirror the real regenerate action with a proxy button in the form body.
+ *
+ * @param {HTMLElement|null} modal
+ * @returns {void}
+ */
+export const syncInlineRegenerateAction = (modal) => {
+  if (!modal) {
+    return;
+  }
+  const sourceButton = modal.querySelector(regenerateActionSelector);
+  const keyTopicsField = findFieldElement(modal, 'KeyTopicsDisplay');
+  const statusField = findFieldElement(modal, 'AiMetadataStatus');
+  if (!sourceButton || (!keyTopicsField && !statusField)) {
+    removeInlineRegenerateAction(modal);
+    return;
+  }
+
+  let inlineAction = modal.querySelector(`.${inlineRegenerateActionClassName}`);
+  if (!inlineAction) {
+    inlineAction = document.createElement('div');
+    inlineAction.className = inlineRegenerateActionClassName;
+  }
+
+  let proxyButton = inlineAction.querySelector('button');
+  if (!proxyButton) {
+    proxyButton = document.createElement('button');
+    proxyButton.type = 'button';
+    proxyButton.className = 'btn';
+    proxyButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      const currentSourceButton = modal.querySelector(regenerateActionSelector);
+      if (!currentSourceButton || currentSourceButton.disabled) {
+        return;
+      }
+      // Keep the real FormAction in the footer so FormBuilderModal retains its submit wiring.
+      // This inline button is only a proxy trigger because moving or cloning the source action breaks it.
+      currentSourceButton.click();
+      const schedule = window.requestAnimationFrame
+        ? window.requestAnimationFrame.bind(window)
+        : (callback) => window.setTimeout(callback, 16);
+      schedule(() => syncInlineRegenerateAction(modal));
+    });
+    inlineAction.appendChild(proxyButton);
+  }
+
+  const sourceClasses = [...sourceButton.classList]
+    .filter((className) => className !== hiddenSourceActionClassName)
+    .join(' ');
+  if (proxyButton.className !== sourceClasses) {
+    proxyButton.className = sourceClasses;
+  }
+  proxyButton.classList.add(inlineRegenerateButtonClassName);
+  if (proxyButton.innerHTML !== sourceButton.innerHTML) {
+    proxyButton.innerHTML = sourceButton.innerHTML;
+  }
+  proxyButton.disabled = sourceButton.disabled;
+
+  const sourceTitle = sourceButton.getAttribute('title');
+  if (sourceTitle) {
+    proxyButton.setAttribute('title', sourceTitle);
+  } else {
+    proxyButton.removeAttribute('title');
+  }
+
+  const sourceAriaDisabled = sourceButton.getAttribute('aria-disabled');
+  if (sourceAriaDisabled) {
+    proxyButton.setAttribute('aria-disabled', sourceAriaDisabled);
+  } else {
+    proxyButton.removeAttribute('aria-disabled');
+  }
+
+  // Hide the original footer action once the proxy is ready so editors only see one regenerate button.
+  sourceButton.classList.add(hiddenSourceActionClassName);
+  sourceButton.setAttribute('aria-hidden', 'true');
+
+  if (keyTopicsField?.parentNode) {
+    if (keyTopicsField.previousElementSibling !== inlineAction) {
+      keyTopicsField.parentNode.insertBefore(inlineAction, keyTopicsField);
+    }
+    return;
+  }
+  if (statusField?.nextElementSibling !== inlineAction) {
+    statusField?.insertAdjacentElement('afterend', inlineAction);
+  }
 };
 
 /**
@@ -275,10 +418,11 @@ const AiMetadataModal = ({
    * @returns {void}
    */
   const runModalUpdates = useCallback(() => {
+    syncInlineRegenerateAction(getModalElement());
     toggleSubmitState();
     updateLengthIndicators();
     updateTimestampIndicators();
-  }, [toggleSubmitState, updateLengthIndicators, updateTimestampIndicators]);
+  }, [getModalElement, toggleSubmitState, updateLengthIndicators, updateTimestampIndicators]);
 
   /**
    * Schedule modal DOM updates to avoid mutation observer feedback loops.

@@ -40,6 +40,14 @@
   }
 }
 
+.ai-metadata-modal__inline-regenerate-action {
+  margin: 1rem 0;
+}
+
+.ai-metadata-modal__source-action--hidden {
+  display: none !important;
+}
+
 .ai-metadata-modal__banner {
   border-radius: 4px;
   padding: 0.75rem 1rem;

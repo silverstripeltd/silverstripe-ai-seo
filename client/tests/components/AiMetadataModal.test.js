@@ -194,6 +194,7 @@ import AiMetadataModalComponent, {
   formatLengthHint,
   formatTimestamp,
   isReviewRequired,
+  syncInlineRegenerateAction,
 } from '../../src/components/AiMetadataModal';
 
 const buildActions = () => ({
@@ -256,6 +257,35 @@ test('isReviewRequired reflects generated and reviewed timestamps', () => {
 
   reviewed.value = '2026-02-20 09:00:00';
   expect(isReviewRequired(modal)).toBe(true);
+});
+
+test('syncInlineRegenerateAction inserts a proxy action above key topics', () => {
+  const modal = document.createElement('div');
+  const status = document.createElement('div');
+  status.setAttribute('data-field-path', 'AiMetadataStatus');
+  const keyTopics = document.createElement('div');
+  keyTopics.setAttribute('data-field-path', 'KeyTopicsDisplay');
+  const footer = document.createElement('div');
+  const sourceButton = document.createElement('button');
+  sourceButton.type = 'button';
+  sourceButton.name = 'action_doRegenerate';
+  sourceButton.className = 'btn btn-primary';
+  sourceButton.innerHTML = '<span class="btn__title">Generate metadata</span>';
+  footer.appendChild(sourceButton);
+  modal.appendChild(status);
+  modal.appendChild(keyTopics);
+  modal.appendChild(footer);
+
+  syncInlineRegenerateAction(modal);
+
+  const inlineAction = modal.querySelector('.ai-metadata-modal__inline-regenerate-action');
+  const proxyButton = inlineAction?.querySelector('button');
+  expect(inlineAction).not.toBeNull();
+  expect(keyTopics.previousElementSibling).toBe(inlineAction);
+  expect(proxyButton?.textContent).toContain('Generate metadata');
+  expect(proxyButton?.className).toContain('btn btn-primary');
+  expect(sourceButton.getAttribute('aria-hidden')).toBe('true');
+  expect(sourceButton.className).toContain('ai-metadata-modal__source-action--hidden');
 });
 
 test('requires review confirmation before enabling submit for unreviewed metadata', async () => {
@@ -338,6 +368,27 @@ test('updates the meta description length hint while the editor types', async ()
   expect(hint.className).toContain('text-primary');
 });
 
+test('renders the regenerate proxy between status and key topics', async () => {
+  render(
+    <AiMetadataModalComponent
+      fqcn="App\\Page"
+      recordId={7}
+      actions={buildActions()}
+    />
+  );
+
+  const keyTopicsField = screen.getByText('Key topics').closest('[data-field-path="KeyTopicsDisplay"]');
+
+  await waitFor(() => {
+    const inlineAction = document.querySelector('.ai-metadata-modal__inline-regenerate-action');
+    expect(inlineAction).not.toBeNull();
+    expect(inlineAction?.nextElementSibling).toBe(keyTopicsField);
+  });
+
+  const sourceButton = document.querySelector('.modal-footer button[name="action_doRegenerate"]');
+  expect(sourceButton?.getAttribute('aria-hidden')).toBe('true');
+});
+
 test('hides the apply action until AI metadata has been generated', () => {
   render(
     <AiMetadataModalComponent
@@ -349,6 +400,31 @@ test('hides the apply action until AI metadata has been generated', () => {
 
   expect(screen.getByRole('button', { name: 'Generate metadata' })).not.toBeNull();
   expect(screen.queryByRole('button', { name: 'Apply metadata' })).toBeNull();
+});
+
+test('clicking the regenerate proxy triggers the real footer action', async () => {
+  const actions = buildActions();
+
+  render(
+    <AiMetadataModalComponent
+      fqcn="App\\Page"
+      recordId={7}
+      actions={actions}
+    />
+  );
+
+  await waitFor(() => {
+    expect(document.querySelector('.ai-metadata-modal__inline-regenerate-action button')).not.toBeNull();
+  });
+
+  await act(async () => {
+    fireEvent.click(document.querySelector('.ai-metadata-modal__inline-regenerate-action button'));
+  });
+
+  expect(mockSubmitHandlers.doRegenerate).toHaveBeenCalledTimes(1);
+  await waitFor(() => {
+    expect(actions.toasts.info).toHaveBeenCalledWith('Generated AI metadata created. Review and apply to save.');
+  });
 });
 
 test('shows regenerate and save toasts from FormBuilderModal submit callbacks', async () => {
