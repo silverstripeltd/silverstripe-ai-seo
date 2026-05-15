@@ -3,6 +3,7 @@
 namespace SilverstripeLtd\AiMetadata\Tests\Controllers;
 
 use SilverstripeLtd\AiMetadata\Models\GeneratedMetadata;
+use SilverstripeLtd\AiMetadata\Tests\RestrictedViewPage;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Dev\FunctionalTest;
 use SilverStripe\SiteConfig\SiteConfig;
@@ -14,6 +15,7 @@ class LlmsTxtControllerTest extends FunctionalTest
 {
     protected static $extra_dataobjects = [
         GeneratedMetadata::class,
+        RestrictedViewPage::class,
     ];
 
     /**
@@ -54,5 +56,27 @@ class LlmsTxtControllerTest extends FunctionalTest
         $this->assertStringContainsString($page->AbsoluteLink(), $body);
         $this->assertStringContainsString('Summary content', $body);
         $this->assertStringNotContainsString($emptyPage->AbsoluteLink(), $body);
+    }
+
+    /**
+     * Ensure llms.txt excludes published live pages the visitor cannot view.
+     */
+    public function testLlmsTxtExcludesRestrictedPages(): void
+    {
+        $page = RestrictedViewPage::create(['Title' => 'Restricted page', 'Content' => 'Content']);
+        $page->write();
+        $page->publishSingle();
+
+        $metadata = $page->getOrCreateAiMetadata();
+        $metadata->SummaryLong = 'Restricted summary';
+        $metadata->write();
+        $metadata->publishSingle();
+
+        $response = $this->get('/llms.txt');
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $body = (string)$response->getBody();
+        $this->assertStringNotContainsString('Restricted summary', $body);
+        $this->assertStringNotContainsString($page->AbsoluteLink(), $body);
     }
 }

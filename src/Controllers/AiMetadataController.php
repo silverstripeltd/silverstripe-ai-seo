@@ -7,6 +7,7 @@ use SilverstripeLtd\AiMetadata\Extensions\AiMetadataExtension;
 use SilverstripeLtd\AiMetadata\Forms\AiMetadataForm;
 use SilverstripeLtd\AiMetadata\Models\GeneratedMetadata;
 use SilverstripeLtd\AiMetadata\Services\AiMetadataStateService;
+use SilverstripeLtd\AiMetadata\Services\AiMetadataRegenerateRateLimiter;
 use SilverstripeLtd\AiMetadata\Services\ContentExtractService;
 use SilverstripeLtd\AiMetadata\Services\MetadataGenerationService;
 use Psr\Log\LoggerInterface;
@@ -20,6 +21,7 @@ use SilverStripe\Core\Validation\ValidationResult;
 use SilverStripe\Forms\Form;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBDatetime;
+use SilverStripe\Security\Security;
 
 /**
  * Handles AI metadata form interactions.
@@ -91,6 +93,14 @@ class AiMetadataController extends FormSchemaController
         $existingMetadata = $record->hasMethod('getAiMetadata') ? $record->getAiMetadata() : null;
         $hadGeneratedMetadata = $existingMetadata && $existingMetadata->GeneratedAt;
         $extraMeta = ['hadGeneratedMetadata' => (bool)$hadGeneratedMetadata];
+        $retryAfter = $this->getRegenerateRateLimiter()->consumeRequest(
+            $this->getRequest()->getSession(),
+            $this->getCurrentMemberId(),
+            (int)$record->ID
+        );
+        if ($retryAfter > 0) {
+            return $this->buildRateLimitedRegenerateResponse($record, $retryAfter, $extraMeta);
+        }
         try {
             $metadata = $generationService->generateForRecord($record, GeneratedMetadata::create(), false);
         } catch (AIProviderException $exception) {
@@ -228,6 +238,53 @@ class AiMetadataController extends FormSchemaController
             'recordClass' => $record->ClassName,
             'recordId' => $record->ID,
         ]);
+    }
+
+    /**
+     * Build the rate-limited schema response for regenerate requests.
+     *
+     * @param array<string, mixed> $extraMeta
+     */
+    private function buildRateLimitedRegenerateResponse(
+        DataObject $record,
+        int $retryAfter,
+        array $extraMeta
+    ): HTTPResponse {
+        $metadata = $record->getOrCreateAiMetadata();
+        $message = $this->getRateLimitErrorMessage($retryAfter);
+        $errors = ValidationResult::create()->addError($message);
+        $form = $this->buildForm($record, $metadata, $message, $this->detectUnpublishedChanges($record));
+        $response = $this->getSchemaResponseWithMeta($form, $record, $metadata, $errors, ['meta' => $extraMeta]);
+        $response->setStatusCode(429);
+        $response->addHeader('Retry-After', (string)$retryAfter);
+        return $response;
+    }
+
+    private function getCurrentMemberId(): int
+    {
+        return (int)(Security::getCurrentUser()?->ID ?? 0);
+    }
+
+    private function getRateLimitErrorMessage(int $retryAfter): string
+    {
+        return sprintf(
+            'Too many AI metadata regenerate requests for this page. Please wait %s and try again.',
+            $this->formatCooldownDuration($retryAfter)
+        );
+    }
+
+    private function formatCooldownDuration(int $retryAfter): string
+    {
+        if ($retryAfter >= 60) {
+            $minutes = (int)ceil($retryAfter / 60);
+            return sprintf('%d %s', $minutes, $minutes === 1 ? 'minute' : 'minutes');
+        }
+        return sprintf('%d %s', $retryAfter, $retryAfter === 1 ? 'second' : 'seconds');
+    }
+
+    private function getRegenerateRateLimiter(): AiMetadataRegenerateRateLimiter
+    {
+        return Injector::inst()->get(AiMetadataRegenerateRateLimiter::class);
     }
 
     /**

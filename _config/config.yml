@@ -9,6 +9,10 @@ SilverstripeLtd\AiMetadata\Models\GeneratedMetadata:
   extensions:
     - SilverStripe\Versioned\Versioned
 
+SilverstripeLtd\AiMetadata\Services\AiMetadataRegenerateRateLimiter:
+  max_requests: 10
+  window_seconds: 300
+
 SilverstripeLtd\AiMetadata\Models\AiBlocksPage:
   extensions:
     - DNADesign\Elemental\Extensions\ElementalPageExtension

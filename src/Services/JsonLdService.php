@@ -12,6 +12,8 @@ use SilverStripe\SiteConfig\SiteConfig;
  */
 class JsonLdService
 {
+    public const ENCODING_OPTIONS = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG;
+
     /**
      * Generate JSON-LD for the given page and metadata.
      */
@@ -26,7 +28,7 @@ class JsonLdService
             '@context' => 'https://schema.org',
             '@graph' => $graph,
         ];
-        return json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        return json_encode($payload, JsonLdService::ENCODING_OPTIONS);
     }
 
     /**

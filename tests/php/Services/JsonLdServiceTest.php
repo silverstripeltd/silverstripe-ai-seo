@@ -79,6 +79,35 @@ class JsonLdServiceTest extends SapphireTest
     }
 
     /**
+     * Ensure attacker-controlled script breakouts are hex-escaped in the payload.
+     */
+    public function testJsonLdEscapesScriptBreakoutSequences(): void
+    {
+        $page = SiteTree::create(['Title' => 'Test page', 'Content' => 'Content']);
+        $page->write();
+
+        $metadata = $page->getOrCreateAiMetadata();
+        $metadata->SummaryLong = 'Safe text </script><script>alert(1)</script>';
+        $metadata->write();
+
+        $service = new JsonLdService();
+        $json = $service->generateJsonLd($page, $metadata);
+        $payload = json_decode($json, true);
+        $webPage = array_values(array_filter(
+            $payload['@graph'],
+            static fn(array $item): bool => ($item['@type'] ?? null) === 'WebPage'
+        ));
+
+        $this->assertNotNull($json);
+        $this->assertStringContainsString('\u003C/script\u003E\u003Cscript\u003Ealert(1)\u003C/script\u003E', $json);
+        $this->assertStringNotContainsString('</script>', $json);
+        $this->assertSame(
+            'Safe text </script><script>alert(1)</script>',
+            $webPage[0]['description'] ?? null
+        );
+    }
+
+    /**
      * Ensure FAQ entities are omitted when empty.
      */
     public function testGraphOmitsFaqWhenEmpty(): void

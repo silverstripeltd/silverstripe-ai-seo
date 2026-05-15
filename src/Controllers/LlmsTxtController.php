@@ -56,6 +56,9 @@ class LlmsTxtController extends Controller
         $pages = Versioned::get_by_stage(SiteTree::class, Versioned::LIVE);
         foreach ($pages as $page) {
             /** @var SiteTree $page */
+            if (!$page->canView()) {
+                continue;
+            }
             $metadata = Versioned::withVersionedMode(function () use ($page): ?GeneratedMetadata {
                 Versioned::set_stage(Versioned::LIVE);
                 return $page->getAiMetadata();

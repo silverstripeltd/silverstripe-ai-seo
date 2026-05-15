@@ -451,7 +451,7 @@ class AiMetadataForm extends Form
 
         $decoded = json_decode($payload, true);
         $pretty = is_array($decoded)
-            ? json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+            ? json_encode($decoded, JsonLdService::ENCODING_OPTIONS)
             : $payload;
         return HTML::createTag(
             'pre',

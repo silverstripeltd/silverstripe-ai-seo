@@ -7,6 +7,7 @@ use SilverstripeLtd\AiMetadata\ValueObjects\AiMetadataResult;
 use SilverstripeLtd\AiMetadata\Forms\AiMetadataForm;
 use SilverstripeLtd\AiMetadata\Models\GeneratedMetadata;
 use SilverstripeLtd\AiMetadata\Providers\ProviderFactory;
+use SilverstripeLtd\AiMetadata\Services\AiMetadataRegenerateRateLimiter;
 use SilverstripeLtd\AiMetadata\Tests\StubProvider;
 use SilverstripeLtd\AiMetadata\Tests\StubProviderFactory;
 use SilverstripeLtd\AiMetadata\Tests\RestrictedPage;
@@ -15,6 +16,7 @@ use SilverStripe\Core\Environment;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Control\Session;
+use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\FunctionalTest;
 use SilverStripe\Forms\CheckboxField;
@@ -49,6 +51,8 @@ class AiMetadataControllerTest extends FunctionalTest
      */
     protected function tearDown(): void
     {
+        Config::modify()->set(AiMetadataRegenerateRateLimiter::class, 'max_requests', 10);
+        Config::modify()->set(AiMetadataRegenerateRateLimiter::class, 'window_seconds', 300);
         Injector::inst()->registerService(new ProviderFactory(), ProviderFactory::class);
         parent::tearDown();
     }
@@ -291,6 +295,93 @@ class AiMetadataControllerTest extends FunctionalTest
     }
 
     /**
+     * Ensure regenerate rate-limit failures return schema errors and the cooldown banner.
+     */
+    public function testRegenerateReturnsRateLimitSchemaError(): void
+    {
+        Config::modify()->set(AiMetadataRegenerateRateLimiter::class, 'max_requests', 1);
+
+        $page = SiteTree::create(['Title' => 'Test page', 'Content' => 'Content']);
+        $page->write();
+
+        $session = new Session([]);
+        $controller = $this->createRegenerateController($page, $session);
+
+        $firstResponse = $controller->doRegenerate([], $controller->AiMetadataForm($controller->getRequest()));
+        $secondResponse = $controller->doRegenerate([], $controller->AiMetadataForm($controller->getRequest()));
+
+        $this->assertEquals(200, $firstResponse->getStatusCode());
+        $this->assertEquals(429, $secondResponse->getStatusCode());
+        $this->assertNotEmpty($secondResponse->getHeader('Retry-After'));
+        $this->assertStringContainsString(
+            'Too many AI metadata regenerate requests for this page.',
+            (string)$secondResponse->getBody()
+        );
+        $this->assertStringContainsString('ai-metadata-modal__banner--error', (string)$secondResponse->getBody());
+    }
+
+    /**
+     * Ensure regenerate limits are tracked separately for each page.
+     */
+    public function testRegenerateRateLimitIsScopedPerPage(): void
+    {
+        Config::modify()->set(AiMetadataRegenerateRateLimiter::class, 'max_requests', 1);
+
+        $firstPage = SiteTree::create(['Title' => 'First page', 'Content' => 'Content']);
+        $firstPage->write();
+        $secondPage = SiteTree::create(['Title' => 'Second page', 'Content' => 'Content']);
+        $secondPage->write();
+
+        $session = new Session([]);
+
+        $firstController = $this->createRegenerateController($firstPage, $session);
+        $firstResponse = $firstController->doRegenerate(
+            [],
+            $firstController->AiMetadataForm($firstController->getRequest())
+        );
+
+        $secondController = $this->createRegenerateController($secondPage, $session);
+        $secondResponse = $secondController->doRegenerate(
+            [],
+            $secondController->AiMetadataForm($secondController->getRequest())
+        );
+
+        $repeatFirstResponse = $firstController->doRegenerate(
+            [],
+            $firstController->AiMetadataForm($firstController->getRequest())
+        );
+
+        $this->assertEquals(200, $firstResponse->getStatusCode());
+        $this->assertEquals(200, $secondResponse->getStatusCode());
+        $this->assertEquals(429, $repeatFirstResponse->getStatusCode());
+    }
+
+    /**
+     * Ensure rate-limit config overrides change both the threshold and cooldown window.
+     */
+    public function testRegenerateRateLimitHonoursConfigOverrides(): void
+    {
+        Config::modify()->set(AiMetadataRegenerateRateLimiter::class, 'max_requests', 1);
+        Config::modify()->set(AiMetadataRegenerateRateLimiter::class, 'window_seconds', 1);
+
+        $page = SiteTree::create(['Title' => 'Test page', 'Content' => 'Content']);
+        $page->write();
+
+        $session = new Session([]);
+        $controller = $this->createRegenerateController($page, $session);
+
+        $firstResponse = $controller->doRegenerate([], $controller->AiMetadataForm($controller->getRequest()));
+        $secondResponse = $controller->doRegenerate([], $controller->AiMetadataForm($controller->getRequest()));
+        sleep(2);
+        $thirdResponse = $controller->doRegenerate([], $controller->AiMetadataForm($controller->getRequest()));
+
+        $this->assertEquals(200, $firstResponse->getStatusCode());
+        $this->assertEquals(429, $secondResponse->getStatusCode());
+        $this->assertSame('1', $secondResponse->getHeader('Retry-After'));
+        $this->assertEquals(200, $thirdResponse->getStatusCode());
+    }
+
+    /**
      * Ensure provider errors use the generic message in test mode.
      */
     public function testRegenerateProviderErrorUsesGenericMessage(): void
@@ -454,7 +545,7 @@ class AiMetadataControllerTest extends FunctionalTest
         );
         $this->assertNull($fields->dataFieldByName('MetaDescriptionCount'));
 
-        $keyTopicsHeader = $fields->dataFieldByName('AiMetadataKeyTopicsHeader');
+        $keyTopicsHeader = $fields->fieldByName('AiMetadataKeyTopicsHeader');
         $this->assertNotNull($keyTopicsHeader);
         $this->assertStringContainsString('form__field-label form-label', (string)$keyTopicsHeader->getContent());
         $this->assertStringContainsString('Key topics', (string)$keyTopicsHeader->getContent());
@@ -649,5 +740,20 @@ class AiMetadataControllerTest extends FunctionalTest
         $form = $controller->AiMetadataForm($request);
         $action = $form->Actions()->fieldByName('action_doRegenerate');
         $this->assertSame('Regenerate', $action->Title());
+    }
+
+    private function createRegenerateController(SiteTree $page, Session $session): AiMetadataController
+    {
+        $controller = AiMetadataController::create();
+        $request = new HTTPRequest(
+            'POST',
+            '/admin/ai-metadata/aiMetadataForm/' . $page->ID,
+            ['fqcn' => SiteTree::class]
+        );
+        $request->setSession($session);
+        $request->setRouteParams(['ItemID' => $page->ID]);
+        $request->addHeader('X-Formschema-Request', 'schema,state');
+        $controller->setRequest($request);
+        return $controller;
     }
 }
