@@ -202,9 +202,11 @@ export const syncInlineRegenerateAction = (modal) => {
     return;
   }
   const sourceButton = modal.querySelector(regenerateActionSelector);
+  const keyTopicsHeaderField = findFieldElement(modal, 'AiMetadataKeyTopicsHeader');
   const keyTopicsField = findFieldElement(modal, 'KeyTopicsDisplay');
   const statusField = findFieldElement(modal, 'AiMetadataStatus');
-  if (!sourceButton || (!keyTopicsField && !statusField)) {
+  const anchorField = keyTopicsHeaderField || keyTopicsField;
+  if (!sourceButton || (!anchorField && !statusField)) {
     removeInlineRegenerateAction(modal);
     return;
   }
@@ -267,9 +269,9 @@ export const syncInlineRegenerateAction = (modal) => {
   sourceButton.classList.add(hiddenSourceActionClassName);
   sourceButton.setAttribute('aria-hidden', 'true');
 
-  if (keyTopicsField?.parentNode) {
-    if (keyTopicsField.previousElementSibling !== inlineAction) {
-      keyTopicsField.parentNode.insertBefore(inlineAction, keyTopicsField);
+  if (anchorField?.parentNode) {
+    if (anchorField.previousElementSibling !== inlineAction) {
+      anchorField.parentNode.insertBefore(inlineAction, anchorField);
     }
     return;
   }

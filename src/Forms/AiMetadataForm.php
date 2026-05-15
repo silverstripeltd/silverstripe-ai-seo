@@ -102,10 +102,9 @@ class AiMetadataForm extends Form
         }
 
         $keyTopicsDisplay = self::renderKeyTopics($metadata->KeyTopics);
-        $fields->push(HeaderField::create(
+        $fields->push(LiteralField::create(
             'AiMetadataKeyTopicsHeader',
-            'Key topics (Helps judge if generated metadata is on track - not shown on frontend)',
-            4
+            self::renderFieldLabel('Key topics (Helps judge if generated metadata is on track - not shown on frontend)')
         ));
         $fields->push(LiteralField::create('KeyTopicsDisplay', $keyTopicsDisplay));
         $fields->push(HiddenField::create('KeyTopics', '', $metadata->KeyTopics));
@@ -531,6 +530,18 @@ class AiMetadataForm extends Form
     private static function wrapDetailValue(string $content): string
     {
         return HTML::createTag('div', ['class' => 'ai-metadata-modal__detail-value'], $content);
+    }
+
+    /**
+     * Render a label-style heading that matches regular CMS field labels.
+     */
+    private static function renderFieldLabel(string $label): string
+    {
+        return HTML::createTag(
+            'label',
+            ['class' => 'form__field-label form-label'],
+            Convert::raw2xml($label)
+        );
     }
 
     /**

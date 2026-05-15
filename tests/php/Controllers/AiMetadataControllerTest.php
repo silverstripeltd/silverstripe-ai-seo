@@ -454,6 +454,11 @@ class AiMetadataControllerTest extends FunctionalTest
         );
         $this->assertNull($fields->dataFieldByName('MetaDescriptionCount'));
 
+        $keyTopicsHeader = $fields->dataFieldByName('AiMetadataKeyTopicsHeader');
+        $this->assertNotNull($keyTopicsHeader);
+        $this->assertStringContainsString('form__field-label form-label', (string)$keyTopicsHeader->getContent());
+        $this->assertStringContainsString('Key topics', (string)$keyTopicsHeader->getContent());
+
         $reviewField = $fields->dataFieldByName('ReviewConfirmed');
         $this->assertNotNull($reviewField);
         $this->assertInstanceOf(CheckboxField::class, $reviewField);

@@ -92,6 +92,11 @@ jest.mock('components/FormBuilderModal/FormBuilderModal', () => {
       ),
       ReactModule.createElement(
         'div',
+        { 'data-field-path': 'AiMetadataKeyTopicsHeader' },
+        ReactModule.createElement('label', { className: 'form__field-label form-label' }, 'Key topics'),
+      ),
+      ReactModule.createElement(
+        'div',
         { 'data-field-path': 'KeyTopicsDisplay' },
         ReactModule.createElement('p', null, 'Key topics'),
       ),
@@ -259,10 +264,12 @@ test('isReviewRequired reflects generated and reviewed timestamps', () => {
   expect(isReviewRequired(modal)).toBe(true);
 });
 
-test('syncInlineRegenerateAction inserts a proxy action above key topics', () => {
+test('syncInlineRegenerateAction inserts a proxy action above the key topics header', () => {
   const modal = document.createElement('div');
   const status = document.createElement('div');
   status.setAttribute('data-field-path', 'AiMetadataStatus');
+  const keyTopicsHeader = document.createElement('div');
+  keyTopicsHeader.setAttribute('data-field-path', 'AiMetadataKeyTopicsHeader');
   const keyTopics = document.createElement('div');
   keyTopics.setAttribute('data-field-path', 'KeyTopicsDisplay');
   const footer = document.createElement('div');
@@ -273,6 +280,7 @@ test('syncInlineRegenerateAction inserts a proxy action above key topics', () =>
   sourceButton.innerHTML = '<span class="btn__title">Generate metadata</span>';
   footer.appendChild(sourceButton);
   modal.appendChild(status);
+  modal.appendChild(keyTopicsHeader);
   modal.appendChild(keyTopics);
   modal.appendChild(footer);
 
@@ -281,7 +289,7 @@ test('syncInlineRegenerateAction inserts a proxy action above key topics', () =>
   const inlineAction = modal.querySelector('.ai-metadata-modal__inline-regenerate-action');
   const proxyButton = inlineAction?.querySelector('button');
   expect(inlineAction).not.toBeNull();
-  expect(keyTopics.previousElementSibling).toBe(inlineAction);
+  expect(keyTopicsHeader.previousElementSibling).toBe(inlineAction);
   expect(proxyButton?.textContent).toContain('Generate metadata');
   expect(proxyButton?.className).toContain('btn btn-primary');
   expect(sourceButton.getAttribute('aria-hidden')).toBe('true');
@@ -368,7 +376,7 @@ test('updates the meta description length hint while the editor types', async ()
   expect(hint.className).toContain('text-primary');
 });
 
-test('renders the regenerate proxy between status and key topics', async () => {
+test('renders the regenerate proxy between status and the key topics header', async () => {
   render(
     <AiMetadataModalComponent
       fqcn="App\\Page"
@@ -377,12 +385,12 @@ test('renders the regenerate proxy between status and key topics', async () => {
     />
   );
 
-  const keyTopicsField = screen.getByText('Key topics').closest('[data-field-path="KeyTopicsDisplay"]');
+  const keyTopicsHeaderField = document.querySelector('[data-field-path="AiMetadataKeyTopicsHeader"]');
 
   await waitFor(() => {
     const inlineAction = document.querySelector('.ai-metadata-modal__inline-regenerate-action');
     expect(inlineAction).not.toBeNull();
-    expect(inlineAction?.nextElementSibling).toBe(keyTopicsField);
+    expect(inlineAction?.nextElementSibling).toBe(keyTopicsHeaderField);
   });
 
   const sourceButton = document.querySelector('.modal-footer button[name="action_doRegenerate"]');
