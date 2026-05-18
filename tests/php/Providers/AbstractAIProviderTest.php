@@ -1,9 +1,9 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Tests\Providers;
+namespace SilverstripeLtd\AiSeo\Tests\Providers;
 
-use SilverstripeLtd\AiMetadata\Exceptions\AIProviderException;
-use SilverstripeLtd\AiMetadata\Tests\TestAIProvider;
+use SilverstripeLtd\AiSeo\Exceptions\AIProviderException;
+use SilverstripeLtd\AiSeo\Tests\TestAIProvider;
 use SilverStripe\Core\Environment;
 use SilverStripe\Dev\SapphireTest;
 
@@ -18,7 +18,7 @@ class AbstractAIProviderTest extends SapphireTest
     protected function setUp(): void
     {
         parent::setUp();
-        Environment::setEnv('AI_METADATA_API_KEY', 'test-key');
+        Environment::setEnv('AI_SEO_API_KEY', 'test-key');
     }
 
     /**
@@ -26,15 +26,15 @@ class AbstractAIProviderTest extends SapphireTest
      */
     protected function tearDown(): void
     {
-        Environment::setEnv('AI_METADATA_API_KEY', null);
-        Environment::setEnv('AI_METADATA_REQUEST_TIMEOUT', null);
-        Environment::setEnv('AI_METADATA_THINKING_LEVEL', null);
-        Environment::setEnv('AI_METADATA_TEMPERATURE', null);
+        Environment::setEnv('AI_SEO_API_KEY', null);
+        Environment::setEnv('AI_SEO_REQUEST_TIMEOUT', null);
+        Environment::setEnv('AI_SEO_THINKING_LEVEL', null);
+        Environment::setEnv('AI_SEO_TEMPERATURE', null);
         parent::tearDown();
     }
 
     /**
-     * Ensure JSON responses parse into metadata objects.
+     * Ensure JSON responses parse into SEO result objects.
      */
     public function testParsesJsonResponse(): void
     {
@@ -42,7 +42,7 @@ class AbstractAIProviderTest extends SapphireTest
             ['status' => 200, 'body' => '{"metaDescription":"Desc","ogTitle":"Title"}'],
         ]);
 
-        $result = $provider->generateMetadata('content', 'title', 'url');
+        $result = $provider->generateSeo('content', 'title', 'url');
         $this->assertSame('Desc', $result->metaDescription);
         $this->assertSame('Title', $result->ogTitle);
     }
@@ -57,7 +57,7 @@ class AbstractAIProviderTest extends SapphireTest
         ]);
 
         $this->expectException(AIProviderException::class);
-        $provider->generateMetadata('content', 'title', 'url');
+        $provider->generateSeo('content', 'title', 'url');
     }
 
     /**
@@ -65,7 +65,7 @@ class AbstractAIProviderTest extends SapphireTest
      */
     public function testTimeoutUsesEnv(): void
     {
-        Environment::setEnv('AI_METADATA_REQUEST_TIMEOUT', '12');
+        Environment::setEnv('AI_SEO_REQUEST_TIMEOUT', '12');
         $provider = new TestAIProvider([
             ['status' => 200, 'body' => '{"metaDescription":"Desc"}'],
         ]);
@@ -84,7 +84,7 @@ class AbstractAIProviderTest extends SapphireTest
         ]);
 
         try {
-            $provider->generateMetadata('content', 'title', 'url');
+            $provider->generateSeo('content', 'title', 'url');
             $this->fail('Expected provider exception to be thrown.');
         } catch (AIProviderException $exception) {
             $this->assertSame(1, $provider->callCount);
@@ -96,7 +96,7 @@ class AbstractAIProviderTest extends SapphireTest
      */
     public function testTemperatureDefaultsWhenEnvMissing(): void
     {
-        Environment::setEnv('AI_METADATA_TEMPERATURE', null);
+        Environment::setEnv('AI_SEO_TEMPERATURE', null);
         $provider = new TestAIProvider([
             ['status' => 200, 'body' => '{"metaDescription":"Desc"}'],
         ]);
@@ -109,7 +109,7 @@ class AbstractAIProviderTest extends SapphireTest
      */
     public function testTemperatureSupportsZero(): void
     {
-        Environment::setEnv('AI_METADATA_TEMPERATURE', '0');
+        Environment::setEnv('AI_SEO_TEMPERATURE', '0');
         $provider = new TestAIProvider([
             ['status' => 200, 'body' => '{"metaDescription":"Desc"}'],
         ]);
@@ -122,7 +122,7 @@ class AbstractAIProviderTest extends SapphireTest
      */
     public function testThinkingLevelDefaultsWhenEnvMissing(): void
     {
-        Environment::setEnv('AI_METADATA_THINKING_LEVEL', null);
+        Environment::setEnv('AI_SEO_THINKING_LEVEL', null);
         $provider = new TestAIProvider([
             ['status' => 200, 'body' => '{"metaDescription":"Desc"}'],
         ]);

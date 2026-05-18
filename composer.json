@@ -1,6 +1,6 @@
 {
-    "name": "silverstripeltd/ai-metadata",
-    "description": "AI metadata module for Silverstripe CMS",
+    "name": "silverstripeltd/ai-seo",
+    "description": "AI SEO module for Silverstripe CMS",
     "type": "silverstripe-vendormodule",
     "require": {
         "php": "^8.3",
@@ -17,12 +17,12 @@
     },
     "autoload": {
         "psr-4": {
-            "SilverstripeLtd\\AiMetadata\\": "src/"
+            "SilverstripeLtd\\AiSeo\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "SilverstripeLtd\\AiMetadata\\Tests\\": "tests/php/"
+            "SilverstripeLtd\\AiSeo\\Tests\\": "tests/php/"
         }
     },
     "scripts": {

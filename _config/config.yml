@@ -1,35 +1,35 @@
 ---
-Name: ai-metadata
+Name: ai-seo
 ---
 SilverStripe\CMS\Model\SiteTree:
   extensions:
-    - SilverstripeLtd\AiMetadata\Extensions\AiMetadataExtension
+    - SilverstripeLtd\AiSeo\Extensions\AiSeoExtension
 
-SilverstripeLtd\AiMetadata\Models\GeneratedMetadata:
+SilverstripeLtd\AiSeo\Models\GeneratedSeo:
   extensions:
     - SilverStripe\Versioned\Versioned
 
-SilverstripeLtd\AiMetadata\Services\AiMetadataRegenerateRateLimiter:
+SilverstripeLtd\AiSeo\Services\AiSeoRegenerateRateLimiter:
   max_requests: 10
   window_seconds: 300
 
 SilverStripe\Control\Director:
   rules:
-    'admin/ai-metadata': SilverstripeLtd\AiMetadata\Controllers\AiMetadataController
-    'llms.txt': SilverstripeLtd\AiMetadata\Controllers\LlmsTxtController
+    'admin/ai-seo': SilverstripeLtd\AiSeo\Controllers\AiSeoController
+    'llms.txt': SilverstripeLtd\AiSeo\Controllers\LlmsTxtController
 
 SilverStripe\Admin\LeftAndMain:
   extra_requirements_javascript:
-    'silverstripeltd/ai-metadata:client/dist/js/bundle.js':
+    'silverstripeltd/ai-seo:client/dist/js/bundle.js':
       defer: true
   extra_requirements_css:
-    - 'silverstripeltd/ai-metadata:client/dist/styles/bundle.css'
+    - 'silverstripeltd/ai-seo:client/dist/styles/bundle.css'
 
 ---
-Name: ai-metadata-elemental
+Name: ai-seo-elemental
 Only:
   moduleexists: 'dnadesign/silverstripe-elemental'
 ---
-SilverstripeLtd\AiMetadata\Models\AiBlocksPage:
+SilverstripeLtd\AiSeo\Models\AiBlocksPage:
   extensions:
     - DNADesign\Elemental\Extensions\ElementalPageExtension

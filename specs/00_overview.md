@@ -1,6 +1,6 @@
 # System Overview
 
-One-page summary of the AI metadata module architecture. Read this first, then dive into individual specs.
+One-page summary of the AI SEO module architecture. Read this first, then dive into individual specs.
 
 ## What it does
 
@@ -21,16 +21,16 @@ Automatically generates SEO and AI-oriented metadata for Silverstripe CMS pages 
                          FormSchema XHR (specs/08)         │
                                                ▼         ▼
 ┌──────────────────────────────────────────────────────────────┐
-│ AiMetadataController (specs/08)                              │
+│ AiSeoController (specs/08)                              │
 │                                                              │
-│  GET  /admin/ai-metadata/schema/AiMetadataForm/{ID}?fqcn=... │
-│  POST /admin/ai-metadata/aiMetadataForm/{ID} → doRegenerate  │
+│  GET  /admin/ai-seo/schema/AiSeoForm/{ID}?fqcn=... │
+│  POST /admin/ai-seo/aiSeoForm/{ID} → doRegenerate  │
 │                                           → doSave           │
 └──────────────────┬───────────────────────────┬───────────────┘
                    │                           │
                    ▼                           ▼
 ┌──────────────────────────┐   ┌───────────────────────────────┐
-│ Content Extraction       │   │ GeneratedMetadata DataObject          │
+│ Content Extraction       │   │ GeneratedSeo DataObject          │
 │ (specs/03)               │   │ (specs/01, specs/02)           │
 │                          │   │                                │
 │ Elemental blocks ──┐     │   │ MetaDescription, OGTitle,      │
@@ -49,19 +49,19 @@ Automatically generates SEO and AI-oriented metadata for Silverstripe CMS pages 
 │ → Gemini / OpenAI /      │   │                               │
 │   Anthropic              │   │ MetaTags() → <title>, <meta>  │
 │                          │   │ JSON-LD → <script> block       │
-│ → AiMetadataResult       │   │ llms.txt → /llms.txt route     │
+│ → AiSeoResult       │   │ llms.txt → /llms.txt route     │
 └──────────────────────────┘   └───────────────────────────────┘
 
 ┌──────────────────────────────────────────────────────────────┐
 │ Background (async)                                           │
 │                                                              │
-│ GenerateAiMetadataJob (specs/11)                             │
+│ GenerateAiSeoJob (specs/11)                             │
 │  → Finds pages: no metadata OR stale (hash mismatch)         │
 │  → Calls AI provider per page (rate-limited)                 │
 │  → llms.txt is built dynamically today; static generation    │
 │    may be introduced in a later phase                        │
 │                                                              │
-│ AiMetadataReport (specs/13)                                  │
+│ AiSeoReport (specs/13)                                  │
 │  → Status: Missing / Stale / Unreviewed / OK                 │
 │  → Filterable, paginated                                     │
 └──────────────────────────────────────────────────────────────┘
@@ -72,7 +72,7 @@ Automatically generates SEO and AI-oriented metadata for Silverstripe CMS pages 
 | # | Spec | What it covers |
 |---|------|---------------|
 | 00 | This file | System overview and architecture |
-| 01 | `data-architecture` | GeneratedMetadata DataObject, polymorphic relationship, Versioned, migration |
+| 01 | `data-architecture` | GeneratedSeo DataObject, polymorphic relationship, Versioned, migration |
 | 02 | `metadata-fields` | All field definitions, types, validation, JSON examples |
 | 03 | `content-extraction` | Elemental + Content field extraction, extension hook |
 | 04 | `ai-providers` | Provider interface, env vars, error handling, request timeout |
@@ -88,7 +88,7 @@ Automatically generates SEO and AI-oriented metadata for Silverstripe CMS pages 
 
 ## Key design decisions
 
-- **Versioned GeneratedMetadata** — Draft/Live with publish-on-page-publish via JS hook; `ReviewedAt` gates publish readiness
+- **Versioned GeneratedSeo** — Draft/Live with publish-on-page-publish via JS hook; `ReviewedAt` gates publish readiness
 - **Polymorphic relationship** — supports future DataObject types
 - **Sideways XHR** — metadata saves independent from page form
 - **Single AI call** — one prompt generates all fields as JSON

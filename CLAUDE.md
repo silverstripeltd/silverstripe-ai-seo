@@ -1,10 +1,10 @@
-# AI Metadata for Silverstripe CMS
+# AI SEO for Silverstripe CMS
 
-This current project is to build a Silverstripe CMS "ai-metadata" module in `vendor/silverstripeltd/ai-metadata`. No other work is being performed.
+This current project is to build a Silverstripe CMS "ai-seo" module in `vendor/silverstripeltd/ai-seo`. No other work is being performed.
 
-Do not modify any files outside of the `vendor/silverstripeltd/ai-metadata` directory unless explicitly instructed to do so.
+Do not modify any files outside of the `vendor/silverstripeltd/ai-seo` directory unless explicitly instructed to do so.
 
-**Silverstripe CMS 6** module that automatically creates metadata on page content for machine consumption.
+**Silverstripe CMS 6** module that automatically creates AI-assisted SEO content for page metadata and machine consumption.
 
 When implementing phases from a plan, implement all phases in one go. Do not stop to ask for review or confirmation between phases. Act as an autonomous developer - use your best judgement, do not ask for clarifications.
 
@@ -53,11 +53,11 @@ All commands run inside Docker via SSH. Never call `phpunit`, `phpcs`, `phpcbf`,
 
 #### Running tests
 
-`ssh webserver "cd /var/www && rm -rf /tmp/pu-cache && mkdir -p /tmp/pu-cache && SS_TEMP_PATH=/tmp/pu-cache nice -n 19 ionice -c 3 taskset -c 0 vendor/bin/phpunit vendor/silverstripeltd/ai-metadata/tests/ --fail-on-warning [--filter={test-name}]"`
+`ssh webserver "cd /var/www && rm -rf /tmp/pu-cache && mkdir -p /tmp/pu-cache && SS_TEMP_PATH=/tmp/pu-cache nice -n 19 ionice -c 3 taskset -c 0 vendor/bin/phpunit vendor/silverstripeltd/ai-seo/tests/ --fail-on-warning [--filter={test-name}]"`
 
 #### PHP linting
 
-`ssh webserver "cd /var/www/vendor/silverstripeltd/ai-metadata && nice -n 19 ionice -c 3 taskset -c 0 ../../bin/{binary} --ignore=*/thirdparty/*,*/node_modules/* --extensions=php ."`
+`ssh webserver "cd /var/www/vendor/silverstripeltd/ai-seo && nice -n 19 ionice -c 3 taskset -c 0 ../../bin/{binary} --ignore=*/thirdparty/*,*/node_modules/* --extensions=php ."`
 
 Replace `{binary}` with `phpcs` or `phpcbf`.
 
@@ -75,11 +75,11 @@ This module depends on `vendor/silverstripe/admin` for shared JS tooling. Before
 
 #### Running tests
 
-`ssh webserver "cd /var/www/vendor/silverstripeltd/ai-metadata && NODE_OPTIONS=--max-old-space-size=512 nice -n 19 ionice -c 3 taskset -c 0 yarn test"`
+`ssh webserver "cd /var/www/vendor/silverstripeltd/ai-seo && NODE_OPTIONS=--max-old-space-size=512 nice -n 19 ionice -c 3 taskset -c 0 yarn test"`
 
 #### Linting
 
-`ssh webserver "cd /var/www/vendor/silverstripeltd/ai-metadata && NODE_OPTIONS=--max-old-space-size=512 nice -n 19 ionice -c 3 taskset -c 0 yarn lint"`
+`ssh webserver "cd /var/www/vendor/silverstripeltd/ai-seo && NODE_OPTIONS=--max-old-space-size=512 nice -n 19 ionice -c 3 taskset -c 0 yarn lint"`
 
 ### Spec editing rules
 
@@ -89,7 +89,7 @@ This module depends on `vendor/silverstripe/admin` for shared JS tooling. Before
 
 If any `.js` or `.jsx` files were changed during the task, run `yarn build` as the **very last code-related step**, after all implementation, tests, and linting pass. Do not run it mid-implementation to check progress.
 
-`ssh webserver "cd /var/www/vendor/silverstripeltd/ai-metadata/client && NODE_OPTIONS=--max-old-space-size=512 nice -n 19 ionice -c 3 taskset -c 0 yarn install && NODE_OPTIONS=--max-old-space-size=512 nice -n 19 ionice -c 3 taskset -c 0 yarn build"`
+`ssh webserver "cd /var/www/vendor/silverstripeltd/ai-seo/client && NODE_OPTIONS=--max-old-space-size=512 nice -n 19 ionice -c 3 taskset -c 0 yarn install && NODE_OPTIONS=--max-old-space-size=512 nice -n 19 ionice -c 3 taskset -c 0 yarn build"`
 
 ## Other files
 
@@ -101,4 +101,4 @@ Read `/app/z-learnings.md` if it exists. Append non-obvious discoveries - gotcha
 
 ## z- file outputs
 
-If you are asked to create any `z-*.md` files, always look for them and put them in the `/app` dir, not `vendor/silverstripeltd/ai-metadata`.
+If you are asked to create any `z-*.md` files, always look for them and put them in the `/app` dir, not `vendor/silverstripeltd/ai-seo`.

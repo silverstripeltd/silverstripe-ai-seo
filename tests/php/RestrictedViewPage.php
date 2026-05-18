@@ -1,6 +1,6 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Tests;
+namespace SilverstripeLtd\AiSeo\Tests;
 
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Dev\TestOnly;
@@ -10,7 +10,7 @@ use SilverStripe\Dev\TestOnly;
  */
 class RestrictedViewPage extends SiteTree implements TestOnly
 {
-    private static $table_name = 'AiMetadata_RestrictedViewPage';
+    private static $table_name = 'AiSeo_RestrictedViewPage';
 
     /**
      * Disallow viewing in permission tests.

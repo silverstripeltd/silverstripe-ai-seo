@@ -1,17 +1,17 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Tests;
+namespace SilverstripeLtd\AiSeo\Tests;
 
-use SilverstripeLtd\AiMetadata\Exceptions\AIProviderException;
-use SilverstripeLtd\AiMetadata\Providers\AbstractAIProvider;
-use SilverstripeLtd\AiMetadata\ValueObjects\AiMetadataResult;
+use SilverstripeLtd\AiSeo\Exceptions\AIProviderException;
+use SilverstripeLtd\AiSeo\Providers\AbstractAIProvider;
+use SilverstripeLtd\AiSeo\ValueObjects\AiSeoResult;
 
 /**
  * Stub AI provider returning fixed results.
  */
 class StubProvider extends AbstractAIProvider
 {
-    private AiMetadataResult $result;
+    private AiSeoResult $result;
     /**
      * @var string[]
      */
@@ -22,16 +22,16 @@ class StubProvider extends AbstractAIProvider
      *
      * @param string[] $failureTitles
      */
-    public function __construct(AiMetadataResult $result, array $failureTitles = [])
+    public function __construct(AiSeoResult $result, array $failureTitles = [])
     {
         $this->result = $result;
         $this->failureTitles = $failureTitles;
     }
 
     /**
-     * Return the preconfigured metadata result.
+     * Return the preconfigured SEO result.
      */
-    public function generateMetadata(string $content, string $pageTitle, string $pageUrl): AiMetadataResult
+    public function generateSeo(string $content, string $pageTitle, string $pageUrl): AiSeoResult
     {
         if (in_array($pageTitle, $this->failureTitles, true)) {
             throw new AIProviderException('Boom');

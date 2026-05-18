@@ -10,9 +10,9 @@ This report is aimed at content authors working in the CMS, not site owners audi
 
 ## Report class
 
-- Class: `AiMetadataReport` (namespace: `SilverstripeLtd\AiMetadata\Reports\AiMetadataReport`)
+- Class: `AiSeoReport` (namespace: `SilverstripeLtd\AiSeo\Reports\AiSeoReport`)
 - Extends: `SilverStripe\Reports\Report`
-- Title: "AI Metadata Status"
+- Title: "AI SEO Status"
 
 ## Columns
 
@@ -27,7 +27,7 @@ This report is aimed at content authors working in the CMS, not site owners audi
 
 ## Status definitions
 
-- **Missing** - page has no `GeneratedMetadata` record, or `GeneratedAt` is null
+- **Missing** - page has no `GeneratedSeo` record, or `GeneratedAt` is null
 - **Stale** - content hash has changed since metadata was last generated (requires re-extraction and comparison, using the same extraction pipeline as the modal/job)
 - **Unreviewed** - metadata has been generated but not yet reviewed. Either `ReviewedAt` is null, or `ReviewedAt` is older than `GeneratedAt` (meaning metadata was regenerated after the last review)
 - **OK** - metadata exists, is not stale, and has been reviewed

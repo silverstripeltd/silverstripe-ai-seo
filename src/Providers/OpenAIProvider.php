@@ -1,8 +1,8 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Providers;
+namespace SilverstripeLtd\AiSeo\Providers;
 
-use SilverstripeLtd\AiMetadata\Exceptions\AIProviderException;
+use SilverstripeLtd\AiSeo\Exceptions\AIProviderException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 

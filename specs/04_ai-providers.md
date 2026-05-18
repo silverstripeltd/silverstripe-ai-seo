@@ -7,13 +7,13 @@
 - **Anthropic** — Messages API provider
 - **Custom providers** — the built-in factory supports `gemini`, `openai`, and `anthropic` only. To use a custom provider, projects must override the factory via Silverstripe's Injector.
 
-Gemini requests call the v1beta `generateContent` endpoint and include `thinkingConfig.thinkingLevel` when `AI_METADATA_THINKING_LEVEL` is not `none`.
+Gemini requests call the v1beta `generateContent` endpoint and include `thinkingConfig.thinkingLevel` when `AI_SEO_THINKING_LEVEL` is not `none`.
 
 ## Provider selection
 
 - One active provider at a time
 - Switching provider should be straightforward (designed for single active provider, not multi-provider routing)
-- Selected via environment variable `AI_METADATA_PROVIDER` (default: `gemini`)
+- Selected via environment variable `AI_SEO_PROVIDER` (default: `gemini`)
 
 ## Provider base class
 
@@ -28,10 +28,10 @@ abstract class AbstractAIProvider
      * @param string $content The extracted page content (plain text)
      * @param string $pageTitle The page title for context
      * @param string $pageUrl The page URL for context
-     * @return AiMetadataResult Object containing all generated field values
+     * @return AiSeoResult Object containing all generated field values
      * @throws AIProviderException On unrecoverable failure
      */
-    public function generateMetadata(string $content, string $pageTitle, string $pageUrl): AiMetadataResult;
+    public function generateMetadata(string $content, string $pageTitle, string $pageUrl): AiSeoResult;
 }
 ```
 
@@ -42,15 +42,15 @@ HTTP requests are made with Guzzle (bundled with Silverstripe framework) and res
 
 - **Single API call** generates all metadata fields at once
 - The prompt asks the AI to return a JSON object with keys matching the metadata field names
-- The provider parses the JSON response and returns an `AiMetadataResult` value object
+- The provider parses the JSON response and returns an `AiSeoResult` value object
 - If the AI response is malformed or missing fields, the provider throws `AIProviderException`
 
-### AiMetadataResult value object
+### AiSeoResult value object
 
 A simple value object with nullable typed properties for each metadata field:
 
 ```php
-class AiMetadataResult
+class AiSeoResult
 {
     public ?string $metaDescription;
     public ?string $ogTitle;
@@ -72,7 +72,7 @@ class AiMetadataResult
 ### Request timeout
 
 - Default timeout: 15 seconds per API call
-- Configurable via environment variable `AI_METADATA_REQUEST_TIMEOUT` (seconds)
+- Configurable via environment variable `AI_SEO_REQUEST_TIMEOUT` (seconds)
 
 ## Configuration
 
@@ -80,14 +80,14 @@ All configuration via environment variables. Env vars are preferred over YAML co
 
 | Environment variable | Description | Default |
 |---|---|---|
-| `AI_METADATA_PROVIDER` | Active provider (`gemini`, `openai`, `anthropic`) | `gemini` |
-| `AI_METADATA_API_KEY` | API key for the active provider | (required) |
-| `AI_METADATA_MODEL` | Model to use (e.g. `gemini-3.1-flash-lite`, `gpt-4.1`) | Provider-specific default |
-| `AI_METADATA_THINKING_LEVEL` | Thinking level (`none`, `low`, `medium`, `high`) used by Gemini `thinkingConfig` | `low` |
-| `AI_METADATA_TEMPERATURE` | Temperature for generation | `1.0` |
-| `AI_METADATA_MAX_TOKENS` | Max tokens in response | `2000` |
-| `AI_METADATA_REQUEST_TIMEOUT` | Request timeout in seconds | `15` |
-| `AI_METADATA_RATE_LIMIT_DELAY` | Delay in seconds between API calls (for background job) | `6` |
+| `AI_SEO_PROVIDER` | Active provider (`gemini`, `openai`, `anthropic`) | `gemini` |
+| `AI_SEO_API_KEY` | API key for the active provider | (required) |
+| `AI_SEO_MODEL` | Model to use (e.g. `gemini-3.1-flash-lite`, `gpt-4.1`) | Provider-specific default |
+| `AI_SEO_THINKING_LEVEL` | Thinking level (`none`, `low`, `medium`, `high`) used by Gemini `thinkingConfig` | `low` |
+| `AI_SEO_TEMPERATURE` | Temperature for generation | `1.0` |
+| `AI_SEO_MAX_TOKENS` | Max tokens in response | `2000` |
+| `AI_SEO_REQUEST_TIMEOUT` | Request timeout in seconds | `15` |
+| `AI_SEO_RATE_LIMIT_DELAY` | Delay in seconds between API calls (for background job) | `6` |
 
 ### Overriding in project code
 

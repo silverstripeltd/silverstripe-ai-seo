@@ -1,10 +1,10 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Tests;
+namespace SilverstripeLtd\AiSeo\Tests;
 
-use SilverstripeLtd\AiMetadata\Exceptions\AIProviderException;
-use SilverstripeLtd\AiMetadata\Providers\AbstractAIProvider;
-use SilverstripeLtd\AiMetadata\ValueObjects\AiMetadataResult;
+use SilverstripeLtd\AiSeo\Exceptions\AIProviderException;
+use SilverstripeLtd\AiSeo\Providers\AbstractAIProvider;
+use SilverstripeLtd\AiSeo\ValueObjects\AiSeoResult;
 
 /**
  * Provider stub that always throws a blocking exception.
@@ -14,7 +14,7 @@ class BlockingJobProvider extends AbstractAIProvider
     /**
      * Throw a blocking exception to halt job processing.
      */
-    public function generateMetadata(string $content, string $pageTitle, string $pageUrl): AiMetadataResult
+    public function generateSeo(string $content, string $pageTitle, string $pageUrl): AiSeoResult
     {
         throw new AIProviderException('Missing API key', false, true);
     }

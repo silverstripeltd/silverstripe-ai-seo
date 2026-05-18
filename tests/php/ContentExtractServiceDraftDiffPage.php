@@ -1,6 +1,6 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Tests;
+namespace SilverstripeLtd\AiSeo\Tests;
 
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Dev\TestOnly;
@@ -10,7 +10,7 @@ use SilverStripe\Dev\TestOnly;
  */
 class ContentExtractServiceDraftDiffPage extends SiteTree implements TestOnly
 {
-    private static $table_name = 'AiMetadata_ContentExtractServiceDraftDiffPage';
+    private static $table_name = 'AiSeo_ContentExtractServiceDraftDiffPage';
 
     /**
      * Simulate a draft page that is not flagged as modified.

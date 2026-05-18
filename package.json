@@ -1,7 +1,7 @@
 {
-  "name": "silverstripeltd-ai-metadata",
+  "name": "silverstripeltd-ai-seo",
   "version": "1.0.0",
-  "description": "AI metadata module client assets",
+  "description": "AI SEO module client assets",
   "license": "BSD-3-Clause",
   "private": true,
   "engines": {

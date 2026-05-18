@@ -1,9 +1,9 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Tests\Controllers;
+namespace SilverstripeLtd\AiSeo\Tests\Controllers;
 
-use SilverstripeLtd\AiMetadata\Models\GeneratedMetadata;
-use SilverstripeLtd\AiMetadata\Tests\RestrictedViewPage;
+use SilverstripeLtd\AiSeo\Models\GeneratedSeo;
+use SilverstripeLtd\AiSeo\Tests\RestrictedViewPage;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Dev\FunctionalTest;
 use SilverStripe\SiteConfig\SiteConfig;
@@ -14,7 +14,7 @@ use SilverStripe\SiteConfig\SiteConfig;
 class LlmsTxtControllerTest extends FunctionalTest
 {
     protected static $extra_dataobjects = [
-        GeneratedMetadata::class,
+        GeneratedSeo::class,
         RestrictedViewPage::class,
     ];
 
@@ -32,7 +32,7 @@ class LlmsTxtControllerTest extends FunctionalTest
         $page->write();
         $page->publishSingle();
 
-        $metadata = $page->getOrCreateAiMetadata();
+        $metadata = $page->getOrCreateAiSeo();
         $metadata->SummaryLong = 'Summary content';
         $metadata->write();
         $metadata->publishSingle();
@@ -41,7 +41,7 @@ class LlmsTxtControllerTest extends FunctionalTest
         $emptyPage->write();
         $emptyPage->publishSingle();
 
-        $emptyMetadata = $emptyPage->getOrCreateAiMetadata();
+        $emptyMetadata = $emptyPage->getOrCreateAiSeo();
         $emptyMetadata->SummaryLong = '';
         $emptyMetadata->write();
         $emptyMetadata->publishSingle();
@@ -67,7 +67,7 @@ class LlmsTxtControllerTest extends FunctionalTest
         $page->write();
         $page->publishSingle();
 
-        $metadata = $page->getOrCreateAiMetadata();
+        $metadata = $page->getOrCreateAiSeo();
         $metadata->SummaryLong = 'Restricted summary';
         $metadata->write();
         $metadata->publishSingle();

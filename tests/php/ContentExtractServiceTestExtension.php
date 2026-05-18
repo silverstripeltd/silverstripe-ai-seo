@@ -1,6 +1,6 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Tests;
+namespace SilverstripeLtd\AiSeo\Tests;
 
 use SilverStripe\Core\Extension;
 

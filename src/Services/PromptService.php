@@ -1,6 +1,6 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Services;
+namespace SilverstripeLtd\AiSeo\Services;
 
 use SilverStripe\Core\Extensible;
 

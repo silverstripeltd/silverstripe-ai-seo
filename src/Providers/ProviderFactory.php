@@ -1,13 +1,13 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Providers;
+namespace SilverstripeLtd\AiSeo\Providers;
 
-use SilverstripeLtd\AiMetadata\Exceptions\AIProviderException;
+use SilverstripeLtd\AiSeo\Exceptions\AIProviderException;
 use Psr\Log\LoggerInterface;
 use SilverStripe\Core\Environment;
 use SilverStripe\Core\Injector\Injector;
-use SilverstripeLtd\AiMetadata\Providers\AnthropicProvider;
-use SilverstripeLtd\AiMetadata\Providers\OpenAIProvider;
+use SilverstripeLtd\AiSeo\Providers\AnthropicProvider;
+use SilverstripeLtd\AiSeo\Providers\OpenAIProvider;
 
 /**
  * Resolves the configured AI provider implementation.
@@ -32,8 +32,8 @@ class ProviderFactory
     public function getProvider(): AbstractAIProvider
     {
         $provider = 'gemini';
-        if (Environment::hasEnv('AI_METADATA_PROVIDER')) {
-            $env = Environment::getEnv('AI_METADATA_PROVIDER');
+        if (Environment::hasEnv('AI_SEO_PROVIDER')) {
+            $env = Environment::getEnv('AI_SEO_PROVIDER');
             if ($env !== null && $env !== '' && $env !== false) {
                 $provider = (string)$env;
             }

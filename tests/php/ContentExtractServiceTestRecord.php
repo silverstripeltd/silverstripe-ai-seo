@@ -1,6 +1,6 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Tests;
+namespace SilverstripeLtd\AiSeo\Tests;
 
 use SilverStripe\Dev\TestOnly;
 use SilverStripe\ORM\DataObject;
@@ -10,7 +10,7 @@ use SilverStripe\ORM\DataObject;
  */
 class ContentExtractServiceTestRecord extends DataObject implements TestOnly
 {
-    private static $table_name = 'AiMetadata_ContentExtractServiceTestRecord';
+    private static $table_name = 'AiSeo_ContentExtractServiceTestRecord';
 
     private static $db = [
         'Title' => 'Varchar',

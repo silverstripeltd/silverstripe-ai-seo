@@ -1,6 +1,6 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Services;
+namespace SilverstripeLtd\AiSeo\Services;
 
 use DNADesign\Elemental\Extensions\ElementalPageExtension;
 use SilverStripe\Core\Extensible;

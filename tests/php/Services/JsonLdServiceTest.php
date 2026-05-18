@@ -1,9 +1,9 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Tests\Services;
+namespace SilverstripeLtd\AiSeo\Tests\Services;
 
-use SilverstripeLtd\AiMetadata\Models\GeneratedMetadata;
-use SilverstripeLtd\AiMetadata\Services\JsonLdService;
+use SilverstripeLtd\AiSeo\Models\GeneratedSeo;
+use SilverstripeLtd\AiSeo\Services\JsonLdService;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Dev\SapphireTest;
 
@@ -13,7 +13,7 @@ use SilverStripe\Dev\SapphireTest;
 class JsonLdServiceTest extends SapphireTest
 {
     protected static $extra_dataobjects = [
-        GeneratedMetadata::class,
+        GeneratedSeo::class,
     ];
 
     /**
@@ -24,7 +24,7 @@ class JsonLdServiceTest extends SapphireTest
         $page = SiteTree::create(['Title' => 'Test page', 'Content' => 'Content']);
         $page->write();
 
-        $metadata = $page->getOrCreateAiMetadata();
+        $metadata = $page->getOrCreateAiSeo();
         $metadata->OGTitle = 'OG Title';
         $metadata->SummaryLong = 'Long summary';
         $metadata->KeyEntities = json_encode([
@@ -66,7 +66,7 @@ class JsonLdServiceTest extends SapphireTest
         $page = SiteTree::create(['Title' => 'Test page', 'Content' => 'Content']);
         $page->write();
 
-        $metadata = $page->getOrCreateAiMetadata();
+        $metadata = $page->getOrCreateAiSeo();
         $metadata->OGTitle = 'OG Title';
         $metadata->write();
 
@@ -86,7 +86,7 @@ class JsonLdServiceTest extends SapphireTest
         $page = SiteTree::create(['Title' => 'Test page', 'Content' => 'Content']);
         $page->write();
 
-        $metadata = $page->getOrCreateAiMetadata();
+        $metadata = $page->getOrCreateAiSeo();
         $metadata->SummaryLong = 'Safe text </script><script>alert(1)</script>';
         $metadata->write();
 
@@ -115,7 +115,7 @@ class JsonLdServiceTest extends SapphireTest
         $page = SiteTree::create(['Title' => 'Test page', 'Content' => 'Content']);
         $page->write();
 
-        $metadata = $page->getOrCreateAiMetadata();
+        $metadata = $page->getOrCreateAiSeo();
         $metadata->OGTitle = 'OG Title';
         $metadata->SummaryLong = 'Long summary';
         $metadata->write();

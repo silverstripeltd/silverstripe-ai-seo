@@ -1,8 +1,8 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Controllers;
+namespace SilverstripeLtd\AiSeo\Controllers;
 
-use SilverstripeLtd\AiMetadata\Models\GeneratedMetadata;
+use SilverstripeLtd\AiSeo\Models\GeneratedSeo;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\HTTPRequest;
@@ -59,9 +59,9 @@ class LlmsTxtController extends Controller
             if (!$page->canView()) {
                 continue;
             }
-            $metadata = Versioned::withVersionedMode(function () use ($page): ?GeneratedMetadata {
+            $metadata = Versioned::withVersionedMode(function () use ($page): ?GeneratedSeo {
                 Versioned::set_stage(Versioned::LIVE);
-                return $page->getAiMetadata();
+                return $page->getAiSeo();
             });
             if (!$metadata || !$metadata->exists()) {
                 continue;

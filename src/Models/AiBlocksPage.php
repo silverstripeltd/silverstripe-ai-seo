@@ -1,6 +1,6 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Models;
+namespace SilverstripeLtd\AiSeo\Models;
 
 /**
  * Elemental-ready page type for AI module test/demo data.

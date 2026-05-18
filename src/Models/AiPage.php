@@ -1,6 +1,6 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Models;
+namespace SilverstripeLtd\AiSeo\Models;
 
 use Page;
 use SilverStripe\Control\Director;

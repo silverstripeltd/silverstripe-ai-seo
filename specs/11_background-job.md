@@ -2,11 +2,11 @@
 
 ## Overview
 
-A `QueuedJob` subclass that bulk-generates AI metadata for pages that need it. Uses the `symbiote/silverstripe-queuedjobs` module.
+A `QueuedJob` subclass that bulk-generates AI SEO for pages that need it. Uses the `symbiote/silverstripe-queuedjobs` module.
 
 ## Job class
 
-- Class: `GenerateAiMetadataJob` (namespace: `SilverstripeLtd\AiMetadata\Jobs\GenerateAiMetadataJob`)
+- Class: `GenerateAiSeoJob` (namespace: `SilverstripeLtd\AiSeo\Jobs\GenerateAiSeoJob`)
 - Extends: `AbstractQueuedJob`
 - Type: `QueuedJob::QUEUED`
 
@@ -18,11 +18,11 @@ The job is **not** automatically scheduled. An administrator must manually creat
 
 The job processes pages that meet either condition:
 
-1. **No metadata:** Page has no `GeneratedMetadata` record, or `GeneratedMetadata` exists but has never been generated (`GeneratedAt` is null)
-2. **Stale metadata:** Page has `GeneratedMetadata` but the content hash no longer matches (see `specs/07_stale-metadata.md`)
+1. **No metadata:** Page has no `GeneratedSeo` record, or `GeneratedSeo` exists but has never been generated (`GeneratedAt` is null)
+2. **Stale metadata:** Page has `GeneratedSeo` but the content hash no longer matches (see `specs/07_stale-metadata.md`)
 
 Pages are processed in `SiteTree.ID` order (deterministic, simple).
-The job caps the number of pages per run via `AI_METADATA_JOB_BATCH_SIZE` (default: 50).
+The job caps the number of pages per run via `AI_SEO_JOB_BATCH_SIZE` (default: 50).
 
 ## Processing
 
@@ -31,13 +31,13 @@ For each page:
 1. Check if the page has extractable content (non-empty string). Content is read from the **Draft** version when available, falling back to Live if the draft record does not exist (see `specs/03_content-extraction.md` - Versioned reading mode). Skip if empty.
 2. Check if metadata is missing or stale (re-extract content, compare hash).
 3. If generation is needed, call the AI provider (see `specs/04_ai-providers.md`).
-4. Store results on the `GeneratedMetadata` Draft record (see `specs/06_generation-behaviour.md`).
+4. Store results on the `GeneratedSeo` Draft record (see `specs/06_generation-behaviour.md`).
 5. Reset `ReviewedAt` to null (metadata needs human review). The metadata stays in Draft — it will only be published to Live when an editor reviews it and the page is next published.
 6. Wait for the configured delay before processing the next page.
 
 ## Rate limiting
 
-- Configurable delay between API calls: `AI_METADATA_RATE_LIMIT_DELAY` environment variable (default: 6 seconds)
+- Configurable delay between API calls: `AI_SEO_RATE_LIMIT_DELAY` environment variable (default: 6 seconds)
 - This prevents overwhelming the AI provider's rate limits during bulk processing
 
 ## Error handling
@@ -59,7 +59,7 @@ For each page:
 
 ## Re-queue behaviour
 
-At the end of a run, the job re-queues a fresh instance scheduled for a later run (default 8 hours via `AI_METADATA_JOB_REQUEUE_DELAY`). This keeps periodic regeneration available without manual re-creation.
+At the end of a run, the job re-queues a fresh instance scheduled for a later run (default 8 hours via `AI_SEO_JOB_REQUEUE_DELAY`). This keeps periodic regeneration available without manual re-creation.
 
 ## Concurrency
 

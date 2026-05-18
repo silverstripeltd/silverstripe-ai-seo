@@ -15,26 +15,26 @@ A button on the page edit form opens the modal. Button should be placed in the p
 Top to bottom:
 
 1. **Generation status banner** — always shown. It combines the review state with the timestamp (formatted in the editor's local timezone/locale):
-   - **No AI metadata yet.** — shown when `GeneratedAt` is empty (no timestamp).
-   - **AI metadata ready for review. Last generated: <timestamp>** — shown when `GeneratedAt` is set and `ReviewedAt` is empty or older than `GeneratedAt`.
-   - **AI metadata reviewed and saved. Last generated: <timestamp>. Status: <draft status>.** — shown when `GeneratedAt` is set and `ReviewedAt` is newer than or equal to `GeneratedAt`. The draft status reflects the versioned state of the `GeneratedMetadata` record:
+   - **No AI SEO yet.** — shown when `GeneratedAt` is empty (no timestamp).
+   - **AI SEO ready for review. Last generated: <timestamp>** — shown when `GeneratedAt` is set and `ReviewedAt` is empty or older than `GeneratedAt`.
+   - **AI SEO reviewed and saved. Last generated: <timestamp>. Status: <draft status>.** — shown when `GeneratedAt` is set and `ReviewedAt` is newer than or equal to `GeneratedAt`. The draft status reflects the versioned state of the `GeneratedSeo` record:
      - **Draft only (not published yet)** — metadata exists only on Draft.
      - **Draft changes not published** — Draft differs from Live.
      - **Published** — Draft and Live match and Live exists.
    The banner uses different colours per state to make the status visible at a glance.
 2. **Stale content indicator** — shown inside the modal if the content hash has changed since metadata was last generated. Warning banner text: "Page content has changed since metadata was generated. To regenerate, click the "Regenerate" button."
-2a. **Draft changes notice** — shown when the page has unpublished changes (Draft differs from Live or Live does not exist). Informs the editor that the AI metadata reflects draft content and will go live when the page is published. This is an informational notice (not a warning). This notice is driven by the same draft status logic used in the modal schema meta (the Draft vs Live comparison), so it should remain consistent with the status banner state.
+2a. **Draft changes notice** — shown when the page has unpublished changes (Draft differs from Live or Live does not exist). Informs the editor that the AI SEO reflects draft content and will go live when the page is published. This is an informational notice (not a warning). This notice is driven by the same draft status logic used in the modal schema meta (the Draft vs Live comparison), so it should remain consistent with the status banner state.
 3. **All metadata fields** — laid out vertically, one after another. Traditional SEO fields first (editable text fields), then AI-oriented fields:
    - `MetaDescription`, `OGTitle`, `OGDescription` — editable text fields
-   - `MetaDescription` shows a yellow warning indicator if it exceeds the recommended character limit (default 150, configurable via `AI_METADATA_META_DESCRIPTION_MAX`)
+   - `MetaDescription` shows a yellow warning indicator if it exceeds the recommended character limit (default 150, configurable via `AI_SEO_META_DESCRIPTION_MAX`)
     - `SummaryLong` — editable textarea shown at 3 rows
    - `KeyEntities`, `KeyTopics`, `SuggestedFAQs` — **read-only formatted display** (not editable; regenerate to change). Show as nicely formatted text, not raw JSON.
    - `JsonLdSchema` — **read-only preview** showing the assembled JSON-LD for the page. Not stored in DB, dynamically assembled for display.
-4. **Review confirmation checkbox** — shows **I have reviewed the AI metadata** while review is required. When metadata is already reviewed, the label switches to **Metadata was reviewed** and the checkbox is disabled.
+4. **Review confirmation checkbox** — shows **I have reviewed the AI SEO** while review is required. When metadata is already reviewed, the label switches to **Metadata was reviewed** and the checkbox is disabled.
 5. **Action buttons** (top to bottom):
     - **Generate Metadata / Regenerate** button — triggers AI generation of metadata. Shows **Generate Metadata** when `GeneratedAt` is empty, otherwise **Regenerate**. This button uses the CMS info button style.
     - **Apply Metadata** button — saves the metadata. It is shown only after AI-generated metadata exists, and is disabled unless metadata needs review and the review confirmation checkbox is active, or an editor has made manual edits in the editable fields. This button uses the CMS info button style.
-    - **Submit note** — the text "Check the "I have reviewed the AI metadata" checkbox, then click Apply Metadata. Metadata will go live when the page is next published." is shown above Apply Metadata only when review is required.
+    - **Submit note** — the text "Check the "I have reviewed the AI SEO" checkbox, then click Apply Metadata. Metadata will go live when the page is next published." is shown above Apply Metadata only when review is required.
 
 ### Footer button states
 
@@ -50,7 +50,7 @@ Top to bottom:
 
 ## Stale metadata indicator (REMOVED)
 
-~~Previously shown on the page edit form near the "AI Metadata" button.~~ **Removed.** Stale metadata detection is now handled exclusively via the CMS report (`specs/13_cms-report.md`). No inline stale indicator on the page edit form.
+~~Previously shown on the page edit form near the "AI SEO" button.~~ **Removed.** Stale metadata detection is now handled exclusively via the CMS report (`specs/13_cms-report.md`). No inline stale indicator on the page edit form.
 
 ## SiteTree Metadata toggle section
 
@@ -58,8 +58,8 @@ SiteTree's existing "Metadata" toggle section on the page edit form contains `Me
 
 Instead, the extension applied to `SiteTree` via `updateCMSFields()`:
 
-- **Replaces** the `MetaDescription` field with a **read-only field** that displays the current `MetaDescription` value from the page's `GeneratedMetadata` record
-- Adds a description/right-title on the field explaining: "This value is managed by the AI Metadata module. Open the AI Metadata modal to edit."
+- **Replaces** the `MetaDescription` field with a **read-only field** that displays the current `MetaDescription` value from the page's `GeneratedSeo` record
+- Adds a description/right-title on the field explaining: "This value is managed by the AI SEO module. Open the AI SEO modal to edit."
 - If the page's original SiteTree `MetaDescription` had a value (i.e. before the module was installed or before migration), shows it below as informational text: "Previous value: ..."
 - **Leaves `ExtraMeta` (Custom Meta Tags) untouched**
 
@@ -76,7 +76,7 @@ Instead, the extension applied to `SiteTree` via `updateCMSFields()`:
 ## Submission behaviour
 
 - Apply Metadata is a "sideways" XHR save (does not submit the main page edit form).
-- Saves the `GeneratedMetadata` record to Draft independently from the page.
+- Saves the `GeneratedSeo` record to Draft independently from the page.
 - Sets `ReviewedAt` to the current datetime.
 - On success, the modal stays open and the status banner updates to the reviewed state.
 - On success, a toast is shown.
@@ -86,14 +86,14 @@ Instead, the extension applied to `SiteTree` via `updateCMSFields()`:
 
 ## Publish-on-page-publish
 
-When the editor publishes the parent page, `AiMetadataExtension::onAfterPublish()` runs on the server as part of the normal Silverstripe publish lifecycle. There is no dedicated publish controller endpoint or extra JS publish hook. The extension checks the related `GeneratedMetadata` record and only publishes it when the metadata is reviewed:
+When the editor publishes the parent page, `AiSeoExtension::onAfterPublish()` runs on the server as part of the normal Silverstripe publish lifecycle. There is no dedicated publish controller endpoint or extra JS publish hook. The extension checks the related `GeneratedSeo` record and only publishes it when the metadata is reviewed:
 
 - **Metadata is reviewed** (`GeneratedAt` exists and `ReviewedAt` is current via `isReviewed()`): `onAfterPublish()` calls `$metadata->publishSingle()` and metadata goes live with the parent page.
 - **Metadata is unreviewed** (for example background-job-generated, or regenerated after the last review): `onAfterPublish()` does nothing, so existing live metadata stays as-is and the newer draft metadata remains on Draft only.
 
 This ensures unverified AI-generated content never goes live accidentally, while matching the editor mental model that "publish page = publish everything on the page".
 
-Similarly, when the parent page is **unpublished** or **archived**, `AiMetadataExtension::onBeforeUnpublish()` and `AiMetadataExtension::onBeforeArchive()` call `$metadata->doUnpublish()` when live metadata exists, so the AI metadata lifecycle stays aligned with the parent record's Live state.
+Similarly, when the parent page is **unpublished** or **archived**, `AiSeoExtension::onBeforeUnpublish()` and `AiSeoExtension::onBeforeArchive()` call `$metadata->doUnpublish()` when live metadata exists, so the AI SEO lifecycle stays aligned with the parent record's Live state.
 
 ## Loading states
 

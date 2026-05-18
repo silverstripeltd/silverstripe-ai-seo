@@ -1,6 +1,6 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Exceptions;
+namespace SilverstripeLtd\AiSeo\Exceptions;
 
 use RuntimeException;
 use Throwable;

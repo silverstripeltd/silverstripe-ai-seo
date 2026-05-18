@@ -1,8 +1,8 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Tests;
+namespace SilverstripeLtd\AiSeo\Tests;
 
-use SilverstripeLtd\AiMetadata\Services\ContentExtractService;
+use SilverstripeLtd\AiSeo\Services\ContentExtractService;
 use SilverStripe\ORM\DataObject;
 
 /**

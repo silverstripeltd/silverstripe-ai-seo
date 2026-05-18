@@ -1,8 +1,8 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Tests\Services;
+namespace SilverstripeLtd\AiSeo\Tests\Services;
 
-use SilverstripeLtd\AiMetadata\Services\PromptService;
+use SilverstripeLtd\AiSeo\Services\PromptService;
 use SilverStripe\Dev\SapphireTest;
 
 /**

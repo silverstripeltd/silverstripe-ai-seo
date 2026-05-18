@@ -31,7 +31,7 @@ Use the existing Elemental search indexing methods where available, with a fallb
 3. Concatenate results with the page's `Title` for context.
 4. Provide an extension hook (`updateExtractedContent` or similar) on the module's content extractor so project-level code can append additional content from custom sources.
 
-In practice, most developers will overlook the extension hook — AI metadata is a background feature and custom content sources are an edge case. The module should work well out of the box for the two common patterns without requiring developer intervention.
+In practice, most developers will overlook the extension hook — AI SEO is a background feature and custom content sources are an edge case. The module should work well out of the box for the two common patterns without requiring developer intervention.
 
 ## No phased implementation needed
 
@@ -55,7 +55,7 @@ The extraction service wraps the read in `Versioned::withVersionedMode()` and re
 
 When the Draft content differs from Live (or when no Live record exists), the CMS modal must display a banner informing the editor:
 
-> "This page has unpublished changes. AI metadata reflects the draft content and will go live when the page is published."
+> "This page has unpublished changes. AI SEO reflects the draft content and will go live when the page is published."
 
 This banner is shown alongside the existing status/stale banners. The modified state should be derived from `isModifiedOnDraft()` **or** a detected difference between Draft and Live extracted content (so Elemental block changes are captured even if the page itself is not marked modified).
 

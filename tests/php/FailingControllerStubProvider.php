@@ -1,10 +1,10 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Tests;
+namespace SilverstripeLtd\AiSeo\Tests;
 
-use SilverstripeLtd\AiMetadata\Exceptions\AIProviderException;
-use SilverstripeLtd\AiMetadata\Providers\AbstractAIProvider;
-use SilverstripeLtd\AiMetadata\ValueObjects\AiMetadataResult;
+use SilverstripeLtd\AiSeo\Exceptions\AIProviderException;
+use SilverstripeLtd\AiSeo\Providers\AbstractAIProvider;
+use SilverstripeLtd\AiSeo\ValueObjects\AiSeoResult;
 
 /**
  * Stub provider that always throws.
@@ -14,7 +14,7 @@ class FailingControllerStubProvider extends AbstractAIProvider
     /**
      * Throw a provider exception for regeneration tests.
      */
-    public function generateMetadata(string $content, string $pageTitle, string $pageUrl): AiMetadataResult
+    public function generateSeo(string $content, string $pageTitle, string $pageUrl): AiSeoResult
     {
         throw new AIProviderException('Provider boom');
     }

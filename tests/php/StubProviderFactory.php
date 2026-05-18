@@ -1,9 +1,9 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Tests;
+namespace SilverstripeLtd\AiSeo\Tests;
 
-use SilverstripeLtd\AiMetadata\Providers\AbstractAIProvider;
-use SilverstripeLtd\AiMetadata\Providers\ProviderFactory;
+use SilverstripeLtd\AiSeo\Providers\AbstractAIProvider;
+use SilverstripeLtd\AiSeo\Providers\ProviderFactory;
 
 /**
  * Provider factory that always returns the supplied provider.

@@ -1,8 +1,8 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Tests\Exceptions;
+namespace SilverstripeLtd\AiSeo\Tests\Exceptions;
 
-use SilverstripeLtd\AiMetadata\Exceptions\AIProviderException;
+use SilverstripeLtd\AiSeo\Exceptions\AIProviderException;
 use SilverStripe\Dev\SapphireTest;
 
 /**

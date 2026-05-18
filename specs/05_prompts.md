@@ -35,7 +35,7 @@ See `prompts/user.md` and `PromptService::getUserPrompt()` for the full template
 
 ## Output parsing
 
-The provider parses the AI response as JSON. Field mapping from JSON keys to `GeneratedMetadata` DB fields:
+The provider parses the AI response as JSON. Field mapping from JSON keys to `GeneratedSeo` DB fields:
 
 | JSON key | DB field |
 |----------|----------|

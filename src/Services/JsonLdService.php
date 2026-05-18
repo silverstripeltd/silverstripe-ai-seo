@@ -1,8 +1,8 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Services;
+namespace SilverstripeLtd\AiSeo\Services;
 
-use SilverstripeLtd\AiMetadata\Models\GeneratedMetadata;
+use SilverstripeLtd\AiSeo\Models\GeneratedSeo;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Control\Director;
 use SilverStripe\SiteConfig\SiteConfig;
@@ -17,7 +17,7 @@ class JsonLdService
     /**
      * Generate JSON-LD for the given page and metadata.
      */
-    public function generateJsonLd(SiteTree $page, GeneratedMetadata $metadata): ?string
+    public function generateJsonLd(SiteTree $page, GeneratedSeo $metadata): ?string
     {
         $graph = $this->buildGraph($page, $metadata);
         if (!$graph) {
@@ -36,7 +36,7 @@ class JsonLdService
      *
      * @return array<int, array<string, mixed>>
      */
-    private function buildGraph(SiteTree $page, GeneratedMetadata $metadata): array
+    private function buildGraph(SiteTree $page, GeneratedSeo $metadata): array
     {
         $graph = [];
         $siteConfig = SiteConfig::current_site_config();

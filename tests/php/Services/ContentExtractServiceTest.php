@@ -1,14 +1,14 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Tests\Services;
+namespace SilverstripeLtd\AiSeo\Tests\Services;
 
 use DNADesign\Elemental\Models\ElementContent;
 use DNADesign\Elemental\Models\ElementalArea;
-use SilverstripeLtd\AiMetadata\Models\AiBlocksPage;
-use SilverstripeLtd\AiMetadata\Services\ContentExtractService;
-use SilverstripeLtd\AiMetadata\Tests\ContentExtractServiceTestRecord;
-use SilverstripeLtd\AiMetadata\Tests\ContentExtractServiceDraftDiffPage;
-use SilverstripeLtd\AiMetadata\Tests\ContentExtractServiceTestExtension;
+use SilverstripeLtd\AiSeo\Models\AiBlocksPage;
+use SilverstripeLtd\AiSeo\Services\ContentExtractService;
+use SilverstripeLtd\AiSeo\Tests\ContentExtractServiceTestRecord;
+use SilverstripeLtd\AiSeo\Tests\ContentExtractServiceDraftDiffPage;
+use SilverstripeLtd\AiSeo\Tests\ContentExtractServiceTestExtension;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Dev\SapphireTest;

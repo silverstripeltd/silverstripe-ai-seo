@@ -1,9 +1,9 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Tests;
+namespace SilverstripeLtd\AiSeo\Tests;
 
-use SilverstripeLtd\AiMetadata\Providers\AbstractAIProvider;
-use SilverstripeLtd\AiMetadata\ValueObjects\AiMetadataResult;
+use SilverstripeLtd\AiSeo\Providers\AbstractAIProvider;
+use SilverstripeLtd\AiSeo\ValueObjects\AiSeoResult;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 

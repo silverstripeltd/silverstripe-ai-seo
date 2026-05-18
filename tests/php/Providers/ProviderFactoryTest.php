@@ -1,14 +1,14 @@
 <?php
 
-namespace SilverstripeLtd\AiMetadata\Tests\Providers;
+namespace SilverstripeLtd\AiSeo\Tests\Providers;
 
-use SilverstripeLtd\AiMetadata\Exceptions\AIProviderException;
-use SilverstripeLtd\AiMetadata\Providers\AnthropicProvider;
-use SilverstripeLtd\AiMetadata\Providers\GeminiProvider;
-use SilverstripeLtd\AiMetadata\Providers\OpenAIProvider;
-use SilverstripeLtd\AiMetadata\Providers\ProviderFactory;
-use SilverstripeLtd\AiMetadata\Tests\StubProvider;
-use SilverstripeLtd\AiMetadata\ValueObjects\AiMetadataResult;
+use SilverstripeLtd\AiSeo\Exceptions\AIProviderException;
+use SilverstripeLtd\AiSeo\Providers\AnthropicProvider;
+use SilverstripeLtd\AiSeo\Providers\GeminiProvider;
+use SilverstripeLtd\AiSeo\Providers\OpenAIProvider;
+use SilverstripeLtd\AiSeo\Providers\ProviderFactory;
+use SilverstripeLtd\AiSeo\Tests\StubProvider;
+use SilverstripeLtd\AiSeo\ValueObjects\AiSeoResult;
 use SilverStripe\Core\Environment;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\SapphireTest;
@@ -29,9 +29,9 @@ class ProviderFactoryTest extends SapphireTest
     {
         parent::setUp();
 
-        $this->geminiProvider = new StubProvider(new AiMetadataResult());
-        $this->openAiProvider = new StubProvider(new AiMetadataResult());
-        $this->anthropicProvider = new StubProvider(new AiMetadataResult());
+        $this->geminiProvider = new StubProvider(new AiSeoResult());
+        $this->openAiProvider = new StubProvider(new AiSeoResult());
+        $this->anthropicProvider = new StubProvider(new AiSeoResult());
 
         Injector::inst()->registerService($this->geminiProvider, GeminiProvider::class);
         Injector::inst()->registerService($this->openAiProvider, OpenAIProvider::class);
@@ -43,7 +43,7 @@ class ProviderFactoryTest extends SapphireTest
      */
     protected function tearDown(): void
     {
-        Environment::setEnv('AI_METADATA_PROVIDER', null);
+        Environment::setEnv('AI_SEO_PROVIDER', null);
         parent::tearDown();
     }
 
@@ -52,7 +52,7 @@ class ProviderFactoryTest extends SapphireTest
      */
     public function testDefaultsToGeminiWhenEnvEmpty(): void
     {
-        Environment::setEnv('AI_METADATA_PROVIDER', '');
+        Environment::setEnv('AI_SEO_PROVIDER', '');
         $factory = new ProviderFactory();
         $this->assertSame($this->geminiProvider, $factory->getProvider());
     }
@@ -62,7 +62,7 @@ class ProviderFactoryTest extends SapphireTest
      */
     public function testSelectsOpenAiProvider(): void
     {
-        Environment::setEnv('AI_METADATA_PROVIDER', 'openai');
+        Environment::setEnv('AI_SEO_PROVIDER', 'openai');
         $factory = new ProviderFactory();
         $this->assertSame($this->openAiProvider, $factory->getProvider());
     }
@@ -72,7 +72,7 @@ class ProviderFactoryTest extends SapphireTest
      */
     public function testThrowsForUnknownProvider(): void
     {
-        Environment::setEnv('AI_METADATA_PROVIDER', 'unknown');
+        Environment::setEnv('AI_SEO_PROVIDER', 'unknown');
         $factory = new ProviderFactory();
         $this->expectException(AIProviderException::class);
         $factory->getProvider();
