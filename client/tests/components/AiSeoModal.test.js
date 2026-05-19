@@ -76,6 +76,16 @@ jest.mock('components/FormBuilderModal/FormBuilderModal', () => {
       { className: wrapperClassName, role: 'dialog', 'aria-label': title },
       ReactModule.createElement(
         'div',
+        { className: 'modal-header' },
+        ReactModule.createElement('h1', null, title),
+        ReactModule.createElement('button', {
+          type: 'button',
+          className: 'btn btn-close btn--icon-xl btn--no-text modal__close-button',
+          'aria-label': 'Close',
+        }),
+      ),
+      ReactModule.createElement(
+        'div',
         { 'data-field-path': 'AiSeoStatus' },
         ReactModule.createElement('label', { htmlFor: 'generated-at' }, 'Generated at'),
         ReactModule.createElement('input', {
@@ -308,7 +318,8 @@ test('requires review confirmation before enabling submit for unreviewed metadat
     />
   );
 
-  expect(screen.getByRole('dialog', { name: 'Generate SEO using AI' })).not.toBeNull();
+  expect(screen.getByRole('dialog', { name: 'Generate SEO with AI' })).not.toBeNull();
+  expect(screen.getByRole('button', { name: 'Close' }).className).toContain('modal__close-button');
 
   const submitButton = screen.getByRole('button', { name: 'Apply SEO' });
   const reviewCheckbox = screen.getByRole('checkbox', { name: 'I have reviewed the generated AI SEO' });

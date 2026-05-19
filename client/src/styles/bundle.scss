@@ -6,14 +6,29 @@
 }
 
 .ai-seo-modal {
+  .modal-dialog {
+    height: calc(100% - 3.5rem);
+  }
+
   .modal-content {
+    display: flex;
+    flex-direction: column;
     max-height: calc(100vh - 3.5rem);
-    overflow-y: auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .modal-header {
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 2;
   }
 
   .modal-body {
+    flex: 1 1 auto;
     min-height: auto;
-    overflow: visible;
+    overflow-y: auto;
     padding-bottom: 0;
   }
 
@@ -38,6 +53,11 @@
       pointer-events: none;
       box-shadow: none;
     }
+  }
+
+  .modal__close-button {
+    flex-shrink: 0;
+    margin-left: auto;
   }
 }
 

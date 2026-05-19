@@ -5,6 +5,10 @@ SilverStripe\CMS\Model\SiteTree:
   extensions:
     - SilverstripeLtd\AiSeo\Extensions\AiSeoExtension
 
+SilverStripe\Core\Injector\Injector:
+  SilverstripeLtd\AiSeo\Services\AiSeoAvailabilityService:
+    class: SilverstripeLtd\AiSeo\Services\AiSeoAvailabilityService
+
 SilverstripeLtd\AiSeo\Models\GeneratedSeo:
   extensions:
     - SilverStripe\Versioned\Versioned
@@ -24,6 +28,15 @@ SilverStripe\Admin\LeftAndMain:
       defer: true
   extra_requirements_css:
     - 'silverstripeltd/ai-seo:client/dist/styles/bundle.css'
+
+---
+Name: ai-seo-fluent
+Only:
+  moduleexists: 'tractorcow/silverstripe-fluent'
+---
+SilverStripe\Core\Injector\Injector:
+  SilverstripeLtd\AiSeo\Services\AiSeoAvailabilityService:
+    class: SilverstripeLtd\AiSeo\Services\FluentAiSeoAvailabilityService
 
 ---
 Name: ai-seo-elemental

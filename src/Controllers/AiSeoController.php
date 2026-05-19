@@ -6,6 +6,7 @@ use SilverstripeLtd\AiSeo\Exceptions\AIProviderException;
 use SilverstripeLtd\AiSeo\Extensions\AiSeoExtension;
 use SilverstripeLtd\AiSeo\Forms\AiSeoForm;
 use SilverstripeLtd\AiSeo\Models\GeneratedSeo;
+use SilverstripeLtd\AiSeo\Services\AiSeoAvailabilityService;
 use SilverstripeLtd\AiSeo\Services\AiSeoStateService;
 use SilverstripeLtd\AiSeo\Services\AiSeoRegenerateRateLimiter;
 use SilverstripeLtd\AiSeo\Services\ContentExtractService;
@@ -166,6 +167,9 @@ class AiSeoController extends FormSchemaController
         if (!$record->canEdit()) {
             $this->jsonError(403, 'Access denied');
         }
+        if (!$this->getAvailabilityService()->canUseAiSeo($record)) {
+            $this->jsonError(403, $this->getAvailabilityService()->getUnavailableMessage());
+        }
         return $record;
     }
 
@@ -285,6 +289,11 @@ class AiSeoController extends FormSchemaController
     private function getRegenerateRateLimiter(): AiSeoRegenerateRateLimiter
     {
         return Injector::inst()->get(AiSeoRegenerateRateLimiter::class);
+    }
+
+    private function getAvailabilityService(): AiSeoAvailabilityService
+    {
+        return Injector::inst()->get(AiSeoAvailabilityService::class);
     }
 
     /**

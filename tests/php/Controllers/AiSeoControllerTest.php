@@ -2,6 +2,7 @@
 
 namespace SilverstripeLtd\AiSeo\Tests\Controllers;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use SilverstripeLtd\AiSeo\Controllers\AiSeoController;
 use SilverstripeLtd\AiSeo\ValueObjects\AiSeoResult;
 use SilverstripeLtd\AiSeo\Forms\AiSeoForm;
@@ -14,13 +15,18 @@ use SilverstripeLtd\AiSeo\Tests\RestrictedPage;
 use SilverstripeLtd\AiSeo\Tests\FailingControllerStubProvider;
 use SilverStripe\Core\Environment;
 use SilverStripe\CMS\Model\SiteTree;
+use SilverStripe\Control\HTTPResponse_Exception;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Control\Session;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\FunctionalTest;
 use SilverStripe\Forms\CheckboxField;
+use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\FormField;
+use SilverStripe\Forms\Form;
+use TractorCow\Fluent\Model\Locale;
+use TractorCow\Fluent\State\FluentState;
 
 /**
  * Functional tests for AI SEO controller endpoints.
@@ -32,6 +38,18 @@ class AiSeoControllerTest extends FunctionalTest
         RestrictedPage::class,
     ];
 
+    public static function getExtraDataObjects(): array
+    {
+        $objects = static::$extra_dataobjects;
+        if (class_exists(Locale::class)) {
+            $objects[] = Locale::class;
+        }
+        return $objects;
+    }
+
+    private Locale $defaultLocale;
+    private Locale $targetLocale;
+
     /**
      * Configure a stub provider for controller tests.
      */
@@ -39,6 +57,26 @@ class AiSeoControllerTest extends FunctionalTest
     {
         parent::setUp();
         $this->logInWithPermission('ADMIN');
+        if (!class_exists(Locale::class)) {
+            $this->markTestSkipped('Fluent is required for this test');
+        }
+
+        $defaultLocale = Locale::create([
+            'Title' => 'English',
+            'Locale' => 'en_NZ',
+            'IsGlobalDefault' => 1,
+        ]);
+        $defaultLocale->write();
+        $targetLocale = Locale::create([
+            'Title' => 'Te Reo Maori',
+            'Locale' => 'mi_NZ',
+            'IsGlobalDefault' => 0,
+        ]);
+        $targetLocale->write();
+        Locale::clearCached();
+        $this->defaultLocale = Locale::get()->filter('Locale', 'en_NZ')->first();
+        $this->targetLocale = Locale::get()->filter('Locale', 'mi_NZ')->first();
+        FluentState::singleton()->setLocale($this->defaultLocale->Locale);
 
         $provider = new StubProvider(new AiSeoResult([
             'metaDescription' => 'Generated description',
@@ -54,6 +92,10 @@ class AiSeoControllerTest extends FunctionalTest
         Config::modify()->set(AiSeoRegenerateRateLimiter::class, 'max_requests', 10);
         Config::modify()->set(AiSeoRegenerateRateLimiter::class, 'window_seconds', 300);
         Injector::inst()->registerService(new ProviderFactory(), ProviderFactory::class);
+        if (class_exists(Locale::class)) {
+            Locale::clearCached();
+            FluentState::singleton()->setLocale(null);
+        }
         parent::tearDown();
     }
 
@@ -446,6 +488,28 @@ class AiSeoControllerTest extends FunctionalTest
     }
 
     /**
+     * Ensure non-default Fluent locales cannot load the AI SEO schema.
+     */
+    public function testFormSchemaEndpointRejectsNonDefaultLocale(): void
+    {
+        $page = $this->createPageInDefaultLocale();
+        FluentState::singleton()->setLocale($this->targetLocale->Locale);
+
+        $response = $this->get(
+            '/admin/ai-seo/schema/AiSeoForm/' . $page->ID . '?fqcn=' . rawurlencode(SiteTree::class),
+            null,
+            ['X-FormSchema-Request' => 'schema,state']
+        );
+
+        $this->assertSame(403, $response->getStatusCode());
+        $payload = json_decode((string) $response->getBody(), true);
+        $this->assertSame(
+            'AI SEO is only available in the default locale',
+            $payload['errors'][0]['value'] ?? null
+        );
+    }
+
+    /**
      * Ensure the generated details toggle is present in the schema.
      */
     public function testFormSchemaIncludesGeneratedDetailsToggle(): void
@@ -548,7 +612,10 @@ class AiSeoControllerTest extends FunctionalTest
         $keyTopicsHeader = $fields->fieldByName('AiSeoKeyTopicsHeader');
         $this->assertNotNull($keyTopicsHeader);
         $this->assertStringContainsString('form__field-label form-label', (string)$keyTopicsHeader->getContent());
-        $this->assertStringContainsString('Key topics', (string)$keyTopicsHeader->getContent());
+        $this->assertStringContainsString(
+            'Key topics - used to verify the AI accurately captured page themes. This is not shown on the website.',
+            (string)$keyTopicsHeader->getContent()
+        );
 
         $reviewField = $fields->dataFieldByName('ReviewConfirmed');
         $this->assertNotNull($reviewField);
@@ -712,6 +779,54 @@ class AiSeoControllerTest extends FunctionalTest
     }
 
     /**
+     * @return array<int, array{0: string}>
+     */
+    public static function provideMutationActionsRejectNonDefaultLocale(): array
+    {
+        return [
+            ['doRegenerate'],
+            ['doSave'],
+        ];
+    }
+
+    /**
+     * Ensure mutation actions reject non-default Fluent locales.
+     */
+    #[DataProvider('provideMutationActionsRejectNonDefaultLocale')]
+    public function testMutationActionsRejectNonDefaultLocale(string $action): void
+    {
+        $page = $this->createPageInDefaultLocale();
+        FluentState::singleton()->setLocale($this->targetLocale->Locale);
+
+        $controller = AiSeoController::create();
+        $request = new HTTPRequest(
+            'POST',
+            '/admin/ai-seo/aiSeoForm/' . $page->ID,
+            ['fqcn' => SiteTree::class]
+        );
+        $request->setSession(new Session([]));
+        $request->setRouteParams(['ItemID' => $page->ID]);
+        $request->addHeader('X-Formschema-Request', 'schema,state');
+        $controller->setRequest($request);
+
+        $form = new Form($controller, 'TestForm', FieldList::create(), FieldList::create());
+
+        try {
+            $controller->{$action}([], $form);
+            $this->fail('Expected AI SEO unsupported locale response');
+        } catch (HTTPResponse_Exception $exception) {
+            $response = $exception->getResponse();
+            $payload = json_decode((string) $response->getBody(), true);
+
+            $this->assertSame(403, $response->getStatusCode());
+            $this->assertSame(
+                'AI SEO is only available in the default locale',
+                $payload['errors'][0]['value'] ?? null
+            );
+        }
+    }
+
+    /**
      * Ensure regenerate button label reflects generation state.
      */
     public function testRegenerateButtonLabelChanges(): void
@@ -755,5 +870,13 @@ class AiSeoControllerTest extends FunctionalTest
         $request->addHeader('X-Formschema-Request', 'schema,state');
         $controller->setRequest($request);
         return $controller;
+    }
+
+    private function createPageInDefaultLocale(): SiteTree
+    {
+        FluentState::singleton()->setLocale($this->defaultLocale->Locale);
+        $page = SiteTree::create(['Title' => 'Test page', 'Content' => 'Content']);
+        $page->write();
+        return $page;
     }
 }

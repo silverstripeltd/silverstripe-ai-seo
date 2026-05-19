@@ -102,7 +102,7 @@ const regenerateActionSelector = 'button[name="action_doRegenerate"]';
 const inlineRegenerateActionClassName = 'ai-seo-modal__inline-regenerate-action';
 const inlineRegenerateButtonClassName = 'ai-seo-modal__inline-regenerate-button';
 const hiddenSourceActionClassName = 'ai-seo-modal__source-action--hidden';
-const modalTitle = 'Generate SEO using AI';
+const modalTitle = 'Generate SEO with AI';
 const confirmTooltipText = 'Please confirm you have reviewed the SEO before submitting.';
 const regenerateNoticeText = 'Generated AI SEO refreshed. Review and apply to save.';
 const generateNoticeText = 'Generated AI SEO created. Review and apply to save.';

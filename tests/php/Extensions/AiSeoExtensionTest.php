@@ -9,6 +9,8 @@ use SilverStripe\Dev\SapphireTest;
 use SilverStripe\Forms\HiddenField;
 use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\Versioned\Versioned;
+use TractorCow\Fluent\Model\Locale;
+use TractorCow\Fluent\State\FluentState;
 
 /**
  * Covers extension behaviour for AI SEO.
@@ -20,10 +22,52 @@ class AiSeoExtensionTest extends SapphireTest
         RestrictedPage::class,
     ];
 
+    public static function getExtraDataObjects(): array
+    {
+        $objects = static::$extra_dataobjects;
+        if (class_exists(Locale::class)) {
+            $objects[] = Locale::class;
+        }
+        return $objects;
+    }
+
+    private Locale $defaultLocale;
+    private Locale $targetLocale;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->logInWithPermission('ADMIN');
+        if (!class_exists(Locale::class)) {
+            $this->markTestSkipped('Fluent is required for this test');
+        }
+
+        $defaultLocale = Locale::create([
+            'Title' => 'English',
+            'Locale' => 'en_NZ',
+            'IsGlobalDefault' => 1,
+        ]);
+        $defaultLocale->write();
+        $targetLocale = Locale::create([
+            'Title' => 'Te Reo Maori',
+            'Locale' => 'mi_NZ',
+            'IsGlobalDefault' => 0,
+        ]);
+        $targetLocale->write();
+
+        Locale::clearCached();
+        $this->defaultLocale = Locale::get()->filter('Locale', 'en_NZ')->first();
+        $this->targetLocale = Locale::get()->filter('Locale', 'mi_NZ')->first();
+        FluentState::singleton()->setLocale($this->defaultLocale->Locale);
+    }
+
+    protected function tearDown(): void
+    {
+        if (class_exists(Locale::class)) {
+            Locale::clearCached();
+            FluentState::singleton()->setLocale(null);
+        }
+        parent::tearDown();
     }
 
     /**
@@ -54,24 +98,48 @@ class AiSeoExtensionTest extends SapphireTest
         $field = $fields->dataFieldByName('MetaDescription');
 
         $this->assertInstanceOf(ReadonlyField::class, $field);
-        $this->assertStringContainsString('Generate SEO using AI modal', (string)$field->getDescription());
+        $this->assertStringContainsString('Generate SEO with AI modal', (string)$field->getDescription());
         $this->assertStringContainsString('Previous value:', (string)$field->getDescription());
     }
 
     /**
      * Ensure editable pages expose toolbar context but no old major action button.
      */
-    public function testUpdateCMSFieldsAddsToolbarContextWithoutMajorActionButton(): void
+    public function testUpdateCMSFieldsAddsToolbarContextWithoutMajorActionButtonInDefaultLocale(): void
     {
         $page = SiteTree::create(['Title' => 'Toolbar test']);
         $page->write();
 
+        $this->assertTrue($page->canAiSeoInCurrentLocale());
         $fields = $page->getCMSFields();
         $actions = $page->getCMSActions();
         $recordClass = $fields->dataFieldByName('AiSeoRecordClass');
 
         $this->assertInstanceOf(HiddenField::class, $recordClass);
         $this->assertSame($page->ClassName, $recordClass->dataValue());
+        $this->assertNull($actions->fieldByName('MajorActions')->fieldByName('action_AiSeoAction'));
+    }
+
+    /**
+     * Ensure non-default Fluent locales do not expose toolbar context.
+     */
+    public function testUpdateCMSFieldsSkipsToolbarContextInNonDefaultLocale(): void
+    {
+        $page = SiteTree::create(['Title' => 'Toolbar test']);
+        $page->write();
+
+        FluentState::singleton()->setLocale($this->targetLocale->Locale);
+        /** @var SiteTree|null $targetPage */
+        $targetPage = SiteTree::get()->setUseCache(false)->byID($page->ID);
+
+        $this->assertNotNull($targetPage);
+        $this->assertFalse($targetPage->canAiSeoInCurrentLocale());
+
+        $fields = $targetPage->getCMSFields();
+        $actions = $targetPage->getCMSActions();
+
+        $this->assertNull($fields->dataFieldByName('AiSeoRecordClass'));
+        $this->assertNotInstanceOf(ReadonlyField::class, $fields->dataFieldByName('MetaDescription'));
         $this->assertNull($actions->fieldByName('MajorActions')->fieldByName('action_AiSeoAction'));
     }
 

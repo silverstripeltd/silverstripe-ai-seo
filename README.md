@@ -94,6 +94,10 @@ Control the recommended max character length shown in the CMS modal for `MetaDes
 AI_SEO_META_DESCRIPTION_MAX=150  # Recommended max characters (default: 150)
 ```
 
+## Fluent compatibility
+
+When `tractorcow/silverstripe-fluent` is installed, AI SEO is only available in the default locale. The toolbar button is hidden and controller access is blocked for all non-default locales. Non-Fluent installs are unaffected.
+
 ## Content tone
 
 Generated metadata is always written in a professional, factual tone regardless of the voice or style used in the page content. This is intentional - metadata is consumed by search engines, social media platforms, and AI crawlers, which expect clear, neutral language for optimal indexing and display.

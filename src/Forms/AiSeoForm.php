@@ -104,7 +104,10 @@ class AiSeoForm extends Form
         $keyTopicsDisplay = self::renderKeyTopics($metadata->KeyTopics);
         $fields->push(LiteralField::create(
             'AiSeoKeyTopicsHeader',
-            self::renderFieldLabel('Key topics (Helps judge if generated SEO is on track - not shown on frontend)')
+            self::renderFieldLabel(
+                'Key topics - used to verify the AI accurately captured page themes.'
+                . ' This is not shown on the website.'
+            )
         ));
         $fields->push(LiteralField::create('KeyTopicsDisplay', $keyTopicsDisplay));
         $fields->push(HiddenField::create('KeyTopics', '', $metadata->KeyTopics));

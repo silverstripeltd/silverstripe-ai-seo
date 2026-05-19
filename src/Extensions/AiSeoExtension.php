@@ -3,6 +3,7 @@
 namespace SilverstripeLtd\AiSeo\Extensions;
 
 use SilverstripeLtd\AiSeo\Models\GeneratedSeo;
+use SilverstripeLtd\AiSeo\Services\AiSeoAvailabilityService;
 use SilverstripeLtd\AiSeo\Services\JsonLdService;
 use SilverStripe\CMS\Controllers\ContentController;
 use SilverStripe\Core\Convert;
@@ -71,6 +72,9 @@ class AiSeoExtension extends Extension
     public function updateCMSFields(FieldList $fields): void
     {
         $this->updateToolbarContext($fields);
+        if (!$this->canAiSeoInCurrentLocale()) {
+            return;
+        }
 
         $metaField = $fields->dataFieldByName('MetaDescription');
         if (!$metaField) {
@@ -83,7 +87,7 @@ class AiSeoExtension extends Extension
 
         $original = (string)$this->owner->getField('MetaDescription');
         $description = 'This value is managed by the AI SEO module.'
-            . ' Open the Generate SEO using AI modal to edit.';
+            . ' Open the Generate SEO with AI modal to edit.';
         if (trim($original) !== '') {
             $description .= ' ' . sprintf('Previous value: %s', Convert::raw2xml($original));
         }
@@ -93,11 +97,22 @@ class AiSeoExtension extends Extension
     }
 
     /**
+     * Report whether AI SEO can run for the owner's current locale context.
+     */
+    public function canAiSeoInCurrentLocale(): bool
+    {
+        return $this->getAvailabilityService()->canUseAiSeo($this->owner);
+    }
+
+    /**
      * Add hidden record context so the toolbar button can mount beside Share.
      */
     private function updateToolbarContext(FieldList $fields): void
     {
         if (!$this->owner->exists() || !$this->owner->canEdit()) {
+            return;
+        }
+        if (!$this->canAiSeoInCurrentLocale()) {
             return;
         }
 
@@ -222,5 +237,10 @@ class AiSeoExtension extends Extension
 
         $tag = HTML::createTag('script', ['type' => 'application/ld+json'], $payload);
         Requirements::insertHeadTags($tag, 'ai-seo-jsonld');
+    }
+
+    private function getAvailabilityService(): AiSeoAvailabilityService
+    {
+        return Injector::inst()->get(AiSeoAvailabilityService::class);
     }
 }
