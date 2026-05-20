@@ -6,7 +6,7 @@ A Silverstripe CMS 6 module that automatically creates AI-assisted SEO content f
 
 ## Installation
 
-This module is hosted on a private GitHub repository and is not listed on Packagist. To install it, add the following to your project's `composer.json`:
+This module is currently not listed on Packagist. To install it, add the following to your project's `composer.json`:
 
 ```json
 {
@@ -18,7 +18,7 @@ This module is hosted on a private GitHub repository and is not listed on Packag
     ],
     // ...
     "require": {
-        "silverstripeltd/ai-seo": "dev-main"
+        "silverstripeltd/ai-seo": "*"
     }
 }
 ```
