@@ -10,11 +10,20 @@ use SilverStripe\Dev\SapphireTest;
 class AiSeoClientAssetsTest extends SapphireTest
 {
     /**
+     * Resolve the client/src base path whether running standalone or from vendor.
+     */
+    private function clientSrcPath(): string
+    {
+        $vendorPath = BASE_PATH . '/vendor/silverstripeltd/ai-seo/client/src';
+        return is_dir($vendorPath) ? $vendorPath : BASE_PATH . '/client/src';
+    }
+
+    /**
      * Verify jQuery shim is not used in modal and entwine sources.
      */
     public function testClientAssetsAvoidLocalJqueryModule(): void
     {
-        $base = BASE_PATH . '/vendor/silverstripeltd/ai-seo/client/src';
+        $base = $this->clientSrcPath();
         $modal = file_get_contents($base . '/components/AiSeoModal.js');
         $entwine = file_get_contents($base . '/entwine/AiSeoEntwine.js');
         $jqueryHelperExists = file_exists($base . '/lib/jquery.js');
@@ -37,7 +46,7 @@ class AiSeoClientAssetsTest extends SapphireTest
      */
     public function testModalReviewCheckbox(): void
     {
-        $path = BASE_PATH . '/vendor/silverstripeltd/ai-seo/client/src/components/AiSeoModal.js';
+        $path = $this->clientSrcPath() . '/components/AiSeoModal.js';
         $modal = file_get_contents($path);
         $this->assertNotFalse($modal);
         $this->assertStringContainsString('ReviewConfirmed', $modal);
@@ -51,7 +60,7 @@ class AiSeoClientAssetsTest extends SapphireTest
      */
     public function testModalSaveDoesNotAutoClose(): void
     {
-        $path = BASE_PATH . '/vendor/silverstripeltd/ai-seo/client/src/components/AiSeoModal.js';
+        $path = $this->clientSrcPath() . '/components/AiSeoModal.js';
         $modal = file_get_contents($path);
         $this->assertNotFalse($modal);
         $this->assertStringContainsString('isSave', $modal);
@@ -63,7 +72,7 @@ class AiSeoClientAssetsTest extends SapphireTest
      */
     public function testModalTracksEditableFieldChanges(): void
     {
-        $path = BASE_PATH . '/vendor/silverstripeltd/ai-seo/client/src/components/AiSeoModal.js';
+        $path = $this->clientSrcPath() . '/components/AiSeoModal.js';
         $modal = file_get_contents($path);
         $this->assertNotFalse($modal);
         $this->assertStringContainsString('editableFieldNames', $modal);
@@ -75,7 +84,7 @@ class AiSeoClientAssetsTest extends SapphireTest
      */
     public function testToolbarButtonUsesSharedDraftPlacement(): void
     {
-        $path = BASE_PATH . '/vendor/silverstripeltd/ai-seo/client/src/entwine/AiSeoEntwine.js';
+        $path = $this->clientSrcPath() . '/entwine/AiSeoEntwine.js';
         $entwine = file_get_contents($path);
         $this->assertNotFalse($entwine);
         $this->assertStringContainsString('.preview-mode-selector', $entwine);
