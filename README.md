@@ -2,6 +2,8 @@
 
 A Silverstripe CMS 6 module that automatically creates AI-assisted SEO content for page metadata and machine consumption.
 
+![AI SEO modal](docs/ai-seo-modal.png)
+
 ## Installation
 
 This module is hosted on a private GitHub repository and is not listed on Packagist. To install it, add the following to your project's `composer.json`:
