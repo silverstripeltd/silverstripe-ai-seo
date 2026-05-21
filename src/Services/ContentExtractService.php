@@ -15,7 +15,7 @@ class ContentExtractService
     use Extensible;
 
     /**
-     * Build a plain-text content string from the record.
+     * Build a content string from the record, retaining HTML when present.
      */
     public function extract(DataObject $record): string
     {
@@ -29,7 +29,7 @@ class ContentExtractService
             $content = (string)$record->getElementsForSearch();
         }
         if (trim($content) === '' && $record->hasField('Content')) {
-            $content = strip_tags((string)$record->Content);
+            $content = (string)$record->Content;
         }
         $content = trim((string)$content);
         if ($content !== '') {
@@ -41,7 +41,7 @@ class ContentExtractService
     }
 
     /**
-     * Build a plain-text content string from the draft record when possible.
+     * Build a content string from the draft record when possible, retaining HTML when present.
      *
      * @return array{content: string, usedLive: bool, hasUnpublishedChanges: bool}
      */

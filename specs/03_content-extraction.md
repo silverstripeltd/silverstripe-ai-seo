@@ -27,7 +27,7 @@ This handles the Elemental case well, including extensibility — custom block t
 Use the existing Elemental search indexing methods where available, with a fallback for non-Elemental sites:
 
 1. If the page has the `ElementalPageExtension`, call `getElementsForSearch()` to get text content from all blocks.
-2. If the page does not have `ElementalPageExtension` (or it returns empty), fall back to reading the `Content` database field and stripping HTML.
+2. If the page does not have `ElementalPageExtension` (or it returns empty), fall back to reading the `Content` database field with its HTML retained so the AI can use structural cues (headings, lists, links, emphasis) when generating metadata.
 3. Concatenate results with the page's `Title` for context.
 4. Provide an extension hook (`updateExtractedContent` or similar) on the module's content extractor so project-level code can append additional content from custom sources.
 
@@ -39,7 +39,7 @@ The original plan had a phased approach (Content field first, Elemental later). 
 
 ## Content passed to AI
 
-The extracted text is concatenated into a single plain-text string and passed to the AI provider along with basic page metadata (title, URL slug) for context. The AI provider uses this to generate all metadata fields defined in `specs/02_metadata-fields.md`.
+The extracted content is concatenated into a single string and passed to the AI provider along with basic page metadata (title, URL slug) for context. When the Content field is used as the source, its HTML is retained so the AI has richer structural context. The Elemental search path already returns plain text via `getElementsForSearch()`. The AI provider uses this to generate all metadata fields defined in `specs/02_metadata-fields.md`.
 
 ## Content length
 
