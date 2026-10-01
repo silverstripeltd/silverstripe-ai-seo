@@ -4,12 +4,9 @@ namespace SilverstripeLtd\AiSeo\Tests\Jobs;
 
 use SilverstripeLtd\AiSeo\Jobs\GenerateAiSeoJob;
 use SilverstripeLtd\AiSeo\Models\GeneratedSeo;
-use SilverstripeLtd\AiSeo\Providers\ProviderFactory;
 use SilverstripeLtd\AiSeo\Services\SeoGenerationService;
-use SilverstripeLtd\AiSeo\ValueObjects\AiSeoResult;
-use SilverstripeLtd\AiSeo\Tests\StubProviderFactory;
-use SilverstripeLtd\AiSeo\Tests\StubProvider;
-use SilverstripeLtd\AiSeo\Tests\BlockingJobProvider;
+use SilverstripeLtd\AiCore\Provider\ProviderException;
+use SilverstripeLtd\AiSeo\Tests\SeoProviderStub;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Core\Environment;
 use SilverStripe\Core\Injector\Injector;
@@ -32,14 +29,10 @@ class GenerateAiSeoJobTest extends SapphireTest
         parent::setUp();
         Environment::setEnv('AI_SEO_RATE_LIMIT_DELAY', '0');
         Environment::setEnv('AI_SEO_JOB_REQUEUE_DELAY', '0');
-        $providerFactory = new StubProviderFactory(new StubProvider(new AiSeoResult([
+        SeoProviderStub::register([
             'metaDescription' => 'Generated description',
-        ]), ['Fails']));
-        Injector::inst()->registerService($providerFactory, ProviderFactory::class);
-        Injector::inst()->registerService(
-            new SeoGenerationService(null, $providerFactory),
-            SeoGenerationService::class
-        );
+        ], ['Fails']);
+        Injector::inst()->registerService(new SeoGenerationService(), SeoGenerationService::class);
     }
 
     /**
@@ -52,12 +45,8 @@ class GenerateAiSeoJobTest extends SapphireTest
         Environment::setEnv('AI_SEO_JOB_REQUEUE_DELAY', null);
         Environment::setEnv('AI_SEO_PROVIDER', null);
         Environment::setEnv('AI_SEO_API_KEY', '');
-        $defaultFactory = new ProviderFactory();
-        Injector::inst()->registerService($defaultFactory, ProviderFactory::class);
-        Injector::inst()->registerService(
-            new SeoGenerationService(null, $defaultFactory),
-            SeoGenerationService::class
-        );
+        SeoProviderStub::unregister();
+        Injector::inst()->unregisterNamedObject(SeoGenerationService::class);
         parent::tearDown();
     }
 
@@ -102,11 +91,11 @@ class GenerateAiSeoJobTest extends SapphireTest
         $page = SiteTree::create(['Title' => 'Blocking', 'Content' => 'Content']);
         $page->write();
 
-        $blockingFactory = new StubProviderFactory(new BlockingJobProvider());
+        SeoProviderStub::registerFailure(ProviderException::blocking('Missing API key'));
         $job = new GenerateAiSeoJob();
         $job->pagesToProcess = [$page->ID];
-        $job->setGenerationService(new SeoGenerationService(null, $blockingFactory));
-        $this->expectException(\SilverstripeLtd\AiSeo\Exceptions\AIProviderException::class);
+        $job->setGenerationService(new SeoGenerationService());
+        $this->expectException(ProviderException::class);
         $job->process();
     }
 

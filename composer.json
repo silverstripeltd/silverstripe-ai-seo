@@ -4,11 +4,11 @@
     "type": "silverstripe-vendormodule",
     "require": {
         "php": "^8.3",
-        "silverstripe/framework": "^6.1",
+        "silverstripe/framework": "^6.2",
+        "silverstripeltd/silverstripe-ai-core": "^0.1",
         "silverstripe/cms": "^6",
         "silverstripe/admin": "^3",
         "symbiote/silverstripe-queuedjobs": "^6",
-        "guzzlehttp/guzzle": "^7.0",
         "silverstripe/reports": "^6"
     },
     "require-dev": {

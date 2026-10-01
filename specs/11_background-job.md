@@ -43,7 +43,7 @@ For each page:
 ## Error handling
 
 - **Per-page errors:** Log the error (via Silverstripe's `Injector::inst()->get(LoggerInterface::class)`), skip the page, continue to next.
-- **Provider exceptions** (`AIProviderException`): Caught per-page, logged, page skipped.
+- **Provider exceptions** (ai-core `ProviderException`): Caught per-page, logged, page skipped.
 - **Fatal errors** (e.g. missing/invalid API key affecting all pages): The job will fail on the first page and stop. The error is visible in the Queued Jobs CMS interface.
   - The job re-queues a fresh instance even on fatal failure so it can be retried after configuration is fixed.
 

@@ -13,6 +13,24 @@ SilverstripeLtd\AiSeo\Models\GeneratedSeo:
   extensions:
     - SilverStripe\Versioned\Versioned
 
+# Provider defaults for this module. AI_SEO_* environment variables override them, and the
+# shared AI_* variables are used when no AI_SEO_* variable is set.
+SilverstripeLtd\AiCore\Settings\EnvProviderSettings:
+  modules:
+    SEO:
+      provider: gemini
+      max_tokens: 2000
+      request_timeout: 15
+      temperature: 1.0
+      providers:
+        anthropic:
+          model: claude-haiku-4-5
+        openai:
+          model: gpt-5-mini
+        gemini:
+          model: gemini-3.1-flash-lite
+          thinking_level: low
+
 SilverstripeLtd\AiSeo\Services\AiSeoRegenerateRateLimiter:
   max_requests: 10
   window_seconds: 300

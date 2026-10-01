@@ -2,48 +2,30 @@
 
 ## Providers
 
-- **Gemini** — primary provider (default)
-- **OpenAI** — Chat Completions API provider
-- **Anthropic** — Messages API provider
-- **Custom providers** — the built-in factory supports `gemini`, `openai`, and `anthropic` only. To use a custom provider, projects must override the factory via Silverstripe's Injector.
+The provider layer comes from the shared `silverstripeltd/silverstripe-ai-core` package, which every Silverstripe AI module uses.
 
-Gemini requests call the v1beta `generateContent` endpoint and include `thinkingConfig.thinkingLevel` when `AI_SEO_THINKING_LEVEL` is not `none`.
+- **Gemini** - primary provider (default for this module)
+- **OpenAI** - Chat Completions API provider
+- **Anthropic** - Messages API provider
+- **Custom providers** - register them in the ai-core `ProviderFactory.providers` YAML map (see the ai-core README).
+
+The thinking level is passed to whichever vendor is active (Gemini `thinkingConfig.thinkingLevel`, OpenAI `reasoning_effort`, Anthropic `output_config.effort`). The module default sets `low` for Gemini only, so out of the box only Gemini receives one.
 
 ## Provider selection
 
 - One active provider at a time
-- Switching provider should be straightforward (designed for single active provider, not multi-provider routing)
-- Selected via environment variable `AI_SEO_PROVIDER` (default: `gemini`)
+- Selected via environment variable `AI_SEO_PROVIDER`, then the shared `AI_PROVIDER`, then the module YAML default (`gemini`)
 
-## Provider base class
+## Generation service
 
-All providers extend `AbstractAIProvider`, which supplies `generateMetadata()` and shared error handling:
-
-```php
-abstract class AbstractAIProvider
-{
-    /**
-     * Generate all metadata fields for the given content.
-     *
-     * @param string $content The extracted page content (plain text)
-     * @param string $pageTitle The page title for context
-     * @param string $pageUrl The page URL for context
-     * @return AiSeoResult Object containing all generated field values
-     * @throws AIProviderException On unrecoverable failure
-     */
-    public function generateMetadata(string $content, string $pageTitle, string $pageUrl): AiSeoResult;
-}
-```
-
-Concrete providers implement the protected request hooks (`performRequest`, `extractResponseContent`, `isTransientStatus`, and `getDefaultModel`) defined by `AbstractAIProvider`.
-HTTP requests are made with Guzzle (bundled with Silverstripe framework) and respect the configured timeouts.
+`AiSeoClient::generateSeo(string $content, string $pageTitle, string $pageUrl): AiSeoResult` builds the prompts with `PromptService`, sends them through ai-core's `JsonCompletion` with `EnvProviderSettings::forModule('SEO')`, and maps the decoded JSON onto an `AiSeoResult`. `SeoGenerationService` calls it.
 
 ### Generation approach
 
 - **Single API call** generates all metadata fields at once
 - The prompt asks the AI to return a JSON object with keys matching the metadata field names
-- The provider parses the JSON response and returns an `AiSeoResult` value object
-- If the AI response is malformed or missing fields, the provider throws `AIProviderException`
+- The reply is decoded as is, or from the text between the first `{` and the last `}` when it is wrapped in prose or code fences
+- If the AI response is malformed, `ProviderException` is thrown
 
 ### AiSeoResult value object
 
@@ -57,17 +39,19 @@ class AiSeoResult
     public ?string $ogDescription;
     public ?string $summaryLong;
     public ?array $keyEntities;    // decoded JSON array
-    public ?array $keyTopics;      // decoded JSON array
+    public ?string $keyTopics;     // comma separated topics
     public ?array $suggestedFAQs;  // decoded JSON array
 }
 ```
 
 ### Error handling
 
-- **Transient failures** (network timeout, rate limit, 5xx): Throw `AIProviderException` immediately (no retry).
-- **Permanent failures** (invalid API key, 4xx non-rate-limit): Throw `AIProviderException` immediately.
-- **Malformed response** (AI returns invalid JSON, missing required keys): Throw `AIProviderException`.
-- **Callers** (CMS controller, background job) catch `AIProviderException` and handle appropriately — toast notification for CMS, log-and-skip for background job, with blocking failures (e.g. missing/invalid API key) aborting the job.
+Every failure is an ai-core `SilverstripeLtd\AiCore\Provider\ProviderException`:
+
+- **Transient failures** (network timeout, rate limit, 5xx): `isTransient()` is true. Thrown immediately (no retry).
+- **Blocking failures** (missing or invalid API key, 401/403, unknown provider, invalid settings): `isBlocking()` is true.
+- **Permanent failures** (other 4xx, malformed reply): neither flag.
+- **Callers** (CMS controller, background job) catch `ProviderException` and handle it: toast notification for CMS, log-and-skip for the background job, with blocking failures aborting the job.
 
 ### Request timeout
 
@@ -78,12 +62,14 @@ class AiSeoResult
 
 All configuration via environment variables. Env vars are preferred over YAML config because the hosting support team can change env vars and trigger deployments via support ticket, whereas code changes require booking developer time which can take weeks.
 
+Every `AI_SEO_*` provider variable falls back to the shared `AI_*` variable of the same name (`AI_PROVIDER`, `AI_API_KEY`, `AI_MODEL`, ...), so one key in `.env` can serve every AI module. The shared key and model are skipped when `AI_SEO_PROVIDER` names a different provider than `AI_PROVIDER`.
+
 | Environment variable | Description | Default |
 |---|---|---|
 | `AI_SEO_PROVIDER` | Active provider (`gemini`, `openai`, `anthropic`) | `gemini` |
 | `AI_SEO_API_KEY` | API key for the active provider | (required) |
-| `AI_SEO_MODEL` | Model to use (e.g. `gemini-3.1-flash-lite`, `gpt-4.1`) | Provider-specific default |
-| `AI_SEO_THINKING_LEVEL` | Thinking level (`none`, `low`, `medium`, `high`) used by Gemini `thinkingConfig` | `low` |
+| `AI_SEO_MODEL` | Model to use | `gemini-3.1-flash-lite`, `gpt-5-mini` or `claude-haiku-4-5` |
+| `AI_SEO_THINKING_LEVEL` | Thinking level sent to the active vendor (`none` sends nothing) | `low` for Gemini, none for the others |
 | `AI_SEO_TEMPERATURE` | Temperature for generation | `1.0` |
 | `AI_SEO_MAX_TOKENS` | Max tokens in response | `2000` |
 | `AI_SEO_REQUEST_TIMEOUT` | Request timeout in seconds | `15` |
@@ -91,4 +77,4 @@ All configuration via environment variables. Env vars are preferred over YAML co
 
 ### Overriding in project code
 
-Provider defaults (model, thinking level, etc.) can also be overridden via Silverstripe YAML config on the provider class, for cases where env vars aren't suitable. Env vars take precedence over YAML config.
+The defaults live in YAML under `SilverstripeLtd\AiCore\Settings\EnvProviderSettings.modules.SEO` (with per provider overrides under `providers`), for cases where env vars aren't suitable. Env vars take precedence over YAML config.

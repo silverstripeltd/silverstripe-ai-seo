@@ -2,7 +2,7 @@
 
 namespace SilverstripeLtd\AiSeo\Controllers;
 
-use SilverstripeLtd\AiSeo\Exceptions\AIProviderException;
+use SilverstripeLtd\AiCore\Provider\ProviderException;
 use SilverstripeLtd\AiSeo\Extensions\AiSeoExtension;
 use SilverstripeLtd\AiSeo\Forms\AiSeoForm;
 use SilverstripeLtd\AiSeo\Models\GeneratedSeo;
@@ -102,7 +102,7 @@ class AiSeoController extends FormSchemaController
         }
         try {
             $metadata = $generationService->generateForRecord($record, GeneratedSeo::create(), false);
-        } catch (AIProviderException $exception) {
+        } catch (ProviderException $exception) {
             $this->logProviderException($exception, $record);
             $message = $this->getProviderErrorMessage($exception);
             $errors = ValidationResult::create()->addError($message);
@@ -214,7 +214,7 @@ class AiSeoController extends FormSchemaController
     /**
      * Resolve the provider error message based on the environment.
      */
-    private function getProviderErrorMessage(AIProviderException $exception): string
+    private function getProviderErrorMessage(ProviderException $exception): string
     {
         $runningTests = defined('PHPUNIT_COMPOSER_INSTALL');
         if (Director::isDev() && !$runningTests) {
@@ -226,7 +226,7 @@ class AiSeoController extends FormSchemaController
     /**
      * Log provider exceptions with context.
      */
-    private function logProviderException(AIProviderException $exception, DataObject $record): void
+    private function logProviderException(ProviderException $exception, DataObject $record): void
     {
         $logger = Injector::inst()->get(LoggerInterface::class);
         $logger->error('AI provider request failed', [
