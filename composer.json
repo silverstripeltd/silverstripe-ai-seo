@@ -18,6 +18,12 @@
         "silverstripe/behat-extension": "^6",
         "slevomat/coding-standard": "^8"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/silverstripeltd/silverstripe-ai-core"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "SilverstripeLtd\\AiSeo\\": "src/"
