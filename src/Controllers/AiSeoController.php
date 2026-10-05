@@ -2,26 +2,24 @@
 
 namespace SilverstripeLtd\AiSeo\Controllers;
 
-use SilverstripeLtd\AiSeo\Exceptions\AIProviderException;
+use SilverstripeLtd\AiCore\Provider\ProviderException;
 use SilverstripeLtd\AiSeo\Extensions\AiSeoExtension;
 use SilverstripeLtd\AiSeo\Forms\AiSeoForm;
 use SilverstripeLtd\AiSeo\Models\GeneratedSeo;
 use SilverstripeLtd\AiSeo\Services\AiSeoAvailabilityService;
 use SilverstripeLtd\AiSeo\Services\AiSeoStateService;
 use SilverstripeLtd\AiSeo\Services\AiSeoRegenerateRateLimiter;
-use SilverstripeLtd\AiSeo\Services\ContentExtractService;
 use SilverstripeLtd\AiSeo\Services\SeoGenerationService;
+use SilverstripeLtd\AiSeo\Services\SeoReviewService;
 use Psr\Log\LoggerInterface;
 use SilverStripe\Admin\FormSchemaController;
 use SilverStripe\Control\Director;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Core\Injector\Injector;
-use SilverStripe\Core\Validation\ValidationException;
 use SilverStripe\Core\Validation\ValidationResult;
 use SilverStripe\Forms\Form;
 use SilverStripe\ORM\DataObject;
-use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\Security\Security;
 
 /**
@@ -104,7 +102,7 @@ class AiSeoController extends FormSchemaController
         }
         try {
             $metadata = $generationService->generateForRecord($record, GeneratedSeo::create(), false);
-        } catch (AIProviderException $exception) {
+        } catch (ProviderException $exception) {
             $this->logProviderException($exception, $record);
             $message = $this->getProviderErrorMessage($exception);
             $errors = ValidationResult::create()->addError($message);
@@ -134,16 +132,10 @@ class AiSeoController extends FormSchemaController
             $form = $this->buildForm($record, $metadata, '', $hasUnpublishedChanges);
             return $this->getSchemaResponseWithMeta($form, $record, $metadata, $errors);
         }
-        $this->ensureContentHash($metadata, $record);
-        $metadata->ReviewedAt = DBDatetime::now()->getValue();
-        $validationResult = $metadata->validate();
-        if (!$validationResult->isValid()) {
-            throw ValidationException::create($validationResult);
-        }
-        $metadata->write();
+        $metadata = $this->getReviewService()->approve($metadata, Security::getCurrentUser());
         $hasUnpublishedChanges = $this->detectUnpublishedChanges($record);
         $form = $this->buildForm($record, $metadata, '', $hasUnpublishedChanges);
-        return $this->getSchemaResponseWithMeta($form, $record, $metadata, $validationResult);
+        return $this->getSchemaResponseWithMeta($form, $record, $metadata, ValidationResult::create());
     }
 
     /**
@@ -222,7 +214,7 @@ class AiSeoController extends FormSchemaController
     /**
      * Resolve the provider error message based on the environment.
      */
-    private function getProviderErrorMessage(AIProviderException $exception): string
+    private function getProviderErrorMessage(ProviderException $exception): string
     {
         $runningTests = defined('PHPUNIT_COMPOSER_INSTALL');
         if (Director::isDev() && !$runningTests) {
@@ -234,7 +226,7 @@ class AiSeoController extends FormSchemaController
     /**
      * Log provider exceptions with context.
      */
-    private function logProviderException(AIProviderException $exception, DataObject $record): void
+    private function logProviderException(ProviderException $exception, DataObject $record): void
     {
         $logger = Injector::inst()->get(LoggerInterface::class);
         $logger->error('AI provider request failed', [
@@ -296,6 +288,11 @@ class AiSeoController extends FormSchemaController
         return Injector::inst()->get(AiSeoAvailabilityService::class);
     }
 
+    private function getReviewService(): SeoReviewService
+    {
+        return Injector::inst()->get(SeoReviewService::class);
+    }
+
     /**
      * Detect whether the record has unpublished draft changes.
      */
@@ -335,20 +332,6 @@ class AiSeoController extends FormSchemaController
         $metadata->ContentHash = $payload['ContentHash'] ?? $metadata->ContentHash;
         $metadata->GeneratedAt = $payload['GeneratedAt'] ?? $metadata->GeneratedAt;
         $metadata->GenerationNote = $payload['GenerationNote'] ?? $metadata->GenerationNote;
-    }
-
-    /**
-     * Ensure metadata content hash is populated.
-     */
-    private function ensureContentHash(GeneratedSeo $metadata, DataObject $record): void
-    {
-        if ($metadata->ContentHash) {
-            return;
-        }
-
-        $contentExtractor = Injector::inst()->get(ContentExtractService::class);
-        $extracted = $contentExtractor->extractPublished($record);
-        $metadata->ContentHash = $contentExtractor->computeHash($extracted['content']);
     }
 
     /**

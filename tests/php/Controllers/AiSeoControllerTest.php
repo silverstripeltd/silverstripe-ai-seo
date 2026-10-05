@@ -4,22 +4,18 @@ namespace SilverstripeLtd\AiSeo\Tests\Controllers;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use SilverstripeLtd\AiSeo\Controllers\AiSeoController;
-use SilverstripeLtd\AiSeo\ValueObjects\AiSeoResult;
 use SilverstripeLtd\AiSeo\Forms\AiSeoForm;
 use SilverstripeLtd\AiSeo\Models\GeneratedSeo;
-use SilverstripeLtd\AiSeo\Providers\ProviderFactory;
 use SilverstripeLtd\AiSeo\Services\AiSeoRegenerateRateLimiter;
-use SilverstripeLtd\AiSeo\Tests\StubProvider;
-use SilverstripeLtd\AiSeo\Tests\StubProviderFactory;
 use SilverstripeLtd\AiSeo\Tests\RestrictedPage;
-use SilverstripeLtd\AiSeo\Tests\FailingControllerStubProvider;
+use SilverstripeLtd\AiCore\Provider\ProviderException;
+use SilverstripeLtd\AiSeo\Tests\SeoProviderStub;
 use SilverStripe\Core\Environment;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Control\HTTPResponse_Exception;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Control\Session;
 use SilverStripe\Core\Config\Config;
-use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\FunctionalTest;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\FieldList;
@@ -78,10 +74,9 @@ class AiSeoControllerTest extends FunctionalTest
         $this->targetLocale = Locale::get()->filter('Locale', 'mi_NZ')->first();
         FluentState::singleton()->setLocale($this->defaultLocale->Locale);
 
-        $provider = new StubProvider(new AiSeoResult([
+        SeoProviderStub::register([
             'metaDescription' => 'Generated description',
-        ]));
-        Injector::inst()->registerService(new StubProviderFactory($provider), ProviderFactory::class);
+        ]);
     }
 
     /**
@@ -91,7 +86,7 @@ class AiSeoControllerTest extends FunctionalTest
     {
         Config::modify()->set(AiSeoRegenerateRateLimiter::class, 'max_requests', 10);
         Config::modify()->set(AiSeoRegenerateRateLimiter::class, 'window_seconds', 300);
-        Injector::inst()->registerService(new ProviderFactory(), ProviderFactory::class);
+        SeoProviderStub::unregister();
         if (class_exists(Locale::class)) {
             Locale::clearCached();
             FluentState::singleton()->setLocale(null);
@@ -431,8 +426,7 @@ class AiSeoControllerTest extends FunctionalTest
         $page = SiteTree::create(['Title' => 'Test page', 'Content' => 'Content']);
         $page->write();
 
-        $provider = new FailingControllerStubProvider();
-        Injector::inst()->registerService(new StubProviderFactory($provider), ProviderFactory::class);
+        SeoProviderStub::registerFailure(new ProviderException('Provider boom'));
 
         $controller = AiSeoController::create();
         $request = new HTTPRequest(

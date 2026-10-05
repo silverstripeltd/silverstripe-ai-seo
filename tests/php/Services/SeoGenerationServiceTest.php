@@ -2,13 +2,11 @@
 
 namespace SilverstripeLtd\AiSeo\Tests\Services;
 
-use SilverstripeLtd\AiSeo\ValueObjects\AiSeoResult;
 use SilverstripeLtd\AiSeo\Models\GeneratedSeo;
 use SilverstripeLtd\AiSeo\Services\ContentExtractService;
 use SilverstripeLtd\AiSeo\Services\SeoGenerationService;
 use SilverstripeLtd\AiSeo\Tests\EmptyContentObject;
-use SilverstripeLtd\AiSeo\Tests\StubProvider;
-use SilverstripeLtd\AiSeo\Tests\StubProviderFactory;
+use SilverstripeLtd\AiSeo\Tests\SeoProviderStub;
 use SilverstripeLtd\AiSeo\Tests\EmptyContentExtractService;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Dev\SapphireTest;
@@ -24,16 +22,23 @@ class SeoGenerationServiceTest extends SapphireTest
     ];
 
     /**
+     * Restore the real provider factory.
+     */
+    protected function tearDown(): void
+    {
+        SeoProviderStub::unregister();
+        parent::tearDown();
+    }
+
+    /**
      * Ensure generated metadata is applied and persisted.
      */
     public function testGeneratesMetadataPipeline(): void
     {
-        $provider = new StubProvider(new AiSeoResult([
+        SeoProviderStub::register([
             'metaDescription' => 'Meta Description',
-        ]));
-
-        $factory = new StubProviderFactory($provider);
-        $service = new SeoGenerationService(new ContentExtractService(), $factory);
+        ]);
+        $service = new SeoGenerationService(new ContentExtractService());
 
         $page = SiteTree::create([
             'Title' => 'Sample page',
@@ -56,9 +61,8 @@ class SeoGenerationServiceTest extends SapphireTest
      */
     public function testHandlesEmptyContent(): void
     {
-        $provider = new StubProvider(new AiSeoResult());
-        $factory = new StubProviderFactory($provider);
-        $service = new SeoGenerationService(new EmptyContentExtractService(), $factory);
+        SeoProviderStub::register([]);
+        $service = new SeoGenerationService(new EmptyContentExtractService());
 
         $record = EmptyContentObject::create(['Name' => 'Empty']);
         $record->write();
@@ -72,11 +76,10 @@ class SeoGenerationServiceTest extends SapphireTest
      */
     public function testGenerateForRecordSetsPublishedFlags(): void
     {
-        $provider = new StubProvider(new AiSeoResult([
+        SeoProviderStub::register([
             'metaDescription' => 'Meta Description',
-        ]));
-        $factory = new StubProviderFactory($provider);
-        $service = new SeoGenerationService(new ContentExtractService(), $factory);
+        ]);
+        $service = new SeoGenerationService(new ContentExtractService());
 
         $page = SiteTree::create([
             'Title' => 'Live title',
@@ -111,7 +114,7 @@ class SeoGenerationServiceTest extends SapphireTest
                 'answer' => '<i>It builds rockets.</i>',
             ],
         ];
-        $provider = new StubProvider(new AiSeoResult([
+        SeoProviderStub::register([
             'metaDescription' => 'Plain description',
             'ogTitle' => '<strong>Social title</strong>',
             'ogDescription' => '<p>Social description</p>',
@@ -119,9 +122,8 @@ class SeoGenerationServiceTest extends SapphireTest
             'keyEntities' => $keyEntities,
             'keyTopics' => '<span>Topic one</span>, Topic two',
             'suggestedFAQs' => $suggestedFaqs,
-        ]));
-        $factory = new StubProviderFactory($provider);
-        $service = new SeoGenerationService(new ContentExtractService(), $factory);
+        ]);
+        $service = new SeoGenerationService(new ContentExtractService());
 
         $page = SiteTree::create([
             'Title' => 'Sample page',

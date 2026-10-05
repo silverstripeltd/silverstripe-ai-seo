@@ -57,24 +57,35 @@ All configuration is via environment variables (e.g. in your webserver env or `.
 
 ### Provider
 
-Set the AI provider and API key. Gemini, OpenAI, and Anthropic are supported out of the box. Custom providers can be added by extending `AbstractAIProvider`.
+Set the AI provider and API key. Gemini, OpenAI, and Anthropic are supported out of the box through the shared `silverstripeltd/silverstripe-ai-core` package, which also documents how to add custom providers.
 
 ```bash
 AI_SEO_PROVIDER=gemini              # gemini (default), openai, or anthropic
 AI_SEO_API_KEY=your-api-key         # API key for the chosen provider
 ```
 
+Every `AI_SEO_*` provider variable falls back to the shared `AI_*` variable of the same name, so one set of credentials can serve every AI module on the site:
+
+```bash
+AI_PROVIDER=anthropic
+AI_API_KEY=your-api-key
+```
+
+The shared key and model are not used while `AI_SEO_PROVIDER` names a different provider than `AI_PROVIDER`.
+
 ### Model
 
 Control which model is used and how it generates responses. All optional - sensible defaults are used if omitted.
 
 ```bash
-AI_SEO_MODEL=gemini-3.1-flash-lite  # Model identifier (provider-specific)
-AI_SEO_THINKING_LEVEL=low           # Thinking effort: none, low, medium, or high
+AI_SEO_MODEL=gemini-3.1-flash-lite  # Defaults: gemini-3.1-flash-lite, gpt-5-mini, claude-haiku-4-5
+AI_SEO_THINKING_LEVEL=low           # Sent to the active vendor; default low for Gemini only, none sends nothing
 AI_SEO_TEMPERATURE=1.0              # Sampling temperature (0.0–1.0)
 AI_SEO_MAX_TOKENS=2000              # Max tokens in AI response
 AI_SEO_REQUEST_TIMEOUT=15           # Timeout per AI request in seconds
 ```
+
+These defaults are module YAML under `SilverstripeLtd\AiCore\Settings\EnvProviderSettings.modules.SEO` and can be overridden there as well.
 
 ### Queued jobs
 

@@ -4,7 +4,6 @@ namespace SilverstripeLtd\AiSeo\Services;
 
 use SilverstripeLtd\AiSeo\ValueObjects\AiSeoResult;
 use SilverstripeLtd\AiSeo\Models\GeneratedSeo;
-use SilverstripeLtd\AiSeo\Providers\ProviderFactory;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBDatetime;
@@ -15,17 +14,17 @@ use SilverStripe\ORM\FieldType\DBDatetime;
 class SeoGenerationService
 {
     private ContentExtractService $contentExtractor;
-    private ProviderFactory $providerFactory;
+    private AiSeoClient $client;
 
     /**
      * Create the service with optional dependencies.
      */
     public function __construct(
         ?ContentExtractService $contentExtractor = null,
-        ?ProviderFactory $providerFactory = null
+        ?AiSeoClient $client = null
     ) {
         $this->contentExtractor = $contentExtractor ?: Injector::inst()->get(ContentExtractService::class);
-        $this->providerFactory = $providerFactory ?: Injector::inst()->get(ProviderFactory::class);
+        $this->client = $client ?: Injector::inst()->get(AiSeoClient::class);
     }
 
     /**
@@ -51,8 +50,7 @@ class SeoGenerationService
         $hash = $this->contentExtractor->computeHash($content);
         $pageTitle = $record->hasField('Title') ? (string)$record->Title : $record->ClassName;
         $pageUrl = method_exists($record, 'AbsoluteLink') ? $record->AbsoluteLink() : '';
-        $provider = $this->providerFactory->getProvider();
-        $result = $provider->generateSeo($content, $pageTitle, $pageUrl);
+        $result = $this->client->generateSeo($content, $pageTitle, $pageUrl);
         $this->applyResult($metadata, $result);
         $metadata->ContentHash = $hash;
         $metadata->GeneratedAt = DBDatetime::now()->getValue();

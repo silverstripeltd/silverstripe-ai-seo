@@ -2,7 +2,7 @@
 
 namespace SilverstripeLtd\AiSeo\Jobs;
 
-use SilverstripeLtd\AiSeo\Exceptions\AIProviderException;
+use SilverstripeLtd\AiCore\Provider\ProviderException;
 use SilverstripeLtd\AiSeo\Services\AiSeoStateService;
 use SilverstripeLtd\AiSeo\Services\SeoGenerationService;
 use Psr\Log\LoggerInterface;
@@ -122,7 +122,7 @@ class GenerateAiSeoJob extends AbstractQueuedJob
                 $this->succeededCount++;
             }
             $logger->info(sprintf('AI SEO job: processed page ID %d (%s)', $page->ID, $page->Title));
-        } catch (AIProviderException $exception) {
+        } catch (ProviderException $exception) {
             $this->failedCount++;
             $logger->error(sprintf(
                 'AI SEO job: failed page %d (%s): %s',
